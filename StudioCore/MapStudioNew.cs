@@ -19,7 +19,6 @@ namespace StudioCore
         private Sdl2Window _window;
         private GraphicsDevice _gd;
         private CommandList MainWindowCommandList;
-        private CommandList GuiCommandList;
 
         private bool _windowResized = true;
         private bool _windowMoved = true;
@@ -43,10 +42,6 @@ namespace StudioCore
 
         private ImGuiRenderer ImguiRenderer;
 
-        private bool _msbEditorFocused = false;
-        private MsbEditor.MsbEditorScreen MSBEditor;
-        private bool _modelEditorFocused = false;
-        private MsbEditor.ModelEditorScreen ModelEditor;
         private bool _paramEditorFocused = false;
         private MsbEditor.ParamEditorScreen ParamEditor;
         private bool _textEditorFocused = false;
@@ -115,14 +110,10 @@ namespace StudioCore
 
             Scene.Renderer.Initialize(_gd);
 
-            ImguiRenderer = new ImGuiRenderer(_gd, _gd.SwapchainFramebuffer.OutputDescription, CFG.Current.GFX_Display_Width,
-                CFG.Current.GFX_Display_Height, ColorSpaceHandling.Legacy);
+            ImguiRenderer = new ImGuiRenderer(_gd, _gd.SwapchainFramebuffer.OutputDescription, CFG.Current.GFX_Display_Width, CFG.Current.GFX_Display_Height);
             MainWindowCommandList = factory.CreateCommandList();
-            GuiCommandList = factory.CreateCommandList();
 
             _assetLocator = new AssetLocator();
-            MSBEditor = new MsbEditor.MsbEditorScreen(_window, _gd, _assetLocator);
-            ModelEditor = new MsbEditor.ModelEditorScreen(_window, _gd, _assetLocator);
             ParamEditor = new MsbEditor.ParamEditorScreen(_window, _gd);
             TextEditor = new MsbEditor.TextEditorScreen(_window, _gd);
 
@@ -257,7 +248,6 @@ namespace StudioCore
             }
 
             //DestroyAllObjects();
-            Resource.ResourceManager.Shutdown();
             _gd.Dispose();
             CFG.Save();
 
@@ -271,8 +261,6 @@ namespace StudioCore
             MsbEditor.ParamBank.ReloadParams();
             MsbEditor.FMGBank.ReloadFMGs();
             MsbEditor.MtdBank.ReloadMtds();
-            MSBEditor.OnProjectChanged(_projectSettings);
-            ModelEditor.OnProjectChanged(_projectSettings);
             ParamEditor.OnProjectChanged(_projectSettings);
             TextEditor.OnProjectChanged(_projectSettings);
         }
@@ -320,31 +308,6 @@ namespace StudioCore
         {
             ImGui.PopStyleColor(26);
             ImGui.PopStyleVar(4);
-        }
-
-        private void DumpFlverLayouts()
-        {
-            var browseDlg = new System.Windows.Forms.SaveFileDialog()
-            {
-                Filter = "Text file (*.txt) |*.TXT",
-                ValidateNames = true,
-            };
-
-            if (browseDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                using (var file = new StreamWriter(browseDlg.FileName))
-                {
-                    foreach (var mat in Resource.FlverResource.MaterialLayouts)
-                    {
-                        file.WriteLine(mat.Key + ":");
-                        foreach (var member in mat.Value)
-                        {
-                            file.WriteLine($@"{member.Index}: {member.Type.ToString()}: {member.Semantic.ToString()}");
-                        }
-                        file.WriteLine();
-                    }
-                }
-            }
         }
 
         private bool AttemptLoadProject(ProjectSettings settings, string filename, bool updateRecents=true)
@@ -527,14 +490,6 @@ namespace StudioCore
                     }
                     if (ImGui.MenuItem("Save", "Ctrl-S"))
                     {
-                        if (_msbEditorFocused)
-                        {
-                            MSBEditor.Save();
-                        }
-                        if (_modelEditorFocused)
-                        {
-                            ModelEditor.Save();
-                        }
                         if (_paramEditorFocused)
                         {
                             ParamEditor.Save();
@@ -546,26 +501,12 @@ namespace StudioCore
                     }
                     if (ImGui.MenuItem("Save All", ""))
                     {
-                        MSBEditor.SaveAll();
-                        ModelEditor.SaveAll();
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
                     }
-                    if (Resource.FlverResource.CaptureMaterialLayouts && ImGui.MenuItem("Dump Flver Layouts (Debug)", ""))
-                    {
-                        DumpFlverLayouts();
-                    }
                     ImGui.EndMenu();
                 }
-                if (_msbEditorFocused)
-                {
-                    MSBEditor.DrawEditorMenu();
-                }
-                else if (_modelEditorFocused)
-                {
-                    ModelEditor.DrawEditorMenu();
-                }
-                else if (_paramEditorFocused)
+                if (_paramEditorFocused)
                 {
                     ParamEditor.DrawEditorMenu();
                 }
@@ -754,36 +695,6 @@ namespace StudioCore
                 mapcmds = commandsplit.Skip(1).ToArray();
                 ImGui.SetNextWindowFocus();
             }
-            if (ImGui.Begin("Map Editor"))
-            {
-                ImGui.PopStyleVar(1);
-                MSBEditor.OnGUI(mapcmds);
-                ImGui.End();
-                _msbEditorFocused = true;
-                MSBEditor.Update(deltaseconds);
-            }
-            else
-            {
-                ImGui.PopStyleVar(1);
-                _msbEditorFocused = false;
-                ImGui.End();
-            }
-
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0.0f, 0.0f));
-            if (ImGui.Begin("Model Editor"))
-            {
-                ImGui.PopStyleVar(1);
-                ModelEditor.OnGUI();
-                _modelEditorFocused = true;
-                ModelEditor.Update(deltaseconds);
-            }
-            else
-            {
-                ImGui.PopStyleVar(1);
-                _modelEditorFocused = false;
-            }
-            ImGui.End();
-
 
             string[] paramcmds = null;
             if (commandsplit != null && commandsplit[0] == "param")
@@ -824,7 +735,7 @@ namespace StudioCore
             ImGui.PopStyleVar(2);
             UnapplyStyle();
 
-            Resource.ResourceManager.UpdateTasks();
+            //Resource.ResourceManager.UpdateTasks();
 
             if (!_firstframe)
             {
@@ -882,8 +793,6 @@ namespace StudioCore
                 //_sc.RecreateWindowSizedResources(_gd, cl);
                 RecreateWindowFramebuffers(cl);
                 ImguiRenderer.WindowResized(width, height);
-                MSBEditor.EditorResized(_window, _gd);
-                ModelEditor.EditorResized(_window, _gd);
                 cl.End();
                 _gd.SubmitCommands(cl);
                 cl.Dispose();
@@ -894,14 +803,6 @@ namespace StudioCore
                 _windowMoved = false;
                 CFG.Current.GFX_Display_X = x;
                 CFG.Current.GFX_Display_Y = y;
-            }
-
-            if (_newSampleCount != null)
-            {
-                //_sc.MainSceneSampleCount = _newSampleCount.Value;
-                _newSampleCount = null;
-                //DestroyAllObjects();
-                //CreateAllObjects();
             }
 
             //_frameCommands.Begin();
@@ -921,24 +822,15 @@ namespace StudioCore
             //MainWindowCommandList.End();
             //_gd.SubmitCommands(MainWindowCommandList);
             //_gd.WaitForIdle();
-            if (_msbEditorFocused)
-            {
-                MSBEditor.Draw(_gd, MainWindowCommandList);
-            }
-            if (_modelEditorFocused)
-            {
-                ModelEditor.Draw(_gd, MainWindowCommandList);
-            }
-            var fence = Scene.Renderer.Frame(MainWindowCommandList, false);
             //GuiCommandList.Begin();
             //GuiCommandList.SetFramebuffer(_gd.SwapchainFramebuffer);
+            var fence = Scene.Renderer.Frame(MainWindowCommandList, false);
             MainWindowCommandList.SetFullViewport(0);
             MainWindowCommandList.SetFullScissorRects();
             ImguiRenderer.Render(_gd, MainWindowCommandList);
             //GuiCommandList.End();
             MainWindowCommandList.End();
             _gd.SubmitCommands(MainWindowCommandList, fence);
-            Scene.Renderer.SubmitPostDrawCommandLists();
             //Scene.SceneRenderPipeline.TestUpdateView(_gd, MainWindowCommandList, TestWorldView.CameraTransform.CameraViewMatrix);
 
             _gd.SwapBuffers();

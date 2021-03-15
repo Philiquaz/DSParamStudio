@@ -17,9 +17,10 @@ namespace StudioCore
     /// </summary>
     public class ImGuiRenderer : IDisposable
     {
+        public static TexturePool GlobalTexturePool { get; private set; }
+
         private GraphicsDevice _gd;
         private readonly Assembly _assembly;
-        private ColorSpaceHandling _colorSpaceHandling;
 
         // Device objects
         private DeviceBuffer _vertexBuffer;
@@ -61,25 +62,14 @@ namespace StudioCore
         /// <param name="width">The initial width of the rendering target. Can be resized.</param>
         /// <param name="height">The initial height of the rendering target. Can be resized.</param>
         public ImGuiRenderer(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
-            : this(gd, outputDescription, width, height, ColorSpaceHandling.Legacy) { }
-
-        /// <summary>
-        /// Constructs a new ImGuiRenderer.
-        /// </summary>
-        /// <param name="gd">The GraphicsDevice used to create and update resources.</param>
-        /// <param name="outputDescription">The output format.</param>
-        /// <param name="width">The initial width of the rendering target. Can be resized.</param>
-        /// <param name="height">The initial height of the rendering target. Can be resized.</param>
-        /// <param name="colorSpaceHandling">Identifies how the renderer should treat vertex colors.</param>
-        public ImGuiRenderer(GraphicsDevice gd, OutputDescription outputDescription, int width, int height, ColorSpaceHandling colorSpaceHandling)
         {
             _gd = gd;
             _assembly = typeof(ImGuiRenderer).GetTypeInfo().Assembly;
-            _colorSpaceHandling = colorSpaceHandling;
             _windowWidth = width;
             _windowHeight = height;
 
-            _fontTexture = Renderer.GlobalTexturePool.AllocateTextureDescriptor();
+            GlobalTexturePool = new TexturePool(gd, "globalTextures", 5000);
+            _fontTexture = GlobalTexturePool.AllocateTextureDescriptor();
 
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
@@ -113,11 +103,8 @@ namespace StudioCore
         }
 
         public void CreateDeviceResources(GraphicsDevice gd, OutputDescription outputDescription)
-            => CreateDeviceResources(gd, outputDescription, _colorSpaceHandling);
-        public void CreateDeviceResources(GraphicsDevice gd, OutputDescription outputDescription, ColorSpaceHandling colorSpaceHandling)
         {
             _gd = gd;
-            _colorSpaceHandling = colorSpaceHandling;
             ResourceFactory factory = gd.ResourceFactory;
             _vertexBuffer = factory.CreateBuffer(new BufferDescription(10000, BufferUsage.VertexBuffer | BufferUsage.Dynamic));
             _vertexBuffer.Name = "ImGui.NET Vertex Buffer";
@@ -156,9 +143,9 @@ namespace StudioCore
                     new[]
                     {
                         new SpecializationConstant(0, gd.IsClipSpaceYInverted),
-                        new SpecializationConstant(1, _colorSpaceHandling == ColorSpaceHandling.Legacy),
+                        new SpecializationConstant(1, true),
                     }),
-                new ResourceLayout[] { _layout, Renderer.GlobalTexturePool.GetLayout() },
+                new ResourceLayout[] { _layout, GlobalTexturePool.GetLayout() },
                 outputDescription,
                 ResourceBindingModel.Default);
             _pipeline = factory.CreateGraphicsPipeline(ref pd);
@@ -264,26 +251,25 @@ namespace StudioCore
         private byte[] LoadEmbeddedShaderCode(
             ResourceFactory factory,
             string name,
-            ShaderStages stage,
-            ColorSpaceHandling colorSpaceHandling)
+            ShaderStages stage)
         {
             switch (factory.BackendType)
             {
                 case GraphicsBackend.Direct3D11:
                 {
-                    if (stage == ShaderStages.Vertex && colorSpaceHandling == ColorSpaceHandling.Legacy) { name += "-legacy"; }
+                    if (stage == ShaderStages.Vertex) { name += "-legacy"; }
                     string resourceName = name + ".hlsl.bytes";
                     return GetEmbeddedResourceBytes(resourceName);
                 }
                 case GraphicsBackend.OpenGL:
                 {
-                    if (stage == ShaderStages.Vertex && colorSpaceHandling == ColorSpaceHandling.Legacy) { name += "-legacy"; }
+                    if (stage == ShaderStages.Vertex) { name += "-legacy"; }
                     string resourceName = name + ".glsl";
                     return GetEmbeddedResourceBytes(resourceName);
                 }
                 case GraphicsBackend.OpenGLES:
                 {
-                    if (stage == ShaderStages.Vertex && colorSpaceHandling == ColorSpaceHandling.Legacy) { name += "-legacy"; }
+                    if (stage == ShaderStages.Vertex) { name += "-legacy"; }
                     string resourceName = name + ".glsles";
                     return GetEmbeddedResourceBytes(resourceName);
                 }
@@ -371,6 +357,11 @@ namespace StudioCore
         /// </summary>
         public unsafe void Render(GraphicsDevice gd, CommandList cl)
         {
+            if (GlobalTexturePool.DescriptorTableDirty)
+            {
+                GlobalTexturePool.RegenerateDescriptorTables();
+                GlobalTexturePool.CleanTexturePool();
+            }
             if (_frameBegun)
             {
                 _frameBegun = false;
@@ -618,7 +609,7 @@ namespace StudioCore
                                 cl.SetGraphicsResourceSet(1, GetImageResourceSet(pcmd.TextureId));
                             }
                         }*/
-                        Renderer.GlobalTexturePool.BindTexturePool(cl, 1);
+                        GlobalTexturePool.BindTexturePool(cl, 1);
 
                         cl.SetScissorRect(
                             0,

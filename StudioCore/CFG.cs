@@ -220,8 +220,6 @@ namespace StudioCore
         public List<RecentProject> RecentProjects { get; set; } = new List<RecentProject>();
         public GameType Game_Type { get; set; } = GameType.Undefined;
 
-        public Scene.RenderFilter LastSceneFilter = Scene.RenderFilter.All;
-
         public bool EnableTexturing { get; set; } = false;
 
         public int GFX_Display_Width { get; set; } = 1920;

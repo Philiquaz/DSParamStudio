@@ -11,7 +11,7 @@ namespace StudioCore
     /// </summary>
     public static class FeatureFlags
     {
-        public static bool EnableEnhancedParamEditor = false;
+        public static bool EnableEnhancedParamEditor = true;
 
         public static bool LoadDS3Navmeshes = false;
 
