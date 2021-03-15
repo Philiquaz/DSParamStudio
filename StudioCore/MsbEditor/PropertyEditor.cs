@@ -29,7 +29,7 @@ namespace StudioCore.MsbEditor
             ContextActionManager = manager;
         }
 
-        private bool PropertyRow(Type typ, object oldval, out object newval, bool isBool, string propname=null)
+        private bool PropertyRow(Type typ, object oldval, out object newval, bool isBool)
         {
             try
             {
@@ -286,13 +286,13 @@ namespace StudioCore.MsbEditor
         // Many parameter options, which may be simplified.
         private void PropEditorPropInfoRow(object rowOrWrappedObject, PropertyInfo prop, string visualName, ref int id)
         {
-            PropEditorPropRow(prop.GetValue(rowOrWrappedObject), ref id, visualName, null, prop.PropertyType, null, prop, rowOrWrappedObject);
+            PropEditorPropRow(prop.GetValue(rowOrWrappedObject), ref id, visualName, null, prop.PropertyType, prop, null);
         }
         private void PropEditorPropCellRow(PARAM.Cell cell, ref int id)
         {
-            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.Def.InternalName, cell.GetType().GetProperty("Value"), cell);
+            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell);
         }
-        private void PropEditorPropRow(object oldval, ref int id, string visualName, FieldMetaData cellMeta, Type propType, string nullableName, PropertyInfo proprow, object paramRowOrCell)
+        private void PropEditorPropRow(object oldval, ref int id, string visualName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell)
         {
             List<string> RefTypes = cellMeta == null ? null : cellMeta.RefTypes;
             string VirtualRef = cellMeta == null ? null : cellMeta.VirtualRef;
@@ -317,13 +317,13 @@ namespace StudioCore.MsbEditor
             ImGui.SetNextItemWidth(-1);
             bool changed = false;
 
-            bool matchDefault = paramRowOrCell.GetType() == typeof(PARAM.Cell) && ((PARAM.Cell)paramRowOrCell).Def.Default.Equals(oldval);
+            bool matchDefault = nullableCell != null && nullableCell.Def.Default.Equals(oldval);
             if (matchDefault)
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1.0f));
             else if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null)
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 1.0f, 1.0f));
 
-            changed = PropertyRow(propType, oldval, out newval, IsBool, nullableName);
+            changed = PropertyRow(propType, oldval, out newval, IsBool);
             bool committed = ImGui.IsItemDeactivatedAfterEdit();
             if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null || matchDefault)
                 ImGui.PopStyleColor();
@@ -339,7 +339,7 @@ namespace StudioCore.MsbEditor
                 committed = true;
             }
 
-            UpdateProperty(proprow, paramRowOrCell, newval, changed, committed);
+            UpdateProperty(proprow, nullableCell, newval, changed, committed);
             ImGui.NextColumn();
             ImGui.PopID();
             id++;

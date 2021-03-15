@@ -142,20 +142,17 @@ namespace StudioCore.MsbEditor
                         EditorActionManager.ExecuteAction(act);
                     }
                 }
-                if (FeatureFlags.EnableEnhancedParamEditor)
+                if (ImGui.MenuItem("Mass Edit", null, false, true))
                 {
-                    if (ImGui.MenuItem("Mass Edit", null, false, true))
-                    {
-                        EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
-                    }
-                    if (ImGui.MenuItem("Export CSV", null, false, _activeView._selection.paramSelectionExists()))
-                    {
-                        EditorCommandQueue.AddCommand($@"param/menu/massEditCSVExport");
-                    }
-                    if (ImGui.MenuItem("Import CSV", null, false, _activeView._selection.paramSelectionExists()))
-                    {
-                        EditorCommandQueue.AddCommand($@"param/menu/massEditCSVImport");
-                    }
+                    EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
+                }
+                if (ImGui.MenuItem("Export CSV", null, false, _activeView._selection.paramSelectionExists()))
+                {
+                    EditorCommandQueue.AddCommand($@"param/menu/massEditCSVExport");
+                }
+                if (ImGui.MenuItem("Import CSV", null, false, _activeView._selection.paramSelectionExists()))
+                {
+                    EditorCommandQueue.AddCommand($@"param/menu/massEditCSVImport");
                 }
                 ImGui.EndMenu();
             }
@@ -669,16 +666,13 @@ namespace StudioCore.MsbEditor
             }
             else
             {
-                if (FeatureFlags.EnableEnhancedParamEditor)
-                {
-                    ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
-                    UIHints.AddImGuiHintButton("MassEditHint", UIHints.SearchBarHint);
-                    ImGui.InputText("Search rows...", ref _selection.getCurrentSearchString(), 256);
-                    if(ImGui.IsItemActive())
-                        _paramEditor._isSearchBarActive = true;
-                    else
-                        _paramEditor._isSearchBarActive = false;
-                }
+                ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
+                UIHints.AddImGuiHintButton("MassEditHint", UIHints.SearchBarHint);
+                ImGui.InputText("Search rows...", ref _selection.getCurrentSearchString(), 256);
+                if(ImGui.IsItemActive())
+                    _paramEditor._isSearchBarActive = true;
+                else
+                    _paramEditor._isSearchBarActive = false;
                 ImGui.BeginChild("rows"+_selection.getActiveParam());
                 IParamDecorator decorator = null;
                 if (_paramEditor._decorators.ContainsKey(_selection.getActiveParam()))
@@ -688,21 +682,14 @@ namespace StudioCore.MsbEditor
 
                 PARAM para = ParamBank.Params[_selection.getActiveParam()];
                 List<PARAM.Row> p;
-                if (FeatureFlags.EnableEnhancedParamEditor)
+                Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentSearchString());
+                if (!m.Success)
                 {
-                    Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentSearchString());
-                    if (!m.Success)
-                    {
-                        p = para.Rows;
-                    }
-                    else
-                    {
-                        p = MassParamEditRegex.GetMatchingParamRows(para, m, true, true);
-                    }
+                    p = para.Rows;
                 }
                 else
                 {
-                    p = para.Rows;
+                    p = MassParamEditRegex.GetMatchingParamRows(para, m, true, true);
                 }
 
                 scrollTo = 0;

@@ -14,7 +14,7 @@ namespace StudioCore
 {
     public class MapStudioNew
     {
-        private static string _version = "Preview 11";
+        private static string _version = "Concept 0.1";
 
         private Sdl2Window _window;
         private GraphicsDevice _gd;
@@ -26,19 +26,14 @@ namespace StudioCore
 
         private static double _desiredFrameLengthSeconds = 1.0 / 20.0f;
         private static bool _limitFrameRate = true;
-        //private static FrameTimeAverager _fta = new FrameTimeAverager(0.666);
 
         private event Action<int, int> _resizeHandled;
 
-        private int _msaaOption = 0;
-        private TextureSampleCount? _newSampleCount;
 
         // Window framebuffer
         private ResourceLayout TextureSamplerResourceLayout;
         private Texture MainWindowColorTexture;
-        private TextureView MainWindowResolvedColorView;
         private Framebuffer MainWindowFramebuffer;
-        private ResourceSet MainWindowResourceSet;
 
         private ImGuiRenderer ImguiRenderer;
 
@@ -64,12 +59,6 @@ namespace StudioCore
         {
             CFG.AttemptLoadOrDefault();
 
-            if (UseRenderdoc)
-            {
-                RenderDoc.Load(out RenderDocManager);
-                RenderDocManager.OverlayEnabled = false;
-            }
-
             WindowCreateInfo windowCI = new WindowCreateInfo
             {
                 X = CFG.Current.GFX_Display_X,
@@ -77,7 +66,7 @@ namespace StudioCore
                 WindowWidth = CFG.Current.GFX_Display_Width,
                 WindowHeight = CFG.Current.GFX_Display_Height,
                 WindowInitialState = WindowState.Maximized,
-                WindowTitle = "Dark Souls Map Studio " + _version + " by Katalash",
+                WindowTitle = "Dark Souls Param Studio " + _version,
             };
             GraphicsDeviceOptions gdOptions = new GraphicsDeviceOptions(false, PixelFormat.R32_Float, true, ResourceBindingModel.Improved, true, true, _colorSrgb);
 
@@ -159,7 +148,6 @@ namespace StudioCore
                 cfg.GlyphMinAdvanceX = 12.0f;
                 cfg.OversampleH = 5;
                 cfg.OversampleV = 5;
-                ImFontGlyphRangesBuilder b = new ImFontGlyphRangesBuilder();
 
                 fixed (ushort* r = ranges)
                 {
@@ -185,21 +173,6 @@ namespace StudioCore
 
         public void Run()
         {
-            /*Task.Run(() =>
-            {
-                while (true)
-                {
-                    Thread.Sleep(5000);
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-
-                    GC.Collect();
-                }
-            });*/
-
-            // Flush geometry megabuffers for editor geometry
-            //Renderer.GeometryBufferAllocator.FlushStaging();
-
             long previousFrameTicks = 0;
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -420,7 +393,7 @@ namespace StudioCore
             }
             var dsid = ImGui.GetID("DockSpace");
             ImGui.DockSpace(dsid, new Vector2(0, 0), ImGuiDockNodeFlags.NoSplit);
-            ImGui.PopStyleVar(1);
+            ImGui.PopStyleVar(3);
             ImGui.End();
 
             bool newProject = false;
@@ -436,11 +409,6 @@ namespace StudioCore
                     else
                     {
                         ImGui.MenuItem($@"Settings: {_projectSettings.ProjectName}");
-                    }
-
-                    if (ImGui.MenuItem("Enable Texturing (alpha)", "", CFG.Current.EnableTexturing))
-                    {
-                        CFG.Current.EnableTexturing = !CFG.Current.EnableTexturing;
                     }
 
                     if (ImGui.MenuItem("New Project", "CTRL+N") || InputTracker.GetControlShortcut(Key.I))
@@ -684,7 +652,7 @@ namespace StudioCore
             }
             ImGui.PopStyleVar(3);
 
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(8, 8));
             if (FirstFrame)
             {
                 ImGui.SetNextWindowFocus();
@@ -719,7 +687,6 @@ namespace StudioCore
                 textcmds = commandsplit.Skip(1).ToArray();
                 ImGui.SetNextWindowFocus();
             }
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(4, 4));
             if (ImGui.Begin("Text Editor"))
             {
                 TextEditor.OnGUI(textcmds);
@@ -732,10 +699,7 @@ namespace StudioCore
             ImGui.End();
             ImGui.PopStyleVar();
 
-            ImGui.PopStyleVar(2);
             UnapplyStyle();
-
-            //Resource.ResourceManager.UpdateTasks();
 
             if (!_firstframe)
             {
@@ -748,7 +712,6 @@ namespace StudioCore
         {
             MainWindowColorTexture?.Dispose();
             MainWindowFramebuffer?.Dispose();
-            MainWindowResourceSet?.Dispose();
 
             var factory = _gd.ResourceFactory;
             _gd.GetPixelFormatSupport(
@@ -767,7 +730,6 @@ namespace StudioCore
                 TextureSampleCount.Count1);
             MainWindowColorTexture = factory.CreateTexture(ref mainColorDesc);
             MainWindowFramebuffer = factory.CreateFramebuffer(new FramebufferDescription(null, MainWindowColorTexture));
-            //MainWindowResourceSet = factory.CreateResourceSet(new ResourceSetDescription(TextureSamplerResourceLayout, MainWindowResolvedColorView, _gd.PointSampler));
         }
 
         private void Draw()
@@ -786,11 +748,9 @@ namespace StudioCore
                 CFG.Current.GFX_Display_Height = height;
 
                 _gd.ResizeMainWindow((uint)width, (uint)height);
-                //_scene.Camera.WindowResized(width, height);
                 _resizeHandled?.Invoke(width, height);
                 CommandList cl = _gd.ResourceFactory.CreateCommandList();
                 cl.Begin();
-                //_sc.RecreateWindowSizedResources(_gd, cl);
                 RecreateWindowFramebuffers(cl);
                 ImguiRenderer.WindowResized(width, height);
                 cl.End();
@@ -804,35 +764,18 @@ namespace StudioCore
                 CFG.Current.GFX_Display_X = x;
                 CFG.Current.GFX_Display_Y = y;
             }
-
-            //_frameCommands.Begin();
-
-            //CommonMaterials.FlushAll(_frameCommands);
-
-            //_scene.RenderAllStages(_gd, _frameCommands, _sc);
-
-            //CommandList cl2 = _gd.ResourceFactory.CreateCommandList();
             MainWindowCommandList.Begin();
-            //cl2.SetFramebuffer(_gd.SwapchainFramebuffer);
             MainWindowCommandList.SetFramebuffer(_gd.SwapchainFramebuffer);
             MainWindowCommandList.ClearColorTarget(0, new RgbaFloat(0.176f, 0.176f, 0.188f, 1.0f));
             float depthClear = _gd.IsDepthRangeZeroToOne ? 1f : 0f;
             MainWindowCommandList.ClearDepthStencil(0.0f);
             MainWindowCommandList.SetFullViewport(0);
-            //MainWindowCommandList.End();
-            //_gd.SubmitCommands(MainWindowCommandList);
-            //_gd.WaitForIdle();
-            //GuiCommandList.Begin();
-            //GuiCommandList.SetFramebuffer(_gd.SwapchainFramebuffer);
             var fence = Scene.Renderer.Frame(MainWindowCommandList, false);
             MainWindowCommandList.SetFullViewport(0);
             MainWindowCommandList.SetFullScissorRects();
             ImguiRenderer.Render(_gd, MainWindowCommandList);
-            //GuiCommandList.End();
             MainWindowCommandList.End();
             _gd.SubmitCommands(MainWindowCommandList, fence);
-            //Scene.SceneRenderPipeline.TestUpdateView(_gd, MainWindowCommandList, TestWorldView.CameraTransform.CameraViewMatrix);
-
             _gd.SwapBuffers();
         }
     }
