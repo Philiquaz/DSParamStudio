@@ -21,15 +21,15 @@ Features include:
 * Multiple Views into the same params - avoids having multiple copies open when copying/reading around
 * Powerful row searching features - can perform complicated searches like "all rows where a certain field is not 0"
 * Param fields may be marked with several piece of data
-    Enums - a set of values that a field should take, readily selectable and readable
-    References - when a value refers to another row, that row's name is displayed and can be quickly navigated to, and a value can be set by searching for a name. (It can even alias to the nearest 100 or so).
-    Virtual references - a value shared among multiple params, which does not specify a param row, but for which navigation to other occurances is desirable.
-    Alternative names - DS Param Studio relies on commonly shared paramdefs, which define what a param is made up of, and give each field a name. Sometimes, these names aren't ideal, even if they're authentic.
-    Wiki entries - small tooltips attached to a field to provide a quick reference for the user before resorting to a real wiki or asking in a discord.
+    * Enums - a set of values that a field should take, readily selectable and readable
+    * References - when a value refers to another row, that row's name is displayed and can be quickly navigated to, and a value can be set by searching for a name. (It can even alias to the nearest 100 or so).
+    * Virtual references - a value shared among multiple params, which does not specify a param row, but for which navigation to other occurances is desirable.
+    * Alternative names - DS Param Studio relies on commonly shared paramdefs, which define what a param is made up of, and give each field a name. Sometimes, these names aren't ideal, even if they're authentic.
+    * Wiki entries - small tooltips attached to a field to provide a quick reference for the user before resorting to a real wiki or asking in a discord.
 * Params may be given an alternative order for display, allowing certain misplaced fields to return to their families. Separators can be included also for cleanliness' sake.
 * Mass editing features including:
-    CSV import / export
-    A syntax for selecting fields and setting their value and performing basic arithmetic on them, using constants or values from other fields
+    * A syntax for selecting fields and setting their value and performing basic arithmetic on them, using constants or values from other fields
+    * CSV import / export for more complicated edits, and for possible version control.
 
 ### Q: Is this the end of DSMapStudio's param editor?
 A: No, this is more of a stopgap measure for providing features to modders. DSMapStudio is not currently being developed and I am not in a position to make official releases. Rather than release stuff with Kata's name on it and have him be pinged over random bugs he is uninvolved with, this should allow me to make tools and give them to people. Since this was original developed inside DSMapStudio, it should remain compatible and updates should be readily portable to DSMapStudio.
