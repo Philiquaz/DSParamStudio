@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudioCore", "StudioCore\St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoulsFormats", "SoulsFormats\SoulsFormats\SoulsFormats.csproj", "{22C664BD-877B-44DF-8ECF-2808522469A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSMapStudio", "DSMapStudio\DSMapStudio.csproj", "{116FFEC2-6183-4A8C-A4D6-DB03C39FFA18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSParamStudio", "DSParamStudio\DSParamStudio.csproj", "{116FFEC2-6183-4A8C-A4D6-DB03C39FFA18}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Veldrid.ImGui", "Veldrid.ImGui\Veldrid.ImGui.csproj", "{0E86A67F-64EE-47D2-AB29-50289C9A8F59}"
 EndProject
@@ -35,16 +35,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vk", "vk\src\vk\vk.csproj",
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vk.rewrite", "vk\src\vk.rewrite\vk.rewrite.csproj", "{7A2D0FB3-1CB6-46B5-A6CE-AD86F111DBFA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HKXClassGen", "HKXClassGen\HKXClassGen.csproj", "{A4B1F813-C85F-4E3A-97C2-743301D1AC22}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HKX2", "HKX2\HKX2.csproj", "{1CE3370D-8B5B-4782-B29C-606AE92E361F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HKX2ReadWrite", "HKX2ReadWrite\HKX2ReadWrite.csproj", "{7917FEE7-8E84-4692-93EC-5811D8BFBDBD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColBakeTest", "ColBakeTest\ColBakeTest.csproj", "{1C7196EE-88C0-42BA-A4F5-5DDBF872E743}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddChr", "AddChr\AddChr.csproj", "{FDB935B7-8888-41B1-BC75-9F2C15080192}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

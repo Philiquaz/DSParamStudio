@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Authors>Katalash</Authors>
+    <Authors>Philiquaz</Authors>
     <Version>0.0.1</Version>
   </PropertyGroup>
 

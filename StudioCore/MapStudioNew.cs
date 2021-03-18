@@ -44,8 +44,6 @@ namespace StudioCore
 
         public static RenderDoc RenderDocManager;
 
-        private const bool UseRenderdoc = false;
-
         private AssetLocator _assetLocator;
         private MsbEditor.ProjectSettings _projectSettings = null;
 
@@ -481,6 +479,11 @@ namespace StudioCore
                 else if (_textEditorFocused)
                 {
                     TextEditor.DrawEditorMenu();
+                }
+                if (ImGui.BeginMenu("Help"))
+                {
+                    ImGui.Text("DSParamStudio is forked from Katalash's DSMapStudio and is currently maintained by Philiquaz.\nFor bug reports and feature requests, ping the right person please.");
+                    ImGui.EndMenu();
                 }
                 ImGui.EndMainMenuBar();
             }
