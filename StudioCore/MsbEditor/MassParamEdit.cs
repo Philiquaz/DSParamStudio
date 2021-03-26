@@ -358,6 +358,22 @@ namespace StudioCore.MsbEditor
             }
             return gen;
         }
+        public static string GenerateSingleCSV(List<PARAM.Row> rows, string field)
+        {
+            string gen = "";
+            foreach (PARAM.Row row in rows)
+            {
+                string rowgen;
+                if (field.Equals("Name"))
+                    rowgen = $@"{row.ID},{row.Name}";
+                else
+                {
+                    rowgen = $@"{row.ID},{row[field].Value}";
+                }
+                gen += rowgen + "\n";
+            }
+            return gen;
+        }
         
         public static MassEditResult PerformMassEdit(string csvString, ActionManager actionManager, string param)
         {
@@ -412,6 +428,64 @@ namespace StudioCore.MsbEditor
                 if (changeCount != 0 || addedCount != 0)
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected, {addedCount} rows added");
+            }
+            catch(FormatException e)
+            {
+                return new MassEditResult(MassEditResultType.PARSEERROR, "Unable to parse CSV into correct data types");
+            }
+        }
+        public static MassEditResult PerformSingleMassEdit(string csvString, ActionManager actionManager, string param, string field)
+        {
+            try
+            {
+                PARAM p = ParamBank.Params[param];
+                if (p == null)
+                    return new MassEditResult(MassEditResultType.PARSEERROR, "No Param selected");
+                string[] csvLines = csvString.Split('\n');
+                int changeCount = 0;
+                List<Action> actions = new List<Action>();
+                foreach (string csvLine in csvLines)
+                {
+                    if (csvLine.Trim().Equals(""))
+                        continue;
+                    string[] csvs = csvLine.Split(',');
+                    if (csvs.Length != 2)
+                    {
+                        return new MassEditResult(MassEditResultType.PARSEERROR, "CSV has wrong number of values");
+                    }
+                    int id = int.Parse(csvs[0]);
+                    string value = csvs[1];
+                    PARAM.Row row = p[id];
+                    if (row == null)
+                    {
+                        return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not locate row {id}");
+                    }
+                    if (field.Equals("Name"))
+                    {
+                        if (row.Name == null || !row.Name.Equals(value))
+                            actions.Add(new PropertiesChangedAction(row.GetType().GetProperty("Name"), -1, row, value));
+                    }
+                    else
+                    {
+                        PARAM.Cell cell = row[field];
+                        if (cell == null)
+                        {
+                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not locate field {field}");
+                        }
+                        // Array types are unhandled
+                        if (cell.Value.GetType().IsArray)
+                            continue;
+                        object newval = PerformOperation(cell, "=", value);
+                        if (newval == null)
+                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not assign {value} to field {cell.Def.DisplayName}");
+                        if (!cell.Value.Equals(newval))
+                            actions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
+                    }
+                }
+                changeCount = actions.Count;
+                if (changeCount != 0)
+                    actionManager.ExecuteAction(new CompoundAction(actions));
+                return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} rows affected");
             }
             catch(FormatException e)
             {

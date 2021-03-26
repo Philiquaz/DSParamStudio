@@ -456,17 +456,6 @@ namespace StudioCore
                     }
                     if (ImGui.MenuItem("Save", "Ctrl-S"))
                     {
-                        if (_paramEditorFocused)
-                        {
-                            ParamEditor.Save();
-                        }
-                        if (_textEditorFocused)
-                        {
-                            TextEditor.Save();
-                        }
-                    }
-                    if (ImGui.MenuItem("Save All", ""))
-                    {
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
                     }
