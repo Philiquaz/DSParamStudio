@@ -94,6 +94,8 @@ namespace StudioCore.MsbEditor
         public static bool HideEnumsPreference = false;
         public static bool AllowFieldReorderPreference = true;
 
+        public static bool EditorMode = false;
+
         internal bool _isSearchBarActive = false;
         private bool _isMEditPopupOpen = false;
         private bool _isShortcutPopupOpen = false;
@@ -193,20 +195,28 @@ namespace StudioCore.MsbEditor
                 {
                     RemoveView(_activeView);
                 }
-                if (ImGui.MenuItem("Show alternate field names", null, ShowAltNamesPreference)){
+                if (ImGui.MenuItem("Show alternate field names", null, ShowAltNamesPreference))
                     ShowAltNamesPreference = !ShowAltNamesPreference;
-                }
-                if (ImGui.MenuItem("Always show original field names", null, AlwaysShowOriginalNamePreference)){
+                if (ImGui.MenuItem("Always show original field names", null, AlwaysShowOriginalNamePreference))
                     AlwaysShowOriginalNamePreference = !AlwaysShowOriginalNamePreference;
-                }
-                if (ImGui.MenuItem("Hide field references", null, HideReferenceRowsPreference)){
+                if (ImGui.MenuItem("Hide field references", null, HideReferenceRowsPreference))
                     HideReferenceRowsPreference = !HideReferenceRowsPreference;
-                }
-                if (ImGui.MenuItem("Hide field enums", null, HideEnumsPreference)){
+                if (ImGui.MenuItem("Hide field enums", null, HideEnumsPreference))
                     HideEnumsPreference = !HideEnumsPreference;
-                }
-                if (ImGui.MenuItem("Allow field reordering", null, AllowFieldReorderPreference)){
+                if (ImGui.MenuItem("Allow field reordering", null, AllowFieldReorderPreference))
                     AllowFieldReorderPreference = !AllowFieldReorderPreference;
+                if (!EditorMode && ImGui.MenuItem("Editor Mode", null, EditorMode))
+                    EditorMode = true;
+                if (EditorMode && ImGui.BeginMenu("Editor Mode"))
+                {
+                    if (ImGui.MenuItem("Save Changes"))
+                    {
+                        ParamMetaData.SaveAll();
+                        EditorMode = false;
+                    }
+                    if (ImGui.MenuItem("Discard Changes"))
+                        EditorMode = false;
+                    ImGui.EndMenu();
                 }
                 ImGui.EndMenu();
             }

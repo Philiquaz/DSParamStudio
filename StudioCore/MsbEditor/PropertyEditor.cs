@@ -292,22 +292,20 @@ namespace StudioCore.MsbEditor
         {
             PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell);
         }
-        private void PropEditorPropRow(object oldval, ref int id, string visualName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell)
+        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell)
         {
             List<string> RefTypes = cellMeta == null ? null : cellMeta.RefTypes;
             string VirtualRef = cellMeta == null ? null : cellMeta.VirtualRef;
             ParamEnum Enum = cellMeta == null ? null : cellMeta.EnumType;
-            string AltName = cellMeta == null ? null : cellMeta.AltName;
             string Wiki = cellMeta == null ? null : cellMeta.Wiki;
             bool IsBool = cellMeta == null ? false : cellMeta.IsBool;
             object newval = null;
             ImGui.PushID(id);
             ImGui.AlignTextToFramePadding();
-            string printedName = (AltName != null && ParamEditorScreen.ShowAltNamesPreference) ? (ParamEditorScreen.AlwaysShowOriginalNamePreference ? $"{visualName} ({AltName})" : $"{AltName}*") : visualName;
-            ImGui.TextUnformatted(printedName);
-            PropertyRowNameContextMenu(visualName);
+            PropertyRowName(ref internalName, cellMeta);
+            PropertyRowNameContextMenu(internalName);
             if (Wiki != null)
-                UIHints.AddImGuiHintButton(visualName, Wiki);
+                UIHints.AddImGuiHintButton(internalName, Wiki);
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
                 ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  <{String.Join(',', RefTypes)}>");
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
@@ -327,7 +325,7 @@ namespace StudioCore.MsbEditor
             bool committed = ImGui.IsItemDeactivatedAfterEdit();
             if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null || matchDefault)
                 ImGui.PopStyleColor();
-            PropertyRowValueContextMenu(visualName, VirtualRef, oldval);
+            PropertyRowValueContextMenu(internalName, VirtualRef, oldval);
 
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
                 PropertyRowRefs(RefTypes, oldval);
@@ -343,6 +341,36 @@ namespace StudioCore.MsbEditor
             ImGui.NextColumn();
             ImGui.PopID();
             id++;
+        }
+
+        private void PropertyRowName(ref string internalName, FieldMetaData cellMeta)
+        {
+            string AltName = cellMeta == null ? null : cellMeta.AltName;
+            if (ParamEditorScreen.EditorMode)
+            {
+                if (AltName != null)
+                {
+                    ImGui.InputText("", ref AltName, 128);
+                    if (ImGui.IsItemDeactivatedAfterEdit())
+                    {
+                        if (AltName.Equals(internalName) || AltName.Equals(""))
+                            cellMeta.AltName = null;
+                        else
+                            cellMeta.AltName = AltName;
+                    }
+                }
+                else
+                {
+                    ImGui.InputText("", ref internalName, 128);
+                    if (ImGui.IsItemDeactivatedAfterEdit())
+                        cellMeta.AltName = internalName;
+                }
+            }
+            else
+            {
+                string printedName = (AltName != null && ParamEditorScreen.ShowAltNamesPreference) ? (ParamEditorScreen.AlwaysShowOriginalNamePreference ? $"{internalName} ({AltName})" : $"{AltName}*") : internalName;
+                ImGui.TextUnformatted(printedName);
+            }
         }
         
         private void PropertyRowRefs(List<string> reftypes, dynamic oldval)
