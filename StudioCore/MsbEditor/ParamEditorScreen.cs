@@ -234,7 +234,7 @@ namespace StudioCore.MsbEditor
             if (ImGui.BeginPopup("massEditMenuRegex"))
             {
                 ImGui.Text("param PARAM: id VALUE: FIELD: = VALUE;");
-                UIHints.AddImGuiHintButton("MassEditHint", UIHints.MassEditHint);
+                UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.MassEditHint);
                 ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditRegexInput, 65536, new Vector2(1024, 256));
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
@@ -728,7 +728,7 @@ namespace StudioCore.MsbEditor
             else
             {
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
-                UIHints.AddImGuiHintButton("MassEditHint", UIHints.SearchBarHint);
+                UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
                 ImGui.InputText("Search rows...", ref _selection.getCurrentSearchString(), 256);
                 if(ImGui.IsItemActive())
                     _paramEditor._isSearchBarActive = true;

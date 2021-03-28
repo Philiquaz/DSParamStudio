@@ -305,7 +305,10 @@ namespace StudioCore.MsbEditor
             PropertyRowName(ref internalName, cellMeta);
             PropertyRowNameContextMenu(internalName);
             if (Wiki != null)
-                UIHints.AddImGuiHintButton(internalName, Wiki);
+            {
+                if (UIHints.AddImGuiHintButton(internalName, ref Wiki))
+                    cellMeta.Wiki = Wiki;
+            }
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
                 ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  <{String.Join(',', RefTypes)}>");
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
@@ -346,18 +349,13 @@ namespace StudioCore.MsbEditor
         private void PropertyRowName(ref string internalName, FieldMetaData cellMeta)
         {
             string AltName = cellMeta == null ? null : cellMeta.AltName;
-            if (ParamEditorScreen.EditorMode)
+            if (cellMeta != null && ParamEditorScreen.EditorMode)
             {
                 if (AltName != null)
                 {
                     ImGui.InputText("", ref AltName, 128);
                     if (ImGui.IsItemDeactivatedAfterEdit())
-                    {
-                        if (AltName.Equals(internalName) || AltName.Equals(""))
-                            cellMeta.AltName = null;
-                        else
-                            cellMeta.AltName = AltName;
-                    }
+                        cellMeta.AltName = AltName;
                 }
                 else
                 {
@@ -365,6 +363,8 @@ namespace StudioCore.MsbEditor
                     if (ImGui.IsItemDeactivatedAfterEdit())
                         cellMeta.AltName = internalName;
                 }
+                if (cellMeta.AltName != null && (cellMeta.AltName.Equals(internalName) || cellMeta.AltName.Equals("")))
+                    cellMeta.AltName = null;
             }
             else
             {

@@ -11,28 +11,6 @@ namespace StudioCore.MsbEditor
 {
     public class ParamMetaData
     {
-        public static XmlNode GetXmlNode(XmlDocument xml, XmlNode parent, string child)
-        {
-            XmlNode node = parent.SelectSingleNode(child);
-            if (node == null)
-                node = parent.AppendChild(xml.CreateElement("child"));
-            return node;
-        }
-        public static XmlAttribute GetXmlAttribute(XmlDocument xml, XmlNode node, string name)
-        {
-            XmlAttribute attribute = node.Attributes[name];
-            if (attribute == null)
-                attribute = node.Attributes.Append(xml.CreateAttribute(name));
-            return attribute;
-        }
-        public static XmlAttribute GetXmlProperty(string property, XmlDocument xml, params string[] path)
-        {
-            XmlNode currentNode = xml;
-            foreach(string s in path)
-                currentNode = GetXmlNode(xml, currentNode, s);
-            return GetXmlAttribute(xml, currentNode, property);
-        }
-
         private static Dictionary<PARAMDEF, ParamMetaData> _ParamMetas = new Dictionary<PARAMDEF, ParamMetaData>();
         
         internal Dictionary<string, ParamEnum> enums = new Dictionary<string, ParamEnum>();
@@ -70,7 +48,7 @@ namespace StudioCore.MsbEditor
         {
             Add(def, this);
             foreach (PARAMDEF.Field f in def.Fields)
-                new FieldMetaData(f);
+                new FieldMetaData(this, f);
             // Blank Metadata
         }
 
@@ -128,26 +106,87 @@ namespace StudioCore.MsbEditor
 
                     if (pairedNode == null)
                     {
-                        new FieldMetaData(f);
+                        new FieldMetaData(this, f);
                         continue;
                     }
                     new FieldMetaData(this, pairedNode, f);
                 }
                 catch
                 {
-                    new FieldMetaData(f);
+                    new FieldMetaData(this, f);
                 }
             }
+        }
+        
+        internal static XmlNode GetXmlNode(XmlDocument xml, XmlNode parent, string child)
+        {
+            XmlNode node = parent.SelectSingleNode(child);
+            if (node == null)
+                node = parent.AppendChild(xml.CreateElement(child));
+            return node;
+        }
+        internal static XmlAttribute GetXmlAttribute(XmlDocument xml, XmlNode node, string name)
+        {
+            XmlAttribute attribute = node.Attributes[name];
+            if (attribute == null)
+                attribute = node.Attributes.Append(xml.CreateAttribute(name));
+            return attribute;
+        }
+        internal static XmlNode GetXmlNode(XmlDocument xml, params string[] path)
+        {
+            XmlNode currentNode = xml;
+            foreach(string s in path)
+                currentNode = GetXmlNode(xml, currentNode, s);
+            return currentNode;
+        }
+        internal static void SetBoolXmlProperty(string property, bool value, XmlDocument xml, params string[] path)
+        {
+            XmlNode node = GetXmlNode(xml, path);
+            if (value)
+                GetXmlAttribute(xml, node, property).InnerText = "";
+            else
+                node.Attributes.RemoveNamedItem(property);
+        }
+        internal static void SetIntXmlProperty(string property, int value, XmlDocument xml, params string[] path)
+        {
+            XmlNode node = GetXmlNode(xml, path);
+            if (value != 0)
+                GetXmlAttribute(xml, node, property).InnerText = value.ToString();
+            else
+                node.Attributes.RemoveNamedItem(property);
+        }
+        internal static void SetStringXmlProperty(string property, string value, bool sanitise, XmlDocument xml, params string[] path)
+        {
+            XmlNode node = GetXmlNode(xml, path);
+            if (value != null)
+                GetXmlAttribute(xml, node, property).InnerText = sanitise ? value.Replace("\n", "\\n") : value;
+            else
+                node.Attributes.RemoveNamedItem(property);
+        }
+        internal static void SetEnumXmlProperty(string property, ParamEnum value, XmlDocument xml, params string[] path)
+        {
+            XmlNode node = GetXmlNode(xml, path);
+            if (value != null)
+                GetXmlAttribute(xml, node, property).InnerText = value.name;
+            else
+                node.Attributes.RemoveNamedItem(property);
+        }
+        internal static void SetStringListXmlProperty(string property, List<string> value, string eolPattern, XmlDocument xml, params string[] path)
+        {
+            XmlNode node = GetXmlNode(xml, path);
+            if (value != null)
+                GetXmlAttribute(xml, node, property).InnerText = eolPattern != null ? String.Join(',', value).Replace(eolPattern, eolPattern+"\n") : String.Join(',', value);
+            else
+                node.Attributes.RemoveNamedItem(property);
         }
 
         public void Commit()
         {
-            if (OffsetSize != 0)
-                GetXmlProperty("OffsetSize", _xml, "PARAMMETA", "Self").InnerText = OffsetSize.ToString(); //doesn't commit return to 0
-            if (Row0Dummy)
-                GetXmlProperty("Row0Dummy", _xml, "PARAMMETA", "Self").InnerText = ""; //doesn't commit un-dummying
-            if (AlternateOrder != null)
-                GetXmlProperty("AlternativeOrder", _xml, "PARAMMETA", "Self").InnerText = String.Join(',', AlternateOrder).Replace("-,", "-,\n"); //small cleanliness detail
+            if(_xml == null)
+                return;
+            SetIntXmlProperty("OffsetSize", OffsetSize, _xml, "PARAMMETA", "Self");
+            SetBoolXmlProperty("Row0Dummy", Row0Dummy, _xml, "PARAMMETA", "Self");
+            SetStringListXmlProperty("AlternativeOrder", AlternateOrder, "-,", _xml, "PARAMMETA", "Self");
         }
 
         public void Save()
@@ -238,7 +277,13 @@ namespace StudioCore.MsbEditor
 
         public static FieldMetaData Get(PARAMDEF.Field def)
         {
-            return _FieldMetas[def];
+            FieldMetaData fieldMeta = _FieldMetas[def];
+            if (fieldMeta == null)
+            {
+                ParamMetaData pdef = ParamMetaData.Get(def.Parent);
+                fieldMeta = new FieldMetaData(pdef, pdef._xml, def);
+            }
+            return fieldMeta;
         }
 
         private static void Add(PARAMDEF.Field key, FieldMetaData meta)
@@ -246,8 +291,9 @@ namespace StudioCore.MsbEditor
             _FieldMetas.Add(key, meta);
         }
 
-        public FieldMetaData(PARAMDEF.Field field)
+        public FieldMetaData(ParamMetaData parent, PARAMDEF.Field field)
         {
+            _parent = parent;
             Add(field, this);
             // Blank Metadata
         }
@@ -256,8 +302,6 @@ namespace StudioCore.MsbEditor
         {
             _parent = parent;
             Add(field, this);
-            RefTypes = null;
-            VirtualRef = null;
             XmlAttribute Ref = fieldMeta.Attributes["Refs"];
             if (Ref != null)
                 RefTypes = new List<string>(Ref.InnerText.Split(","));
@@ -280,20 +324,14 @@ namespace StudioCore.MsbEditor
 
         public void Commit(string field)
         {
-            if (_parent == null || _parent._xml == null)
+            if (_parent._xml == null)
                 return;
-            if (RefTypes != null)
-                ParamMetaData.GetXmlProperty("Refs", _parent._xml, "PARAMMETA", "Field", field).InnerText = String.Join(',', RefTypes); //doesn't handle total removal
-            if (VirtualRef != null)
-                ParamMetaData.GetXmlProperty("Vref",  _parent._xml, "PARAMMETA", "Field", field).InnerText = VirtualRef; //doesn't handle nulling
-            if (EnumType != null)
-                ParamMetaData.GetXmlProperty("Enum",  _parent._xml, "PARAMMETA", "Field", field).InnerText = EnumType.name; //doesn't handle nulling
-            if (AltName != null)
-                ParamMetaData.GetXmlProperty("AltName",  _parent._xml, "PARAMMETA", "Field", field).InnerText = AltName; //doesn't handle return to null
-            if (Wiki != null)
-                ParamMetaData.GetXmlProperty("Wiki",  _parent._xml, "PARAMMETA", "Field", field).InnerText = Wiki; //doesn't handle return to null
-            if (IsBool)
-                ParamMetaData.GetXmlProperty("IsBool",  _parent._xml, "PARAMMETA", "Field", field).InnerText = ""; //cannot unset bool status
+            ParamMetaData.SetStringListXmlProperty("Refs", RefTypes, null, _parent._xml, "PARAMMETA", "Field", field);
+            ParamMetaData.SetStringXmlProperty("Vref", VirtualRef, false, _parent._xml, "PARAMMETA", "Field", field);
+            ParamMetaData.SetEnumXmlProperty("Enum", EnumType, _parent._xml, "PARAMMETA", "Field", field);
+            ParamMetaData.SetStringXmlProperty("AltName", AltName, false, _parent._xml, "PARAMMETA", "Field", field);
+            ParamMetaData.SetStringXmlProperty("Wiki", Wiki, true, _parent._xml, "PARAMMETA", "Field", field);
+            ParamMetaData.SetBoolXmlProperty("IsBool", IsBool, _parent._xml, "PARAMMETA", "Field", field);
         }
     }
 
