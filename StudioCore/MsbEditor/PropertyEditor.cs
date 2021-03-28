@@ -303,7 +303,7 @@ namespace StudioCore.MsbEditor
             ImGui.PushID(id);
             ImGui.AlignTextToFramePadding();
             PropertyRowName(ref internalName, cellMeta);
-            PropertyRowNameContextMenu(internalName);
+            PropertyRowNameContextMenu(internalName, cellMeta);
             if (Wiki != null)
             {
                 if (UIHints.AddImGuiHintButton(internalName, ref Wiki))
@@ -420,7 +420,7 @@ namespace StudioCore.MsbEditor
                 ImGui.TextColored(new Vector4(0.0f, 0.0f, 0.0f, 1.0f), "___");
             }
         }
-        private void PropertyRowNameContextMenu(string originalName)
+        private void PropertyRowNameContextMenu(string originalName, FieldMetaData cellMeta)
         {
             if (ImGui.BeginPopupContextItem("rowName"))
             {
@@ -428,6 +428,38 @@ namespace StudioCore.MsbEditor
                     ImGui.Text(originalName);
                 if (ImGui.Selectable("Search..."))
                     EditorCommandQueue.AddCommand($@"param/search/prop {originalName.Replace(" ", "\\s")} ");
+                if (ParamEditorScreen.EditorMode && cellMeta != null)
+                {
+                    if (ImGui.BeginMenu("Add Reference"))
+                    {
+                        foreach (string p in ParamBank.Params.Keys)
+                        {
+                            if (ImGui.Selectable(p))
+                            {
+                                if (cellMeta.RefTypes == null)
+                                    cellMeta.RefTypes = new List<string>();
+                                cellMeta.RefTypes.Add(p);
+                            }
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (cellMeta.RefTypes != null && ImGui.BeginMenu("Remove Reference"))
+                    {
+                        foreach (string p in cellMeta.RefTypes)
+                        {
+                            if (ImGui.Selectable(p))
+                            {
+                                cellMeta.RefTypes.Remove(p);
+                                if (cellMeta.RefTypes.Count == 0)
+                                    cellMeta.RefTypes = null;
+                                break;
+                            }
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.Selectable(cellMeta.IsBool ? "Remove bool toggle" : "Add bool toggle"))
+                        cellMeta.IsBool = !cellMeta.IsBool;
+                }
                 ImGui.EndPopup();
             }
         }
