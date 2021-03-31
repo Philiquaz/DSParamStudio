@@ -49,6 +49,7 @@ namespace StudioCore
 
         private MsbEditor.ProjectSettings _newProjectSettings;
         private string _newProjectDirectory = "";
+        private bool _newProjectLoadDefaultNames = false;
 
         private static bool _firstframe = true;
         public static bool FirstFrame = true;
@@ -561,6 +562,14 @@ namespace StudioCore
                     }
                     ImGui.NewLine();
                 }
+                if (_newProjectSettings.GameType == GameType.DarkSoulsIISOTFS || _newProjectSettings.GameType == GameType.DarkSoulsIII || _newProjectSettings.GameType == GameType.Sekiro)
+                {
+                    ImGui.AlignTextToFramePadding();
+                    ImGui.Text($@"Load default row names:  ");
+                    ImGui.SameLine();
+                    ImGui.Checkbox("##loadDefaultNames", ref _newProjectLoadDefaultNames);
+                    ImGui.NewLine();
+                }
 
                 if (ImGui.Button("Create", new Vector2(120, 0)))
                 {
@@ -631,7 +640,10 @@ namespace StudioCore
                         {
                             CFG.Current.RecentProjects.RemoveAt(CFG.Current.RecentProjects.Count - 1);
                         }
-
+                        if (_newProjectLoadDefaultNames)
+                        {
+                            ParamBank.LoadParamDefaultNames();
+                        }
                         ImGui.CloseCurrentPopup();
                     }
                 }

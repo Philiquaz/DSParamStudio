@@ -278,7 +278,7 @@ namespace StudioCore.MsbEditor
                 ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditCSVInput, 256 * 65536, new Vector2(1024, 256));
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
-                    MassEditResult r = MassParamEditCSV.PerformSingleMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _currentMEditSingleCSVField);
+                    MassEditResult r = MassParamEditCSV.PerformSingleMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _currentMEditSingleCSVField, false);
                     _mEditCSVResult = r.Information;
                 }
                 ImGui.Text(_mEditCSVResult);

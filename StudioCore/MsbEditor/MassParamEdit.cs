@@ -434,7 +434,7 @@ namespace StudioCore.MsbEditor
                 return new MassEditResult(MassEditResultType.PARSEERROR, "Unable to parse CSV into correct data types");
             }
         }
-        public static MassEditResult PerformSingleMassEdit(string csvString, ActionManager actionManager, string param, string field)
+        public static MassEditResult PerformSingleMassEdit(string csvString, ActionManager actionManager, string param, string field, bool useSpace)
         {
             try
             {
@@ -448,18 +448,14 @@ namespace StudioCore.MsbEditor
                 {
                     if (csvLine.Trim().Equals(""))
                         continue;
-                    string[] csvs = csvLine.Split(',');
+                    string[] csvs = csvLine.Split(useSpace ? ' ' : ',', 2, StringSplitOptions.RemoveEmptyEntries);
                     if (csvs.Length != 2)
-                    {
                         return new MassEditResult(MassEditResultType.PARSEERROR, "CSV has wrong number of values");
-                    }
                     int id = int.Parse(csvs[0]);
                     string value = csvs[1];
                     PARAM.Row row = p[id];
                     if (row == null)
-                    {
                         return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not locate row {id}");
-                    }
                     if (field.Equals("Name"))
                     {
                         if (row.Name == null || !row.Name.Equals(value))

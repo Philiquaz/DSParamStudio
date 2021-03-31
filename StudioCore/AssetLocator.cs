@@ -350,6 +350,11 @@ namespace StudioCore
         {
             return $@"{GetParamAssetsDir()}\Meta";
         }
+        
+        public string GetParamNamesDir()
+        {
+            return $@"{GetParamAssetsDir()}\Names";
+        }
 
         public PARAMDEF GetParamdefForParam(string paramType)
         {
