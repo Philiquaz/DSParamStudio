@@ -467,7 +467,7 @@ namespace StudioCore.MsbEditor
                 ImGui.EndPopup();
             }
         }
-        private void PropertyRowValueContextMenu(string visualName, string VirtualRef, object oldval)
+        private void PropertyRowValueContextMenu(string visualName, string VirtualRef, dynamic oldval)
         {
             if (ImGui.BeginPopupContextItem("quickMEdit"))
             {
@@ -481,9 +481,10 @@ namespace StudioCore.MsbEditor
                 {
                     foreach(KeyValuePair<string, PARAM> p in ParamBank.Params)
                     {
-                        PARAM.Row r = p.Value[(int)oldval];
-                        if (r != null && ImGui.Selectable($@"{p.Key}: {r.Name}"))
-                            EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{(int)oldval}");
+                        int v = (int)oldval;
+                        PARAM.Row r = p.Value[v];
+                        if (r != null && ImGui.Selectable($@"{p.Key}: {(r.Name != null ? r.Name : "null")}"))
+                            EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{v}");
                     }
                     ImGui.EndMenu();
                 }
