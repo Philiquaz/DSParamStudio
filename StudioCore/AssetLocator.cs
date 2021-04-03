@@ -479,7 +479,6 @@ namespace StudioCore
         {
             var pathElements = virtualPath.Split('/');
             var mapRegex = new Regex(@"^m\d{2}_\d{2}_\d{2}_\d{2}$");
-            string ret = "";
 
             // Parse the virtual path with a DFA and convert it to a game path
             int i = 0;

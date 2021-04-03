@@ -79,7 +79,7 @@ namespace StudioCore.MsbEditor
                 else if (cell.Value.GetType() == typeof(double))
                     return PerformBasicOperation<double>(cell, op, double.Parse(opparam));
             }
-            catch(FormatException f)
+            catch
             {
             }
             return null;
@@ -91,7 +91,6 @@ namespace StudioCore.MsbEditor
             {
                 dynamic val = c.Value;
                 dynamic opp = opparam;
-                Type type;
                 if (op.Equals("="))
                     return (T) (opp);
                 else if (op.Equals("+"))
@@ -103,7 +102,7 @@ namespace StudioCore.MsbEditor
                 else if (op.Equals("/"))
                     return (T) (val / opp);
             }
-            catch(Exception e)
+            catch
             {
                 // Operation error
             }
@@ -429,7 +428,7 @@ namespace StudioCore.MsbEditor
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected, {addedCount} rows added");
             }
-            catch(FormatException e)
+            catch
             {
                 return new MassEditResult(MassEditResultType.PARSEERROR, "Unable to parse CSV into correct data types");
             }
@@ -483,7 +482,7 @@ namespace StudioCore.MsbEditor
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} rows affected");
             }
-            catch(FormatException e)
+            catch
             {
                 return new MassEditResult(MassEditResultType.PARSEERROR, "Unable to parse CSV into correct data types");
             }

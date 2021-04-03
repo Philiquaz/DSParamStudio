@@ -473,6 +473,16 @@ namespace StudioCore.MsbEditor
                 }
                 if (VirtualRef != null)
                     PropertyRowVirtualRefContextItems(VirtualRef, oldval);
+                if (ParamEditorScreen.EditorMode && ImGui.BeginMenu("Find rows with this value..."))
+                {
+                    foreach(KeyValuePair<string, PARAM> p in ParamBank.Params)
+                    {
+                        PARAM.Row r = p.Value[(int)oldval];
+                        if (r != null && ImGui.Selectable($@"{p.Key}: {r.Name}"))
+                            EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{(int)oldval}");
+                    }
+                    ImGui.EndMenu();
+                }
                 ImGui.EndPopup();
             }
         }
@@ -614,7 +624,6 @@ namespace StudioCore.MsbEditor
             // ImGui.AlignTextToFramePadding();
             var typ = typeof(string);
             var oldval = entry.Text;
-            bool shouldUpdateVisual = false;
             bool changed = false;
             object newval = null;
 
