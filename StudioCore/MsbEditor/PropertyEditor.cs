@@ -459,6 +459,10 @@ namespace StudioCore.MsbEditor
                     }
                     if (ImGui.Selectable(cellMeta.IsBool ? "Remove bool toggle" : "Add bool toggle"))
                         cellMeta.IsBool = !cellMeta.IsBool;
+                    if (cellMeta.Wiki == null && ImGui.Selectable("Add wiki..."))
+                        cellMeta.Wiki = "Empty wiki...";
+                    if (cellMeta.Wiki != null && ImGui.Selectable("Remove wiki"))
+                        cellMeta.Wiki = null;
                 }
                 ImGui.EndPopup();
             }
