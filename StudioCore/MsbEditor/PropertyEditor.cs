@@ -202,17 +202,19 @@ namespace StudioCore.MsbEditor
         private void ChangeProperty(object prop, object obj, object newval,
             ref bool committed, int arrayindex = -1)
         {
-            
-            PropertiesChangedAction action;
-            if (arrayindex != -1)
+            if (committed)
             {
-                action = new PropertiesChangedAction((PropertyInfo)prop, arrayindex, obj, newval);
+                PropertiesChangedAction action;
+                if (arrayindex != -1)
+                {
+                    action = new PropertiesChangedAction((PropertyInfo)prop, arrayindex, obj, newval);
+                }
+                else
+                {
+                    action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
+                }
+                ContextActionManager.ExecuteAction(action);
             }
-            else
-            {
-                action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
-            }
-            ContextActionManager.ExecuteAction(action);
         }
 
         public void PropEditorParamRow(PARAM.Row row)
@@ -303,7 +305,7 @@ namespace StudioCore.MsbEditor
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 1.0f, 1.0f));
 
             changed = PropertyRow(propType, oldval, out newval, IsBool);
-            bool committed = ImGui.IsItemDeactivatedAfterEdit() || changed;
+            bool committed = ImGui.IsItemDeactivatedAfterEdit();
             if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null || matchDefault)
                 ImGui.PopStyleColor();
             PropertyRowValueContextMenu(internalName, VirtualRef, oldval);
