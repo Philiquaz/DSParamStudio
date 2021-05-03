@@ -18,10 +18,6 @@ namespace StudioCore.MsbEditor
 
         private Dictionary<string, PropertyInfo[]> _propCache = new Dictionary<string, PropertyInfo[]>();
 
-        private object _changingObject = null;
-        private object _changingPropery = null;
-        private Action _lastUncommittedAction = null;
-
         private string _refContextCurrentAutoComplete = "";
 
         public PropertyEditor(ActionManager manager)
@@ -206,35 +202,17 @@ namespace StudioCore.MsbEditor
         private void ChangeProperty(object prop, object obj, object newval,
             ref bool committed, int arrayindex = -1)
         {
-            if (prop == _changingPropery && _lastUncommittedAction != null && ContextActionManager.PeekUndoAction() == _lastUncommittedAction)
+            
+            PropertiesChangedAction action;
+            if (arrayindex != -1)
             {
-                ContextActionManager.UndoAction();
+                action = new PropertiesChangedAction((PropertyInfo)prop, arrayindex, obj, newval);
             }
             else
             {
-                _lastUncommittedAction = null;
+                action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
             }
-
-            if (_changingObject != null)
-            {
-                committed = true;
-            }
-            else
-            {
-                PropertiesChangedAction action;
-                if (arrayindex != -1)
-                {
-                    action = new PropertiesChangedAction((PropertyInfo)prop, arrayindex, obj, newval);
-                }
-                else
-                {
-                    action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
-                }
-                ContextActionManager.ExecuteAction(action);
-
-                _lastUncommittedAction = action;
-                _changingPropery = prop;
-            }
+            ContextActionManager.ExecuteAction(action);
         }
 
         public void PropEditorParamRow(PARAM.Row row)
@@ -325,7 +303,7 @@ namespace StudioCore.MsbEditor
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 1.0f, 1.0f));
 
             changed = PropertyRow(propType, oldval, out newval, IsBool);
-            bool committed = ImGui.IsItemDeactivatedAfterEdit();
+            bool committed = ImGui.IsItemDeactivatedAfterEdit() || changed;
             if ((ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null) || (ParamEditorScreen.HideEnumsPreference == false && Enum != null) || VirtualRef != null || matchDefault)
                 ImGui.PopStyleColor();
             PropertyRowValueContextMenu(internalName, VirtualRef, oldval);
