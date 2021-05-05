@@ -418,7 +418,7 @@ namespace StudioCore.MsbEditor
                 {
                     if (initcmd[1] == "massEditRegex")
                     {
-                        _currentMEditRegexInput = initcmd.Length > 2 ? initcmd[2] : null;
+                        _currentMEditRegexInput = initcmd.Length > 2 ? initcmd[2] : "";
                         OpenMassEditPopup("massEditMenuRegex");
                     }
                     else if (initcmd[1] == "massEditCSVExport")
