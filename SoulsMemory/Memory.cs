@@ -167,17 +167,32 @@ namespace SoulsMemory
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
         }
 
-        public static bool WriteInt16(IntPtr address, short value)
+        public static bool WriteInt16(IntPtr address, Int16 value)
         {
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)2, UIntPtr.Zero);
         }
 
-        public static bool WriteInt32(IntPtr address, int value)
+        public static bool WriteUInt16(IntPtr address, UInt16 value)
+        {
+            return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)2, UIntPtr.Zero);
+        }
+
+        public static bool WriteInt32(IntPtr address, Int32 value)
         {
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)4, UIntPtr.Zero);
         }
 
-        public static bool WriteInt64(IntPtr address, long value)
+        public static bool WriteUInt32(IntPtr address, UInt32 value)
+        {
+            return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)4, UIntPtr.Zero);
+        }
+
+        public static bool WriteInt64(IntPtr address, Int64 value)
+        {
+            return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)8, UIntPtr.Zero);
+        }
+
+        public static bool WriteUInt64(IntPtr address, UInt64 value)
         {
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)8, UIntPtr.Zero);
         }

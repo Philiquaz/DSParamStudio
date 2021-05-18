@@ -13,7 +13,9 @@ namespace SoulsMemory
             SkeletonParam = 0x898,
             SpEffectParam = 0x4A8,
             ClearCountCorrectParam = 0x17C8,
-            RoleParam = 0x13D8
+            RoleParam = 0x13D8,
+            EquipParamWeapon = 0x70,
+            EquipParamProtector = 0xB8
         }
 
         public static IntPtr GetParamPtr(ParamBaseOffset Offset)
