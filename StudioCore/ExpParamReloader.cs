@@ -112,10 +112,6 @@ namespace StudioCore
         }
         public static void WriteMemoryPARAM(SoulsFormats.PARAM param, PARAM.ParamBaseOffset enumOffset)
         {
-            //var ParamDeXMLFields = ParamDeXML.Root.Element("Fields").Elements();
-
-            //List<ROWMemory> rowList = new List<ROWMemory>();
-
             var BasePtr = SoulsMemory.PARAM.GetParamPtr(enumOffset);
             var BaseDataPtr = SoulsMemory.PARAM.GetToRowPtr(enumOffset);
             var RowCount = SoulsMemory.PARAM.GetRowCount(enumOffset);
@@ -145,8 +141,6 @@ namespace StudioCore
         }
         public static void WriteMemoryRow(SoulsFormats.PARAM.Row row, IntPtr RowDataSectionPtr)
         {
-            //this.ID = rowID;
-
             int offset = 0;
             int bitFieldPos = 0;
             BitArray bits = null;
@@ -155,8 +149,6 @@ namespace StudioCore
             {
                 offset += WriteMemoryCell(cell, RowDataSectionPtr + offset, ref bitFieldPos, ref bits);
             }
-            Debug.WriteLine("offset="+offset.ToString());
-            //Fields = fieldsList;
         }
         public static int WriteMemoryCell(SoulsFormats.PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
