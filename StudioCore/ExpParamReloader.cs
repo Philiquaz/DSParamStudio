@@ -13,20 +13,92 @@ using StudioCore.MsbEditor;
 using SoulsFormats;
 using PARAM = SoulsMemory.PARAM;
 using System.Diagnostics;
+using ProcessMemoryUtilities.Managed;
 
 namespace StudioCore
 {
     class ExpParamReloader
     {
+        private static IntPtr memoryHandle = (IntPtr)0;
         public static List<string> meme = null;
         public static void MemoryReadWrite()
         {
             ImGui.Begin("Test");
-            if (ImGui.Button("domeme"))
+            if (ImGui.Button("do meme"))
             {
-                SoulsMemory.Memory.ProcessHandle = SoulsMemory.Memory.AttachProc("DarkSoulsIII");
+                var meme2 = Process.GetProcessesByName("DarkSoulsIII");
+                Debug.WriteLine("idklolb4");
+                if (meme2.Any())
+                {
+                    Debug.WriteLine("idklol");
+                    memoryHandle = NativeWrapper.OpenProcess(ProcessMemoryUtilities.Native.ProcessAccessFlags.Write, meme2.First().Id);
 
-                WriteMemoryPARAM(ParamBank.Params["EquipParamProtector"], PARAM.ParamBaseOffset.EquipParamProtector);
+                    SoulsMemory.Memory.ProcessHandle = SoulsMemory.Memory.AttachProc("DarkSoulsIII");
+                    Stopwatch meme = new Stopwatch();
+                    meme.Start();
+
+                    WriteMemoryPARAM(ParamBank.Params["ClearCountCorrectParam"], PARAM.ParamBaseOffset.ClearCountCorrectParam);
+                    WriteMemoryPARAM(ParamBank.Params["EquipParamProtector"], PARAM.ParamBaseOffset.EquipParamProtector);
+                    WriteMemoryPARAM(ParamBank.Params["EquipParamWeapon"], PARAM.ParamBaseOffset.EquipParamWeapon);
+                    WriteMemoryPARAM(ParamBank.Params["RoleParam"], PARAM.ParamBaseOffset.RoleParam);
+                    WriteMemoryPARAM(ParamBank.Params["SkeletonParam"], PARAM.ParamBaseOffset.SkeletonParam);
+                    WriteMemoryPARAM(ParamBank.Params["SpEffectParam"], PARAM.ParamBaseOffset.SpEffectParam);
+                    meme.Stop();
+                    Debug.WriteLine("It took " + meme.ElapsedMilliseconds + " milliseconds to run this operation");
+
+                    NativeWrapper.CloseHandle(memoryHandle);
+                    memoryHandle = (IntPtr)0;
+                }
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("read meme"))
+            {
+                var meme24 = new PARAMSMemory("Assets/Paramdex/DS3/Defs").ClearCountCorrectParam.Rows;
+                foreach (var item in meme24)
+                {
+                    if (item.ID == 0)
+                    {
+                        foreach (var item2 in item.Fields)
+                        {
+                            if (item2.dataType == typeof(float))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadFloat(item2.FieldDataPointer).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(Int32))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadInt32(item2.FieldDataPointer).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(UInt32))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadUInt32(item2.FieldDataPointer).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(Int16))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadInt16(item2.FieldDataPointer).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(UInt16))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadUInt16(item2.FieldDataPointer).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(SByte))
+                            {
+                                Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + ((SByte)SoulsMemory.Memory.ReadInt8(item2.FieldDataPointer)).ToString("0.####"));
+                            }
+                            else if (item2.dataType == typeof(Byte))
+                            {
+                                if (item2.isBitField)
+                                {
+                                    var bits = new BitArray(new byte[] { SoulsMemory.Memory.ReadInt8(item2.FieldDataPointer) });
+                                    Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + bits.Get(item2.bitFieldIndex).ToString());
+                                }
+                                else
+                                {
+                                    Debug.WriteLine($"DATATYPE={item2.dataType} BitFieldIndex={item2.bitFieldIndex} FieldName={item2.fieldName} " + SoulsMemory.Memory.ReadInt8(item2.FieldDataPointer).ToString("0.####"));
+                                }
+                            }
+                        }
+                    }
+                }
             }
             if (meme != null)
             {
@@ -63,18 +135,15 @@ namespace StudioCore
 
                 BaseDataPtr = BaseDataPtr + 0x18;
 
-                //rowList.Add(new ROWMemory(RowId, DataSectionPtr, ParamDeXMLFields));
-
                 SoulsFormats.PARAM.Row row = param[RowId];
 
-                Debug.WriteLine(RowId);
                 if (row != null)
                 {
                     WriteMemoryRow(row, DataSectionPtr);
                 }
             }
         }
-        public static void WriteMemoryRow(SoulsFormats.PARAM.Row row ,IntPtr RowDataSectionPtr)
+        public static void WriteMemoryRow(SoulsFormats.PARAM.Row row, IntPtr RowDataSectionPtr)
         {
             //this.ID = rowID;
 
@@ -86,41 +155,47 @@ namespace StudioCore
             {
                 offset += WriteMemoryCell(cell, RowDataSectionPtr + offset, ref bitFieldPos, ref bits);
             }
+            Debug.WriteLine("offset="+offset.ToString());
             //Fields = fieldsList;
         }
         public static int WriteMemoryCell(SoulsFormats.PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
-            Debug.WriteLine(cell.Def.DisplayName);
             string dataTypeString = cell.Def.InternalType;
             Type dataType;
             if (dataTypeString == "f32")
             {
-                SoulsMemory.Memory.WriteFloat(CellDataPtr, 0f);
+                float value = Convert.ToSingle(cell.Value);
+                NativeWrapper.WriteProcessMemory<float>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(float);
             }
             else if (dataTypeString == "s32")
             {
-                SoulsMemory.Memory.WriteInt32(CellDataPtr, 0);
+                Int32 value = Convert.ToInt32(cell.Value);
+                NativeWrapper.WriteProcessMemory<Int32>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(Int32);
             }
             else if (dataTypeString == "s16")
             {
-                SoulsMemory.Memory.WriteInt16(CellDataPtr, 0);
+                Int16 value = Convert.ToInt16(cell.Value);
+                NativeWrapper.WriteProcessMemory<Int16>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(Int16);
             }
             else if (dataTypeString == "s8")
             {
-                WriteInt8(CellDataPtr, 0);
+                sbyte value = Convert.ToSByte(cell.Value);
+                NativeWrapper.WriteProcessMemory<sbyte>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(sbyte);
             }
             else if (dataTypeString == "u32")
             {
-                SoulsMemory.Memory.WriteUInt32(CellDataPtr, 0);
+                UInt32 value = Convert.ToUInt32(cell.Value);
+                NativeWrapper.WriteProcessMemory<UInt32>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(UInt32);
             }
             else if (dataTypeString == "u16")
             {
-                SoulsMemory.Memory.WriteUInt16(CellDataPtr, 0);
+                UInt16 value = Convert.ToUInt16(cell.Value);
+                NativeWrapper.WriteProcessMemory<UInt16>(memoryHandle, CellDataPtr, ref value);
                 return sizeof(UInt16);
             }
             else if (dataTypeString == "u8")
@@ -138,7 +213,7 @@ namespace StudioCore
                         byte[] bitFieldByte = new byte[1];
                         bits.CopyTo(bitFieldByte, 0);
                         bitFieldPos = 0;
-                        WriteUint8(CellDataPtr, bitFieldByte[0]);
+                        NativeWrapper.WriteProcessMemoryArray<byte>(memoryHandle, CellDataPtr, bitFieldByte);
                         return sizeof(byte);
                     }
                     else
@@ -148,13 +223,13 @@ namespace StudioCore
                 }
                 else
                 {
-                    WriteUint8(CellDataPtr, 0);
+                    byte value = 0;
+                    NativeWrapper.WriteProcessMemory<byte>(memoryHandle, CellDataPtr, ref value);
                     return sizeof(byte);
                 }
             }
             else if (dataTypeString == "dummy8")
             {
-                
                 return cell.Def.ArrayLength;
             }
             else
@@ -163,19 +238,11 @@ namespace StudioCore
                 return 0;
             }
         }
-        public static bool WriteInt8(IntPtr address, sbyte value)
-        {
-            return Kernel32.WriteProcessMemory(SoulsMemory.Memory.ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
-        }
-
-        public static bool WriteUint8(IntPtr address, byte value)
-        {
-            return Kernel32.WriteProcessMemory(SoulsMemory.Memory.ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
-        }
     }
     public class PARAMSMemory
     {
         private string ParamDexFolderPath;
+        public PARAMMemory EquipParamWeapon { get; }
         public PARAMMemory ClearCountCorrectParam { get; }
         public PARAMMemory SpEffectParam { get; }
         public PARAMMemory RoleParam { get; }
@@ -183,6 +250,7 @@ namespace StudioCore
         public PARAMSMemory(string ParamDexFolderPath)
         {
             this.ParamDexFolderPath = ParamDexFolderPath;
+            this.EquipParamWeapon = new PARAMMemory(PARAM.ParamBaseOffset.EquipParamWeapon, XDocument.Load(ParamDexFolderPath + "/" + "EQUIP_PARAM_WEAPON_ST.xml"));
             this.ClearCountCorrectParam = new PARAMMemory(PARAM.ParamBaseOffset.ClearCountCorrectParam, XDocument.Load(ParamDexFolderPath + "/" + "CLEAR_COUNT_CORRECT_PARAM_ST.xml"));
             this.SpEffectParam = new PARAMMemory(PARAM.ParamBaseOffset.SpEffectParam, XDocument.Load(ParamDexFolderPath + "/" + "SP_EFFECT_PARAM_ST.xml"));
             this.RoleParam = new PARAMMemory(PARAM.ParamBaseOffset.RoleParam, XDocument.Load(ParamDexFolderPath + "/" + "ROLE_PARAM_ST.xml"));
