@@ -414,6 +414,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SoulsFormats\SoulsFormats\SoulsFormats.csproj" />
+    <ProjectReference Include="..\SoulsMemory\SoulsMemory.csproj" />
     <ProjectReference Include="..\Veldrid.RenderDoc\Veldrid.RenderDoc.csproj" />
     <ProjectReference Include="..\Veldrid.SDL2\Veldrid.SDL2.csproj" />
     <ProjectReference Include="..\Veldrid.SPIRV\Veldrid.SPIRV.csproj" />

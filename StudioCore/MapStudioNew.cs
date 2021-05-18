@@ -460,6 +460,14 @@ namespace StudioCore
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
                     }
+                    if (ImGui.MenuItem("reload", "Ctrl-S"))
+                    {
+                        LiveRefresh.RequestFileReload.RequestReload(LiveRefresh.RequestFileReload.ReloadType.Chr, "c0000");
+                    }
+                    if (ImGui.MenuItem("printparamtest", "Ctrl-S"))
+                    {
+                        ExpParamReloader.MemoryReadWrite();
+                    }
                     ImGui.EndMenu();
                 }
                 if (_paramEditorFocused)
@@ -478,6 +486,9 @@ namespace StudioCore
                 ImGui.EndMainMenuBar();
             }
             ImGui.PopStyleVar();
+
+
+            ExpParamReloader.MemoryReadWrite();
 
             // New project modal
             if (newProject)
