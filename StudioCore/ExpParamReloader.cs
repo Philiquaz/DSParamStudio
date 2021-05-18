@@ -27,7 +27,7 @@ namespace StudioCore
                 var idk = new PARAMSMemory("Assets/Paramdex/DS3/Defs").SpEffectParam.Rows.Where(i => i.ID == 2180);
                 foreach (var item in idk)
                 {
-                    meme.Add(item.ID.ToString() + " - " + item.FieldsBasePointer.ToString());
+                    meme.Add(item.ID.ToString());
                     foreach (var item2 in item.Fields)
                     {
                         if (item2.dataType == typeof(float))
@@ -91,16 +91,18 @@ namespace StudioCore
         public PARAMSMemory(string ParamDexFolderPath)
         {
             this.ParamDexFolderPath = ParamDexFolderPath;
-            this.ClearCountCorrectParam = new PARAMMemory(PARAM.ParamBaseOffset.ClearCountCorrectParam, ParamDexFolderPath + "/" + "CLEAR_COUNT_CORRECT_PARAM_ST.xml");
-            this.SpEffectParam = new PARAMMemory(PARAM.ParamBaseOffset.SpEffectParam, ParamDexFolderPath + "/" + "SP_EFFECT_PARAM_ST.xml");
-            this.RoleParam = new PARAMMemory(PARAM.ParamBaseOffset.RoleParam, ParamDexFolderPath + "/" + "ROLE_PARAM_ST.xml");
+            this.ClearCountCorrectParam = new PARAMMemory(PARAM.ParamBaseOffset.ClearCountCorrectParam, XDocument.Load(ParamDexFolderPath + "/" + "CLEAR_COUNT_CORRECT_PARAM_ST.xml"));
+            this.SpEffectParam = new PARAMMemory(PARAM.ParamBaseOffset.SpEffectParam, XDocument.Load(ParamDexFolderPath + "/" + "SP_EFFECT_PARAM_ST.xml"));
+            this.RoleParam = new PARAMMemory(PARAM.ParamBaseOffset.RoleParam, XDocument.Load(ParamDexFolderPath + "/" + "ROLE_PARAM_ST.xml"));
         }
     }
     public class PARAMMemory
     {
         public List<ROWMemory> Rows { get; }
-        public PARAMMemory(PARAM.ParamBaseOffset paramEnum, string ParamDeXMLPath)
+        public PARAMMemory(PARAM.ParamBaseOffset paramEnum, XDocument ParamDeXML)
         {
+            var ParamDeXMLFields = ParamDeXML.Root.Element("Fields").Elements();
+
             List<ROWMemory> rowList = new List<ROWMemory>();
 
             var BasePtr = SoulsMemory.PARAM.GetParamPtr(paramEnum);
@@ -122,7 +124,7 @@ namespace StudioCore
 
                 BaseDataPtr = BaseDataPtr + 0x18;
 
-                rowList.Add(new ROWMemory(RowId, DataSectionPtr, ParamDeXMLPath));
+                rowList.Add(new ROWMemory(RowId, DataSectionPtr, ParamDeXMLFields));
             }
             Rows = rowList;
         }
@@ -130,19 +132,15 @@ namespace StudioCore
     public class ROWMemory
     {
         public int ID { get; }
-        public IntPtr FieldsBasePointer;
         public List<FIELDMemory> Fields { get; }
-        public ROWMemory(int rowID, IntPtr dataPointer, string paramDeXMLPath)
+        public ROWMemory(int rowID, IntPtr dataPointer, IEnumerable<XElement> paramDeXMLPath)
         {
             this.ID = rowID;
-            this.FieldsBasePointer = dataPointer;
-
-            var meme = XDocument.Load(paramDeXMLPath).Root.Element("Fields").Elements();
 
             int offset = 0;
             int bitFieldPos = 0;
             List<FIELDMemory> fieldsList = new List<FIELDMemory>();
-            foreach (var element in meme)
+            foreach (var element in paramDeXMLPath)
             {
                 string[] Def = element.Attribute("Def").Value.Split(" ");
                 string dataTypeString = Def[0];
@@ -150,39 +148,39 @@ namespace StudioCore
                 Type dataType;
                 if (dataTypeString == "f32")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(float), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(float), dataPointer + offset));
                     offset += sizeof(float);
                 }
                 else if (dataTypeString == "s32")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(Int32), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(Int32), dataPointer + offset));
                     offset += sizeof(Int32);
                 }
                 else if (dataTypeString == "s16")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(Int16), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(Int16), dataPointer + offset));
                     offset += sizeof(Int16);
                 }
                 else if (dataTypeString == "s8")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(sbyte), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(sbyte), dataPointer + offset));
                     offset += sizeof(sbyte);
                 }
                 else if (dataTypeString == "u32")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(UInt32), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(UInt32), dataPointer + offset));
                     offset += sizeof(UInt32);
                 }
                 else if (dataTypeString == "u16")
                 {
-                    fieldsList.Add(new FIELDMemory(fieldName, typeof(UInt16), FieldsBasePointer + offset));
+                    fieldsList.Add(new FIELDMemory(fieldName, typeof(UInt16), dataPointer + offset));
                     offset += sizeof(UInt16);
                 }
                 else if (dataTypeString == "u8")
                 {
                     if (fieldName.Contains(":"))
                     {
-                        fieldsList.Add(new FIELDMemory(fieldName, typeof(byte), FieldsBasePointer + offset, bitFieldPos));
+                        fieldsList.Add(new FIELDMemory(fieldName, typeof(byte), dataPointer + offset, bitFieldPos));
                         bitFieldPos++;
                         if (bitFieldPos == 8)
                         {
@@ -192,7 +190,7 @@ namespace StudioCore
                     }
                     else
                     {
-                        fieldsList.Add(new FIELDMemory(fieldName, typeof(byte), FieldsBasePointer + offset));
+                        fieldsList.Add(new FIELDMemory(fieldName, typeof(byte), dataPointer + offset));
                         offset += sizeof(byte);
                     }
                 }
