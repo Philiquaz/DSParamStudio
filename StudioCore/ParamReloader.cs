@@ -7,17 +7,21 @@ using PARAM = SoulsMemory.PARAM;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using ProcessMemoryUtilities.Managed;
+using ProcessMemoryUtilities.Native;
 
 namespace StudioCore
 {
     class ParamReloader
     {
         public static StreamWriter log;
+        public static IntPtr memoryHandlerPtr = (IntPtr)0;
         public static void ReloadMemoryParamsDS3()
         {
             var processArray = Process.GetProcessesByName("DarkSoulsIII");
             if (processArray.Any())
             {
+                memoryHandlerPtr = NativeWrapper.OpenProcess(ProcessAccessFlags.ReadWrite, processArray.First().Id);
                 SoulsMemory.Memory.ProcessHandle = SoulsMemory.Memory.AttachProc("DarkSoulsIII");
                 Stopwatch meme = new Stopwatch();
                 meme.Start();
@@ -123,6 +127,8 @@ namespace StudioCore
                 {
                     thread.Join();
                 }
+                NativeWrapper.CloseHandle(memoryHandlerPtr);
+                memoryHandlerPtr = (IntPtr)0;
                 meme.Stop();
                 log.WriteLine("---------------------------------------------------------------------------");
                 log.WriteLine(meme.ElapsedMilliseconds + "ms elapsed while writing those fields to memory.");
@@ -171,70 +177,81 @@ namespace StudioCore
         private static int WriteMemoryCell(SoulsFormats.PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
             string dataTypeString = cell.Def.InternalType;
-            Type dataType;
             if (dataTypeString == "f32")
             {
-                float valueRead = SoulsMemory.Memory.ReadFloat(CellDataPtr);
+                float valueRead = 0f;
+                NativeWrapper.ReadProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 float value = Convert.ToSingle(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteFloat(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(float);
             }
             else if (dataTypeString == "s32")
             {
-                Int32 valueRead = SoulsMemory.Memory.ReadInt32(CellDataPtr);
+                Int32 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 Int32 value = Convert.ToInt32(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteInt32(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(Int32);
             }
             else if (dataTypeString == "s16")
             {
-                Int16 valueRead = SoulsMemory.Memory.ReadInt16(CellDataPtr);
+                Int16 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 Int16 value = Convert.ToInt16(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteInt16(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(Int16);
             }
             else if (dataTypeString == "s8")
             {
-                sbyte valueRead = SoulsMemory.Memory.ReadInt8(CellDataPtr);
+                sbyte valueRead = 0;
+                NativeWrapper.ReadProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 sbyte value = Convert.ToSByte(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteInt8(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(sbyte);
             }
             else if (dataTypeString == "u32")
             {
-                UInt32 valueRead = SoulsMemory.Memory.ReadUInt32(CellDataPtr);
+                UInt32 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 UInt32 value = Convert.ToUInt32(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteUInt32(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(UInt32);
             }
             else if (dataTypeString == "u16")
             {
-                UInt16 valueRead = SoulsMemory.Memory.ReadUInt16(CellDataPtr);
+                UInt16 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                 UInt16 value = Convert.ToUInt16(cell.Value);
                 if (valueRead != value)
                 {
                     log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    SoulsMemory.Memory.WriteUInt16(CellDataPtr, value);
+                    NativeWrapper.WriteProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref value);
                 }
                 return sizeof(UInt16);
             }
@@ -250,7 +267,8 @@ namespace StudioCore
                     bitFieldPos++;
                     if (bitFieldPos == 8)
                     {
-                        byte valueRead = SoulsMemory.Memory.ReadUInt8(CellDataPtr);
+                        byte valueRead = 0;
+                        NativeWrapper.ReadProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
 
                         byte[] bitFieldByte = new byte[1];
                         bits.CopyTo(bitFieldByte, 0);
@@ -259,7 +277,7 @@ namespace StudioCore
                         if (valueRead != bitbuffer)
                         {
                             log.WriteLine($"Field={cell.Def.DisplayName} OldValue={new BitArray(valueRead).ToString()} NewValue={new BitArray(bitbuffer).ToString()}");
-                            SoulsMemory.Memory.WriteUInt8(CellDataPtr, bitbuffer);
+                            NativeWrapper.WriteProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(byte);
                     }
@@ -270,12 +288,14 @@ namespace StudioCore
                 }
                 else
                 {
-                    byte valueRead = SoulsMemory.Memory.ReadUInt8(CellDataPtr);
+                    byte valueRead = 0;
+                    NativeWrapper.ReadProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
                     byte value = Convert.ToByte(cell.Value);
                     if (valueRead != value)
                     {
                         log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                        SoulsMemory.Memory.WriteUInt8(CellDataPtr, value);
+                        NativeWrapper.WriteProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref value);
                     }
                     return sizeof(byte);
                 }
@@ -287,7 +307,6 @@ namespace StudioCore
             else
             {
                 throw new Exception("Yer code is dumb.");
-                return 0;
             }
         }
     }

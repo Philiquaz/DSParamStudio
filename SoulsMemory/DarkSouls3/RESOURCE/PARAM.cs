@@ -198,7 +198,6 @@ namespace SoulsMemory
                     string[] Def = element.Attribute("Def").Value.Split(' ');
                     string dataTypeString = Def[0];
                     string fieldName = Def[1];
-                    Type dataType;
                     if (dataTypeString == "f32")
                     {
                         fieldsList.Add(new FIELDMemory(fieldName, typeof(float), dataPointer + offset));
