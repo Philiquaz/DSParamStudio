@@ -40,14 +40,14 @@ namespace SoulsMemory
         {
             var BasePtr = GetInitPosPtr();
 
-            return Memory.ReadInt8(BasePtr + 0xA64);
+            return Memory.ReadUInt8(BasePtr + 0xA64);
         }
 
         public static byte GetIsSummoned()
         {
             var BasePtr = GetInitPosPtr();
 
-            return Memory.ReadInt8(BasePtr + 0xAC7);
+            return Memory.ReadUInt8(BasePtr + 0xAC7);
         }
     }
 }

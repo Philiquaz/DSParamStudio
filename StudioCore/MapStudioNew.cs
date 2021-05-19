@@ -460,13 +460,9 @@ namespace StudioCore
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
                     }
-                    if (ImGui.MenuItem("reload", "Ctrl-S"))
+                    if (ImGui.MenuItem("Hot Reload Params[DS3 Only]", "Ctrl-R"))
                     {
-                        LiveRefresh.RequestFileReload.RequestReload(LiveRefresh.RequestFileReload.ReloadType.Chr, "c0000");
-                    }
-                    if (ImGui.MenuItem("printparamtest", "Ctrl-S"))
-                    {
-                        ExpParamReloader.MemoryReadWrite();
+                        ParamReloader.ReloadMemoryParamsDS3();
                     }
                     ImGui.EndMenu();
                 }
@@ -486,9 +482,6 @@ namespace StudioCore
                 ImGui.EndMainMenuBar();
             }
             ImGui.PopStyleVar();
-
-
-            ExpParamReloader.MemoryReadWrite();
 
             // New project modal
             if (newProject)

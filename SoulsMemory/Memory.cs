@@ -65,12 +65,20 @@ namespace SoulsMemory
             return boolRet;
         }
 
-        public static byte ReadInt8(IntPtr address)
+        public static byte ReadUInt8(IntPtr address)
         {
             var readBuffer = new byte[sizeof(byte)];
             var success = Kernel32.ReadProcessMemory(ProcessHandle, address, readBuffer, (UIntPtr)1, UIntPtr.Zero);
             var value = readBuffer[0];
             return value;
+        }
+
+        public static sbyte ReadInt8(IntPtr address)
+        {
+            var readBuffer = new byte[sizeof(byte)];
+            var success = Kernel32.ReadProcessMemory(ProcessHandle, address, readBuffer, (UIntPtr)1, UIntPtr.Zero);
+            var value = readBuffer[0];
+            return (sbyte)value;
         }
 
         public static short ReadInt16(IntPtr address)
@@ -162,7 +170,12 @@ namespace SoulsMemory
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
         }
 
-        public static bool WriteInt8(IntPtr address, byte value)
+        public static bool WriteUInt8(IntPtr address, byte value)
+        {
+            return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
+        }
+
+        public static bool WriteInt8(IntPtr address, sbyte value)
         {
             return Kernel32.WriteProcessMemory(ProcessHandle, address, BitConverter.GetBytes(value), (UIntPtr)1, UIntPtr.Zero);
         }

@@ -138,21 +138,21 @@ namespace SoulsMemory
                 {
                     var PlayerParamPtr = GetPlayerParamPtr();
 
-                    Memory.WriteInt8(PlayerParamPtr + 0xAA, (byte)value);
+                    Memory.WriteUInt8(PlayerParamPtr + 0xAA, (byte)value);
                 }
 
                 public static void SetVoiceType(VoiceType value)
                 {
                     var PlayerParamPtr = GetPlayerParamPtr();
 
-                    Memory.WriteInt8(PlayerParamPtr + 0xAB, (byte)value);
+                    Memory.WriteUInt8(PlayerParamPtr + 0xAB, (byte)value);
                 }
 
                 public static void SetYoelLvLUpRemainCount(byte value)
                 {
                     var PlayerParamPtr = GetPlayerParamPtr();
 
-                    Memory.WriteInt8(PlayerParamPtr + 0x10F, value);
+                    Memory.WriteUInt8(PlayerParamPtr + 0x10F, value);
                 }
 
                 public static bool GetEmberState()
@@ -174,7 +174,7 @@ namespace SoulsMemory
                 {
                     var PlayerParamPtr = GetPlayerParamPtr();
 
-                    Memory.WriteInt8(PlayerParamPtr + 0x10E, value);
+                    Memory.WriteUInt8(PlayerParamPtr + 0x10E, value);
                 }
             }
         }

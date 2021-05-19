@@ -139,7 +139,7 @@ namespace SoulsMemory
 
             public static void AllOmisionMode(byte FramerateDivider)
             {
-                Memory.WriteInt8(Memory.BaseAddress + 0x4768F7A, FramerateDivider);
+                Memory.WriteUInt8(Memory.BaseAddress + 0x4768F7A, FramerateDivider);
             }
 
             public static void SetLv1(int Lv1)
@@ -177,7 +177,7 @@ namespace SoulsMemory
                     Memory.WriteFloat(ChrLocal_ + 0x194, Position.Y);
                     Memory.WriteFloat(ChrLocal_ + 0x198, Position.Z);
 
-                    Memory.WriteInt8(ChrLocal_ + 0x18A, 1);
+                    Memory.WriteUInt8(ChrLocal_ + 0x18A, 1);
                 }
             }
         }
@@ -717,7 +717,7 @@ namespace SoulsMemory
                     {
                         var LocalPlayer_ = WorldChrManPtr.GetPlayerBasePtr();
 
-                        Memory.WriteInt8(LocalPlayer_ + 0x1F50, Combustible);
+                        Memory.WriteUInt8(LocalPlayer_ + 0x1F50, Combustible);
                     }
 
                     public static void SetMaxBurnRate(float MaxBurnRate)

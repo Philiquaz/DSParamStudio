@@ -35,7 +35,7 @@ namespace SoulsMemory
         {
             var BasePtr = GetWorldInfoPtr();
 
-            return Memory.ReadInt8(BasePtr + 0x28);
+            return Memory.ReadUInt8(BasePtr + 0x28);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SoulsMemory
             {
                 var SoundTestPtr = (IntPtr)GetSoundTestPtr();
 
-                Memory.WriteInt8(SoundTestPtr + 0x10, PlayMode);
+                Memory.WriteUInt8(SoundTestPtr + 0x10, PlayMode);
                 Memory.WriteFloat(SoundTestPtr + 0x14, Position.X);
                 Memory.WriteFloat(SoundTestPtr + 0x18, Position.Y);
                 Memory.WriteFloat(SoundTestPtr + 0x1C, Position.Z);
