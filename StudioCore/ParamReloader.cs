@@ -14,7 +14,6 @@ namespace StudioCore
 {
     class ParamReloader
     {
-        public static StreamWriter log;
         public static IntPtr memoryHandlerPtr = (IntPtr)0;
         public static void ReloadMemoryParamsDS3()
         {
@@ -23,18 +22,14 @@ namespace StudioCore
             {
                 memoryHandlerPtr = NativeWrapper.OpenProcess(ProcessAccessFlags.ReadWrite, processArray.First().Id);
                 SoulsMemory.Memory.ProcessHandle = SoulsMemory.Memory.AttachProc("DarkSoulsIII");
-                Stopwatch meme = new Stopwatch();
-                meme.Start();
 
-                log = new StreamWriter("log.txt"); ;
-                log.WriteLine("Below here are the fields edited in the last ParamMemoryReloadDS3 Operation");
-                log.WriteLine("---------------------------------------------------------------------------");
                 List<Thread> threads = new List<Thread>();
+
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["ActionButtonParam"], PARAM.ParamBaseOffset.ActionButtonParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AiSoundParam"], PARAM.ParamBaseOffset.AiSoundParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AtkParam_Npc"], PARAM.ParamBaseOffset.AtkParam_Npc)));
-                //threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AtkParam_Pc"], PARAM.ParamBaseOffset.AtkParam_Pc))); //Currently Broken look into this:
-                //threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AttackElementCorrectParam"], PARAM.ParamBaseOffset.AttackElementCorrectParam))); //Currently Broken look into this:
+                threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AtkParam_Pc"], PARAM.ParamBaseOffset.AtkParam_Pc))); //Watchlist:
+                threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["AttackElementCorrectParam"], PARAM.ParamBaseOffset.AttackElementCorrectParam))); //Watchlist:
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["BehaviorParam"], PARAM.ParamBaseOffset.BehaviorParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["BehaviorParam_PC"], PARAM.ParamBaseOffset.BehaviorParam_PC)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["BonfireWarpParam"], PARAM.ParamBaseOffset.BonfireWarpParam)));
@@ -49,7 +44,7 @@ namespace StudioCore
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["ClearCountCorrectParam"], PARAM.ParamBaseOffset.ClearCountCorrectParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["CoolTimeParam"], PARAM.ParamBaseOffset.CoolTimeParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["CultSettingParam"], PARAM.ParamBaseOffset.CultSettingParam)));
-                //threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["DecalParam"], PARAM.ParamBaseOffset.DecalParam))); //Currently Broken look into this:
+                threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["DecalParam"], PARAM.ParamBaseOffset.DecalParam))); //Watchlist:
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["DirectionCameraParam"], PARAM.ParamBaseOffset.DirectionCameraParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["EquipMtrlSetParam"], PARAM.ParamBaseOffset.EquipMtrlSetParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["EquipParamAccessory"], PARAM.ParamBaseOffset.EquipParamAccessory)));
@@ -114,7 +109,7 @@ namespace StudioCore
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["ThrowDirectionSfxParam"], PARAM.ParamBaseOffset.ThrowDirectionSfxParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["ToughnessParam"], PARAM.ParamBaseOffset.ToughnessParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["UpperArmParam"], PARAM.ParamBaseOffset.UpperArmParam)));
-                //threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["WeaponGenParam"], PARAM.ParamBaseOffset.WeaponGenParam))); //Currently Broken look into this:
+                threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["WeaponGenParam"], PARAM.ParamBaseOffset.WeaponGenParam))); //Watchlist:
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["WepAbsorpPosParam"], PARAM.ParamBaseOffset.WepAbsorpPosParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["WetAspectParam"], PARAM.ParamBaseOffset.WeaponGenParam)));
                 threads.Add(new Thread(() => WriteMemoryPARAM(ParamBank.Params["Wind"], PARAM.ParamBaseOffset.Wind)));
@@ -129,10 +124,6 @@ namespace StudioCore
                 }
                 NativeWrapper.CloseHandle(memoryHandlerPtr);
                 memoryHandlerPtr = (IntPtr)0;
-                meme.Stop();
-                log.WriteLine("---------------------------------------------------------------------------");
-                log.WriteLine(meme.ElapsedMilliseconds + "ms elapsed while writing those fields to memory.");
-                log.Close();
             }
         }
         private static void WriteMemoryPARAM(SoulsFormats.PARAM param, PARAM.ParamBaseOffset enumOffset)
@@ -146,7 +137,6 @@ namespace StudioCore
             int RowId;
             int rowPtr;
 
-            //log.WriteLine(param.AppliedParamdef.ParamType);
             for (int i = 0; i < RowCount; i++)
             {
                 RowId = SoulsMemory.Memory.ReadInt32(BaseDataPtr);
@@ -176,88 +166,10 @@ namespace StudioCore
         }
         private static int WriteMemoryCell(SoulsFormats.PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
-            string dataTypeString = cell.Def.InternalType;
-            if (dataTypeString == "f32")
+            SoulsFormats.PARAMDEF.DefType displayType = cell.Def.DisplayType;
+            if (cell.Def.BitSize != -1)
             {
-                float valueRead = 0f;
-                NativeWrapper.ReadProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                float value = Convert.ToSingle(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(float);
-            }
-            else if (dataTypeString == "s32")
-            {
-                Int32 valueRead = 0;
-                NativeWrapper.ReadProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                Int32 value = Convert.ToInt32(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(Int32);
-            }
-            else if (dataTypeString == "s16")
-            {
-                Int16 valueRead = 0;
-                NativeWrapper.ReadProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                Int16 value = Convert.ToInt16(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(Int16);
-            }
-            else if (dataTypeString == "s8")
-            {
-                sbyte valueRead = 0;
-                NativeWrapper.ReadProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                sbyte value = Convert.ToSByte(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(sbyte);
-            }
-            else if (dataTypeString == "u32")
-            {
-                UInt32 valueRead = 0;
-                NativeWrapper.ReadProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                UInt32 value = Convert.ToUInt32(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(UInt32);
-            }
-            else if (dataTypeString == "u16")
-            {
-                UInt16 valueRead = 0;
-                NativeWrapper.ReadProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                UInt16 value = Convert.ToUInt16(cell.Value);
-                if (valueRead != value)
-                {
-                    log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                    NativeWrapper.WriteProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref value);
-                }
-                return sizeof(UInt16);
-            }
-            else if (dataTypeString == "u8")
-            {
-                if (cell.Def.BitSize != -1)
+                if (displayType == SoulsFormats.PARAMDEF.DefType.u8)
                 {
                     if (bitFieldPos == 0)
                     {
@@ -270,13 +182,12 @@ namespace StudioCore
                         byte valueRead = 0;
                         NativeWrapper.ReadProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
 
-                        byte[] bitFieldByte = new byte[1];
-                        bits.CopyTo(bitFieldByte, 0);
+                        byte[] bitField = new byte[1];
+                        bits.CopyTo(bitField, 0);
                         bitFieldPos = 0;
-                        byte bitbuffer = bitFieldByte[0];
+                        byte bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
-                            log.WriteLine($"Field={cell.Def.DisplayName} OldValue={new BitArray(valueRead).ToString()} NewValue={new BitArray(bitbuffer).ToString()}");
                             NativeWrapper.WriteProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(byte);
@@ -286,27 +197,154 @@ namespace StudioCore
                         return 0;
                     }
                 }
-                else
+                else if (displayType == SoulsFormats.PARAMDEF.DefType.u16)
                 {
-                    byte valueRead = 0;
-                    NativeWrapper.ReadProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
-
-                    byte value = Convert.ToByte(cell.Value);
-                    if (valueRead != value)
+                    if (bitFieldPos == 0)
                     {
-                        log.WriteLine($"Field={cell.Def.DisplayName} OldValue={valueRead} NewValue={value}");
-                        NativeWrapper.WriteProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref value);
+                        bits = new BitArray(16);
                     }
-                    return sizeof(byte);
+                    bits.Set(bitFieldPos, Convert.ToBoolean(cell.Value));
+                    bitFieldPos++;
+                    if (bitFieldPos == 16)
+                    {
+                        UInt16 valueRead = 0;
+                        NativeWrapper.ReadProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                        UInt16[] bitField = new UInt16[1];
+                        bits.CopyTo(bitField, 0);
+                        bitFieldPos = 0;
+                        UInt16 bitbuffer = bitField[0];
+                        if (valueRead != bitbuffer)
+                        {
+                            NativeWrapper.WriteProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref bitbuffer);
+                        }
+                        return sizeof(UInt16);
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else if (displayType == SoulsFormats.PARAMDEF.DefType.u32)
+                {
+                    if (bitFieldPos == 0)
+                    {
+                        bits = new BitArray(32);
+                    }
+                    bits.Set(bitFieldPos, Convert.ToBoolean(cell.Value));
+                    bitFieldPos++;
+                    if (bitFieldPos == 32)
+                    {
+                        UInt32 valueRead = 0;
+                        NativeWrapper.ReadProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                        UInt32[] bitField = new UInt32[1];
+                        bits.CopyTo(bitField, 0);
+                        bitFieldPos = 0;
+                        UInt32 bitbuffer = bitField[0];
+                        if (valueRead != bitbuffer)
+                        {
+                            NativeWrapper.WriteProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref bitbuffer);
+                        }
+                        return sizeof(UInt32);
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
             }
-            else if (dataTypeString == "dummy8" || dataTypeString == "fixstr" || dataTypeString == "fixstrW")
+            if (displayType == SoulsFormats.PARAMDEF.DefType.f32)
+            {
+                float valueRead = 0f;
+                NativeWrapper.ReadProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                float value = Convert.ToSingle(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<float>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(float);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.s32)
+            {
+                Int32 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                Int32 value = Convert.ToInt32(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<Int32>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(Int32);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.s16)
+            {
+                Int16 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                Int16 value = Convert.ToInt16(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<Int16>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(Int16);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.s8)
+            {
+                sbyte valueRead = 0;
+                NativeWrapper.ReadProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                sbyte value = Convert.ToSByte(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<sbyte>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(sbyte);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.u32)
+            {
+                UInt32 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                UInt32 value = Convert.ToUInt32(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<UInt32>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(UInt32);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.u16)
+            {
+                UInt16 valueRead = 0;
+                NativeWrapper.ReadProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                UInt16 value = Convert.ToUInt16(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<UInt16>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(UInt16);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.u8)
+            {
+                byte valueRead = 0;
+                NativeWrapper.ReadProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref valueRead);
+
+                byte value = Convert.ToByte(cell.Value);
+                if (valueRead != value)
+                {
+                    NativeWrapper.WriteProcessMemory<byte>(memoryHandlerPtr, CellDataPtr, ref value);
+                }
+                return sizeof(byte);
+            }
+            else if (displayType == SoulsFormats.PARAMDEF.DefType.dummy8 || displayType == SoulsFormats.PARAMDEF.DefType.fixstr || displayType == SoulsFormats.PARAMDEF.DefType.fixstrW)
             {
                 return cell.Def.ArrayLength;
             }
             else
             {
-                throw new Exception("Yer code is dumb.");
+                throw new Exception("Unexpected Field Type");
             }
         }
     }
