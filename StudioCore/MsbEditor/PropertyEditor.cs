@@ -18,10 +18,6 @@ namespace StudioCore.MsbEditor
 
         private Dictionary<string, PropertyInfo[]> _propCache = new Dictionary<string, PropertyInfo[]>();
 
-        private object _changingObject = null;
-        private object _changingPropery = null;
-        private Action _lastUncommittedAction = null;
-
         private string _refContextCurrentAutoComplete = "";
 
         public PropertyEditor(ActionManager manager)
@@ -206,20 +202,7 @@ namespace StudioCore.MsbEditor
         private void ChangeProperty(object prop, object obj, object newval,
             ref bool committed, int arrayindex = -1)
         {
-            if (prop == _changingPropery && _lastUncommittedAction != null && ContextActionManager.PeekUndoAction() == _lastUncommittedAction)
-            {
-                ContextActionManager.UndoAction();
-            }
-            else
-            {
-                _lastUncommittedAction = null;
-            }
-
-            if (_changingObject != null)
-            {
-                committed = true;
-            }
-            else
+            if (committed)
             {
                 PropertiesChangedAction action;
                 if (arrayindex != -1)
@@ -231,9 +214,6 @@ namespace StudioCore.MsbEditor
                     action = new PropertiesChangedAction((PropertyInfo)prop, obj, newval);
                 }
                 ContextActionManager.ExecuteAction(action);
-
-                _lastUncommittedAction = action;
-                _changingPropery = prop;
             }
         }
 
@@ -467,7 +447,7 @@ namespace StudioCore.MsbEditor
                 ImGui.EndPopup();
             }
         }
-        private void PropertyRowValueContextMenu(string visualName, string VirtualRef, object oldval)
+        private void PropertyRowValueContextMenu(string visualName, string VirtualRef, dynamic oldval)
         {
             if (ImGui.BeginPopupContextItem("quickMEdit"))
             {
@@ -481,9 +461,10 @@ namespace StudioCore.MsbEditor
                 {
                     foreach(KeyValuePair<string, PARAM> p in ParamBank.Params)
                     {
-                        PARAM.Row r = p.Value[(int)oldval];
-                        if (r != null && ImGui.Selectable($@"{p.Key}: {r.Name}"))
-                            EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{(int)oldval}");
+                        int v = (int)oldval;
+                        PARAM.Row r = p.Value[v];
+                        if (r != null && ImGui.Selectable($@"{p.Key}: {(r.Name != null ? r.Name : "null")}"))
+                            EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{v}");
                     }
                     ImGui.EndMenu();
                 }
