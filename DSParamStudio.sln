@@ -36,8 +36,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vk", "vk\src\vk\vk.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vk.rewrite", "vk\src\vk.rewrite\vk.rewrite.csproj", "{7A2D0FB3-1CB6-46B5-A6CE-AD86F111DBFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsMemory", "SoulsMemory\SoulsMemory.csproj", "{5175F84E-2554-47F5-9CBA-3CB9B7B4DE73}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,10 +102,6 @@ Global
 		{7A2D0FB3-1CB6-46B5-A6CE-AD86F111DBFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A2D0FB3-1CB6-46B5-A6CE-AD86F111DBFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A2D0FB3-1CB6-46B5-A6CE-AD86F111DBFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5175F84E-2554-47F5-9CBA-3CB9B7B4DE73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5175F84E-2554-47F5-9CBA-3CB9B7B4DE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5175F84E-2554-47F5-9CBA-3CB9B7B4DE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5175F84E-2554-47F5-9CBA-3CB9B7B4DE73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
