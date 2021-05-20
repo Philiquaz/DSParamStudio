@@ -442,6 +442,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="DDSDeswizzler.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>

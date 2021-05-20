@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using ProcessMemoryUtilities.Managed;
 using ProcessMemoryUtilities.Native;
+using SoulsFormats;
 
 namespace StudioCore
 {
@@ -124,7 +125,7 @@ namespace StudioCore
                 memoryHandler = null;
             }
         }
-        private static void WriteMemoryPARAM(SoulsFormats.PARAM param, SoulsParamMemory.ParamBaseOffset enumOffset)
+        private static void WriteMemoryPARAM(PARAM param, SoulsParamMemory.ParamBaseOffset enumOffset)
         {
             var BasePtr = memoryHandler.GetParamPtr(enumOffset);
             var BaseDataPtr = memoryHandler.GetToRowPtr(enumOffset);
@@ -142,16 +143,16 @@ namespace StudioCore
 
                 DataSectionPtr = IntPtr.Add(BasePtr, rowPtr);
 
-                BaseDataPtr = BaseDataPtr + 0x18;
+                BaseDataPtr += 0x18;
 
-                SoulsFormats.PARAM.Row row = param[RowId];
+                PARAM.Row row = param[RowId];
                 if (row != null)
                 {
                     WriteMemoryRow(row, DataSectionPtr);
                 }
             }
         }
-        private static void WriteMemoryRow(SoulsFormats.PARAM.Row row, IntPtr RowDataSectionPtr)
+        private static void WriteMemoryRow(PARAM.Row row, IntPtr RowDataSectionPtr)
         {
             int offset = 0;
             int bitFieldPos = 0;
@@ -162,9 +163,9 @@ namespace StudioCore
                 offset += WriteMemoryCell(cell, RowDataSectionPtr + offset, ref bitFieldPos, ref bits);
             }
         }
-        private static int WriteMemoryCell(SoulsFormats.PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
+        private static int WriteMemoryCell(PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
-            SoulsFormats.PARAMDEF.DefType displayType = cell.Def.DisplayType;
+            PARAMDEF.DefType displayType = cell.Def.DisplayType;
             if (cell.Def.BitSize != -1)
             {
                 if (displayType == SoulsFormats.PARAMDEF.DefType.u8)
@@ -178,7 +179,7 @@ namespace StudioCore
                     if (bitFieldPos == 8)
                     {
                         byte valueRead = 0;
-                        memoryHandler.ReadProcessMemory<byte>(CellDataPtr, ref valueRead);
+                        memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                         byte[] bitField = new byte[1];
                         bits.CopyTo(bitField, 0);
@@ -186,7 +187,7 @@ namespace StudioCore
                         byte bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
-                            memoryHandler.WriteProcessMemory<byte>(CellDataPtr, ref bitbuffer);
+                            memoryHandler.WriteProcessMemory(CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(byte);
                     }
@@ -206,7 +207,7 @@ namespace StudioCore
                     if (bitFieldPos == 16)
                     {
                         UInt16 valueRead = 0;
-                        memoryHandler.ReadProcessMemory<UInt16>(CellDataPtr, ref valueRead);
+                        memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                         UInt16[] bitField = new UInt16[1];
                         bits.CopyTo(bitField, 0);
@@ -214,7 +215,7 @@ namespace StudioCore
                         UInt16 bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
-                            memoryHandler.WriteProcessMemory<UInt16>(CellDataPtr, ref bitbuffer);
+                            memoryHandler.WriteProcessMemory(CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(UInt16);
                     }
@@ -234,7 +235,7 @@ namespace StudioCore
                     if (bitFieldPos == 32)
                     {
                         UInt32 valueRead = 0;
-                        memoryHandler.ReadProcessMemory<UInt32>(CellDataPtr, ref valueRead);
+                        memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                         UInt32[] bitField = new UInt32[1];
                         bits.CopyTo(bitField, 0);
@@ -242,7 +243,7 @@ namespace StudioCore
                         UInt32 bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
-                            memoryHandler.WriteProcessMemory<UInt32>(CellDataPtr, ref bitbuffer);
+                            memoryHandler.WriteProcessMemory(CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(UInt32);
                     }
@@ -255,84 +256,84 @@ namespace StudioCore
             if (displayType == SoulsFormats.PARAMDEF.DefType.f32)
             {
                 float valueRead = 0f;
-                memoryHandler.ReadProcessMemory<float>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 float value = Convert.ToSingle(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<float>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(float);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.s32)
             {
                 Int32 valueRead = 0;
-                memoryHandler.ReadProcessMemory<Int32>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 Int32 value = Convert.ToInt32(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<Int32>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(Int32);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.s16)
             {
                 Int16 valueRead = 0;
-                memoryHandler.ReadProcessMemory<Int16>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 Int16 value = Convert.ToInt16(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<Int16>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(Int16);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.s8)
             {
                 sbyte valueRead = 0;
-                memoryHandler.ReadProcessMemory<sbyte>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 sbyte value = Convert.ToSByte(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<sbyte>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(sbyte);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.u32)
             {
                 UInt32 valueRead = 0;
-                memoryHandler.ReadProcessMemory<UInt32>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 UInt32 value = Convert.ToUInt32(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<UInt32>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(UInt32);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.u16)
             {
                 UInt16 valueRead = 0;
-                memoryHandler.ReadProcessMemory<UInt16>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 UInt16 value = Convert.ToUInt16(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<UInt16>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(UInt16);
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.u8)
             {
                 byte valueRead = 0;
-                memoryHandler.ReadProcessMemory<byte>(CellDataPtr, ref valueRead);
+                memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
                 byte value = Convert.ToByte(cell.Value);
                 if (valueRead != value)
                 {
-                    memoryHandler.WriteProcessMemory<byte>(CellDataPtr, ref value);
+                    memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
                 }
                 return sizeof(byte);
             }
@@ -349,7 +350,7 @@ namespace StudioCore
     public class SoulsParamMemory
     {
         public IntPtr memoryHandle;
-        private Process gameProcess;
+        private readonly Process gameProcess;
         public SoulsParamMemory(Process gameProcess)
         {
             this.gameProcess = gameProcess;
