@@ -220,6 +220,14 @@ namespace StudioCore.MsbEditor
                 }
                 ImGui.EndMenu();
             }
+            if (ImGui.BeginMenu("Game"))
+            {
+                if (ImGui.MenuItem("Hot Reload Params", "F5", false, _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoading == false))
+                {
+                    ParamReloader.ReloadMemoryParamsDS3();
+                }
+                ImGui.EndMenu();
+            }
         }
 
         public void OpenMassEditPopup(string popup)
@@ -354,6 +362,11 @@ namespace StudioCore.MsbEditor
                         _activeView._selection.SetActiveRow(null);
                     }
                 }
+            }
+
+            if (InputTracker.GetKey(Key.F5) && _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoading == false)
+            {
+                ParamReloader.ReloadMemoryParamsDS3();
             }
 
             ShortcutPopups();

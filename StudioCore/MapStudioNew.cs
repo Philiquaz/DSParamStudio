@@ -460,18 +460,6 @@ namespace StudioCore
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
                     }
-                    if (_assetLocator.GetGameTypeForExePath(_assetLocator.GameRootDirectory + "/DarkSoulsIII.exe") == GameType.DarkSoulsIII && ParamBank.IsLoading == false && _projectSettings != null && _projectSettings.ProjectName != null)
-                    {
-                        if (ImGui.MenuItem("Hot Reload Params[DS3 Only]"))
-                        {
-
-                            ParamReloader.ReloadMemoryParamsDS3();
-                        }
-                    }
-                    else
-                    {
-                        ImGui.TextDisabled("Hot Reload Params[DS3 Only]");
-                    }
                     ImGui.EndMenu();
                 }
                 if (_paramEditorFocused)
