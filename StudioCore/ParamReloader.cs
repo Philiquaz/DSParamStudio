@@ -47,9 +47,9 @@ namespace StudioCore
         }
         private static void WriteMemoryPARAM(PARAM param, int paramOffset)
         {
-            var BasePtr = memoryHandler.GetParamPtr(paramOffset);
-            var BaseDataPtr = memoryHandler.GetToRowPtr(paramOffset);
-            var RowCount = memoryHandler.GetRowCount(paramOffset);
+            var BasePtr = memoryHandler.GetParamPtrDS3(paramOffset);
+            var BaseDataPtr = memoryHandler.GetToRowPtrDS3(paramOffset);
+            var RowCount = memoryHandler.GetRowCountDS3(paramOffset);
 
             IntPtr DataSectionPtr;
 
@@ -86,6 +86,7 @@ namespace StudioCore
         private static int WriteMemoryCell(PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
         {
             PARAMDEF.DefType displayType = cell.Def.DisplayType;
+            // If this can be simplified, that would be ideal. Currently we have to reconcile DefType, a numerical size in bits, and the Type used for the bitField array
             if (cell.Def.BitSize != -1)
             {
                 if (displayType == SoulsFormats.PARAMDEF.DefType.u8)
@@ -111,10 +112,7 @@ namespace StudioCore
                         }
                         return sizeof(byte);
                     }
-                    else
-                    {
-                        return 0;
-                    }
+                    return 0;
                 }
                 else if (displayType == SoulsFormats.PARAMDEF.DefType.u16)
                 {
@@ -126,23 +124,20 @@ namespace StudioCore
                     bitFieldPos++;
                     if (bitFieldPos == 16)
                     {
-                        UInt16 valueRead = 0;
+                        ushort valueRead = 0;
                         memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                        UInt16[] bitField = new UInt16[1];
+                        ushort[] bitField = new ushort[1];
                         bits.CopyTo(bitField, 0);
                         bitFieldPos = 0;
-                        UInt16 bitbuffer = bitField[0];
+                        ushort bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
                             memoryHandler.WriteProcessMemory(CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(UInt16);
                     }
-                    else
-                    {
-                        return 0;
-                    }
+                    return 0;
                 }
                 else if (displayType == SoulsFormats.PARAMDEF.DefType.u32)
                 {
@@ -154,23 +149,20 @@ namespace StudioCore
                     bitFieldPos++;
                     if (bitFieldPos == 32)
                     {
-                        UInt32 valueRead = 0;
+                        uint valueRead = 0;
                         memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                        UInt32[] bitField = new UInt32[1];
+                        uint[] bitField = new uint[1];
                         bits.CopyTo(bitField, 0);
                         bitFieldPos = 0;
-                        UInt32 bitbuffer = bitField[0];
+                        uint bitbuffer = bitField[0];
                         if (valueRead != bitbuffer)
                         {
                             memoryHandler.WriteProcessMemory(CellDataPtr, ref bitbuffer);
                         }
                         return sizeof(UInt32);
                     }
-                    else
-                    {
-                        return 0;
-                    }
+                    return 0;
                 }
             }
             if (displayType == SoulsFormats.PARAMDEF.DefType.f32)
@@ -187,10 +179,10 @@ namespace StudioCore
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.s32)
             {
-                Int32 valueRead = 0;
+                int valueRead = 0;
                 memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                Int32 value = Convert.ToInt32(cell.Value);
+                int value = Convert.ToInt32(cell.Value);
                 if (valueRead != value)
                 {
                     memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
@@ -199,10 +191,10 @@ namespace StudioCore
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.s16)
             {
-                Int16 valueRead = 0;
+                short valueRead = 0;
                 memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                Int16 value = Convert.ToInt16(cell.Value);
+                short value = Convert.ToInt16(cell.Value);
                 if (valueRead != value)
                 {
                     memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
@@ -223,10 +215,10 @@ namespace StudioCore
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.u32)
             {
-                UInt32 valueRead = 0;
+                uint valueRead = 0;
                 memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                UInt32 value = Convert.ToUInt32(cell.Value);
+                uint value = Convert.ToUInt32(cell.Value);
                 if (valueRead != value)
                 {
                     memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
@@ -235,10 +227,10 @@ namespace StudioCore
             }
             else if (displayType == SoulsFormats.PARAMDEF.DefType.u16)
             {
-                UInt16 valueRead = 0;
+                ushort valueRead = 0;
                 memoryHandler.ReadProcessMemory(CellDataPtr, ref valueRead);
 
-                UInt16 value = Convert.ToUInt16(cell.Value);
+                ushort value = Convert.ToUInt16(cell.Value);
                 if (valueRead != value)
                 {
                     memoryHandler.WriteProcessMemory(CellDataPtr, ref value);
@@ -384,7 +376,7 @@ namespace StudioCore
             return NativeWrapper.WriteProcessMemory(memoryHandle, baseAddress, ref buffer);
         }
 
-        public IntPtr GetParamPtr(int Offset)
+        public IntPtr GetParamPtrDS3(int Offset)
         {
             IntPtr ParamPtr = IntPtr.Add(gameProcess.MainModule.BaseAddress, 0x4782838);
             NativeWrapper.ReadProcessMemory(memoryHandle, ParamPtr, ref ParamPtr);
@@ -398,9 +390,9 @@ namespace StudioCore
             return ParamPtr;
         }
 
-        public short GetRowCount(int Offset)
+        public short GetRowCountDS3(int Offset)
         {
-            IntPtr ParamPtr = GetParamPtr(Offset);
+            IntPtr ParamPtr = GetParamPtrDS3(Offset);
 
             Int16 buffer = 0;
             NativeWrapper.ReadProcessMemory(memoryHandle, ParamPtr + 0xA, ref buffer);
@@ -408,9 +400,9 @@ namespace StudioCore
             return buffer;
         }
 
-        public IntPtr GetToRowPtr(int Offset)
+        public IntPtr GetToRowPtrDS3(int Offset)
         {
-            var ParamPtr = GetParamPtr(Offset);
+            var ParamPtr = GetParamPtrDS3(Offset);
             ParamPtr = IntPtr.Add(ParamPtr, 0x40);
 
             return ParamPtr;
