@@ -173,8 +173,8 @@ namespace StudioCore.MsbEditor
                 else
                 {
                     newrow.Name = row.Name != null ? row.Name + "_1" : "";
-                    long newID = row.ID + 1;
-                    while (Param[(int) newID] != null)
+                    int newID = row.ID + 1;
+                    while (Param[newID] != null)
                     {
                         newID++;
                     }
