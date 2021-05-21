@@ -410,7 +410,7 @@ namespace StudioCore
                         ImGui.MenuItem($@"Settings: {_projectSettings.ProjectName}");
                     }
 
-                    if (ImGui.MenuItem("New Project", "CTRL+N") || InputTracker.GetControlShortcut(Key.I))
+                    if (ImGui.MenuItem("New Project", "CTRL+N"))
                     {
                         newProject = true;
                     }
@@ -461,6 +461,15 @@ namespace StudioCore
                         TextEditor.SaveAll();
                     }
                     ImGui.EndMenu();
+                }
+                if (InputTracker.GetControlShortcut(Key.N))
+                {
+                    newProject = true;
+                }
+                if (InputTracker.GetControlShortcut(Key.S))
+                {
+                    ParamEditor.SaveAll();
+                    TextEditor.SaveAll();
                 }
                 if (_paramEditorFocused)
                 {
