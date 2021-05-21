@@ -25,6 +25,30 @@ namespace StudioCore.LiveRefresh
             
         }
 
+        public static void UrMomGay()
+        {
+            var PartsPtr = (IntPtr)GetReloadPtr();
+
+            if (Type == GameType.DarkSoulsIII)
+            {
+                try
+                {
+                    Memory.AttachProc("DarkSoulsIII");
+
+
+                    //Memory.ExecuteBufferFunction();
+                    //Memory.WriteFloat(PartsPtr + 0x3048, (float)10);
+                    //Memory.WriteBoolean(PartsPtr + 0x3044, true);
+                }
+                finally
+                {
+                    Memory.CloseHandle();
+                }
+            }
+
+
+        }
+
         public static void RequestReloadParts()
         {
             var PartsPtr = (IntPtr)GetReloadPtr();
@@ -67,7 +91,7 @@ namespace StudioCore.LiveRefresh
         {
             byte[] chrNameBytes = Encoding.Unicode.GetBytes(chrName);
 
-            if (Type == GameType.DarkSoulsIII)
+            if (true)
             {
                 try
                 {

@@ -79,7 +79,7 @@ namespace StudioCore
                //VeldridStartup.GetPlatformDefaultBackend(),
                //GraphicsBackend.Metal,
                GraphicsBackend.Vulkan,
-               
+
                //GraphicsBackend.Direct3D11,
                //GraphicsBackend.OpenGL,
                //GraphicsBackend.OpenGLES,
@@ -282,7 +282,7 @@ namespace StudioCore
             ImGui.PopStyleVar(4);
         }
 
-        private bool AttemptLoadProject(ProjectSettings settings, string filename, bool updateRecents=true)
+        private bool AttemptLoadProject(ProjectSettings settings, string filename, bool updateRecents = true)
         {
             bool success = true;
 
@@ -459,6 +459,18 @@ namespace StudioCore
                     {
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
+                    }
+                    if (_assetLocator.GetGameTypeForExePath(_assetLocator.GameRootDirectory + "/DarkSoulsIII.exe") == GameType.DarkSoulsIII && ParamBank.IsLoading == false && _projectSettings != null && _projectSettings.ProjectName != null)
+                    {
+                        if (ImGui.MenuItem("Hot Reload Params[DS3 Only]"))
+                        {
+
+                            ParamReloader.ReloadMemoryParamsDS3();
+                        }
+                    }
+                    else
+                    {
+                        ImGui.TextDisabled("Hot Reload Params[DS3 Only]");
                     }
                     ImGui.EndMenu();
                 }
