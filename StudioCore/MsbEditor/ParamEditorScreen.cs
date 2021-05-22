@@ -146,15 +146,6 @@ namespace StudioCore.MsbEditor
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
                 }
-                if (ImGui.MenuItem("Delete", "Delete", false, _activeView._selection.rowSelectionExists()))
-                {
-                    if (_activeView._selection.rowSelectionExists())
-                    {
-                        var act = new DeleteParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], new List<PARAM.Row>() { _activeView._selection.getActiveRow() });
-                        EditorActionManager.ExecuteAction(act);
-                        _activeView._selection.SetActiveRow(null);
-                    }
-                }
                 if (ImGui.MenuItem("Mass Edit", null, false, true))
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
@@ -353,7 +344,7 @@ namespace StudioCore.MsbEditor
                 }
                 if (_clipboardRows.Count > 00 && _clipboardParam == _activeView._selection.getActiveParam() && !ImGui.IsAnyItemActive() && InputTracker.GetControlShortcut(Key.V))
                 {
-                    EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
+                    ImGui.OpenPopup("ctrlVPopup");
                 }
                 if (InputTracker.GetKeyDown(Key.Delete))
                 {
@@ -462,7 +453,7 @@ namespace StudioCore.MsbEditor
                     }
                 }
             }
-            
+
             ShortcutPopups();
             MassEditPopups();
 
