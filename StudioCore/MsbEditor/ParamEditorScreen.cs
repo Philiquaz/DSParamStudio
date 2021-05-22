@@ -137,14 +137,6 @@ namespace StudioCore.MsbEditor
                         _activeView._selection.SetActiveRow(null);
                     }
                 }
-                if (ImGui.MenuItem("Duplicate", "Ctrl+D", false, _activeView._selection.rowSelectionExists()))
-                {
-                    if (_activeView._selection.rowSelectionExists())
-                    {
-                        var act = new AddParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getActiveParam(), new List<PARAM.Row>() { _activeView._selection.getActiveRow() }, true);
-                        EditorActionManager.ExecuteAction(act);
-                    }
-                }
                 if (ImGui.MenuItem("Mass Edit", null, false, true))
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
@@ -344,14 +336,6 @@ namespace StudioCore.MsbEditor
                 if (_clipboardRows.Count > 00 && _clipboardParam == _activeView._selection.getActiveParam() && !ImGui.IsAnyItemActive() && InputTracker.GetControlShortcut(Key.V))
                 {
                     ImGui.OpenPopup("ctrlVPopup");
-                }
-                if (InputTracker.GetControlShortcut(Key.D))
-                {
-                    if (_activeView._selection.rowSelectionExists())
-                    {
-                        var act = new AddParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getActiveParam(), new List<PARAM.Row>() { _activeView._selection.getActiveRow() }, true);
-                        EditorActionManager.ExecuteAction(act);
-                    }
                 }
                 if (InputTracker.GetKeyDown(Key.Delete))
                 {
