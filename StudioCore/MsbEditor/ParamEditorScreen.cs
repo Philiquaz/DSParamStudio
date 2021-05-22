@@ -120,13 +120,31 @@ namespace StudioCore.MsbEditor
             // Menu Options
             if (ImGui.BeginMenu("Edit"))
             {
-                if (ImGui.MenuItem("Undo", "CTRL+Z", false, EditorActionManager.CanUndo()))
+                if (ImGui.MenuItem("Undo", "Ctrl+Z", false, EditorActionManager.CanUndo()))
                 {
                     EditorActionManager.UndoAction();
                 }
                 if (ImGui.MenuItem("Redo", "Ctrl+Y", false, EditorActionManager.CanRedo()))
                 {
                     EditorActionManager.RedoAction();
+                }
+                if (ImGui.MenuItem("Copy", "Ctrl+C", false, _activeView._selection.rowSelectionExists()))
+                {
+                    _clipboardParam = _activeView._selection.getActiveParam();
+                    _clipboardRows.Clear();
+                    long baseValue = long.MaxValue;
+                    foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
+                    {
+                        _clipboardRows.Add(new PARAM.Row(r));// make a clone
+                        if (r.ID < baseValue)
+                            baseValue = r.ID;
+                    }
+                    _clipboardBaseRow = baseValue;
+                    _currentCtrlVValue = _clipboardBaseRow.ToString();
+                }
+                if (ImGui.MenuItem("Paste", "Ctrl+V", false, _clipboardRows.Any()))
+                {
+                    EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
                 }
                 if (ImGui.MenuItem("Delete", "Delete", false, _activeView._selection.rowSelectionExists()))
                 {
@@ -135,14 +153,6 @@ namespace StudioCore.MsbEditor
                         var act = new DeleteParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], new List<PARAM.Row>() { _activeView._selection.getActiveRow() });
                         EditorActionManager.ExecuteAction(act);
                         _activeView._selection.SetActiveRow(null);
-                    }
-                }
-                if (ImGui.MenuItem("Duplicate", "Ctrl+D", false, _activeView._selection.rowSelectionExists()))
-                {
-                    if (_activeView._selection.rowSelectionExists())
-                    {
-                        var act = new AddParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getActiveParam(), new List<PARAM.Row>() { _activeView._selection.getActiveRow() }, true);
-                        EditorActionManager.ExecuteAction(act);
                     }
                 }
                 if (ImGui.MenuItem("Mass Edit", null, false, true))
@@ -343,15 +353,7 @@ namespace StudioCore.MsbEditor
                 }
                 if (_clipboardRows.Count > 00 && _clipboardParam == _activeView._selection.getActiveParam() && !ImGui.IsAnyItemActive() && InputTracker.GetControlShortcut(Key.V))
                 {
-                    ImGui.OpenPopup("ctrlVPopup");
-                }
-                if (InputTracker.GetControlShortcut(Key.D))
-                {
-                    if (_activeView._selection.rowSelectionExists())
-                    {
-                        var act = new AddParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getActiveParam(), new List<PARAM.Row>() { _activeView._selection.getActiveRow() }, true);
-                        EditorActionManager.ExecuteAction(act);
-                    }
+                    EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
                 }
                 if (InputTracker.GetKeyDown(Key.Delete))
                 {
@@ -368,8 +370,6 @@ namespace StudioCore.MsbEditor
             {
                 ParamReloader.ReloadMemoryParamsDS3();
             }
-
-            ShortcutPopups();
 
             if (ParamBank.Params == null)
             {
@@ -429,7 +429,11 @@ namespace StudioCore.MsbEditor
                 }
                 else if (initcmd[0] == "menu" && initcmd.Length > 1)
                 {
-                    if (initcmd[1] == "massEditRegex")
+                    if (initcmd[1] == "ctrlVPopup")
+                    {
+                        ImGui.OpenPopup("ctrlVPopup");
+                    }
+                    else if (initcmd[1] == "massEditRegex")
                     {
                         _currentMEditRegexInput = initcmd.Length > 2 ? initcmd[2] : "";
                         OpenMassEditPopup("massEditMenuRegex");
@@ -458,6 +462,8 @@ namespace StudioCore.MsbEditor
                     }
                 }
             }
+            
+            ShortcutPopups();
             MassEditPopups();
 
             if (CountViews() == 1)
