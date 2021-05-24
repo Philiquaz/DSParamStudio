@@ -383,7 +383,8 @@ namespace StudioCore
             {"EquipParamWeapon", 0x0},
             {"EquipParamProtector", 0x10000000},
             {"EquipParamAccessory", 0x20000000},
-            {"EquipParamGoods", 0x40000000}
+            {"EquipParamGoods", 0x40000000},
+            {"Magic", 0x40000000}
         };
         public bool ReadProcessMemory<T>(IntPtr baseAddress, ref T buffer) where T : unmanaged
         {
