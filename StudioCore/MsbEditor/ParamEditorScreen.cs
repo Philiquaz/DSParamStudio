@@ -60,10 +60,6 @@ namespace StudioCore.MsbEditor
                 {
                     EditorCommandQueue.AddCommand($@"text/select/{_category.ToString()}/{row.ID}");
                 }
-                if (ImGui.Selectable("Give This Item to the player DS3"))
-                {//This needs a check for gametype but gametype is not readialy accessible in this context
-                    ParamReloader.GiveItemDS3(row.Def.ParamType, (int)row.ID);
-                }
                 ImGui.EndPopup();
             }
         }
@@ -230,6 +226,17 @@ namespace StudioCore.MsbEditor
                 if (ImGui.MenuItem("Hot Reload Params", "F5", false, _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoading == false))
                 {
                     ParamReloader.ReloadMemoryParamsDS3();
+                }
+                string activeParam = _activeView._selection.getActiveParam();
+                if (activeParam != null && _projectSettings.GameType == GameType.DarkSoulsIII)
+                {
+                    if (SoulsMemoryHandler.ItemGibOffsetsDS3.ContainsKey(activeParam))
+                    {
+                        if (ImGui.MenuItem("Spawn Selected Items In Game"))
+                        {
+                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam);
+                        }
+                    }
                 }
                 ImGui.EndMenu();
             }

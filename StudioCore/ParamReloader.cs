@@ -45,18 +45,23 @@ namespace StudioCore
                 memoryHandler = null;
             }
         }
-        public static void GiveItemDS3(string paramDefParamType, int itemRowID, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
+        public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType)
         {
-            var processArray = Process.GetProcessesByName("DarkSoulsIII");
-            if (processArray.Any())
+            if (rowsToGib.Any())
             {
-                memoryHandler = new SoulsMemoryHandler(processArray.First());
-                List<Thread> threads = new List<Thread>();
+                var processArray = Process.GetProcessesByName("DarkSoulsIII");
+                if (processArray.Any())
+                {
+                    memoryHandler = new SoulsMemoryHandler(processArray.First());
 
-                memoryHandler.PlayerItemGiveDS3(paramDefParamType, itemRowID, itemQuantityReceived, itemDurabilityReceived);
+                    foreach (var row in rowsToGib)
+                    {
+                        memoryHandler.PlayerItemGiveDS3(studioParamType, (int)row.ID);
+                    }
 
-                memoryHandler.Terminate();
-                memoryHandler = null;
+                    memoryHandler.Terminate();
+                    memoryHandler = null;
+                }
             }
         }
         private static void WriteMemoryPARAM(PARAM param, int paramOffset)
@@ -380,12 +385,12 @@ namespace StudioCore
                 {"WetAspectParam", 0x1420},
                 {"Wind", 0xA48},
         };
-        private static Dictionary<string, int> ItemGibOffsetsDS3 = new Dictionary<string, int>()
+        public static Dictionary<string, int> ItemGibOffsetsDS3 = new Dictionary<string, int>()
         {
-            {"EQUIP_PARAM_WEAPON_ST", 0x0},
-            {"EQUIP_PARAM_PROTECTOR_ST", 0x10000000},
-            {"EQUIP_PARAM_ACCESSORY_ST", 0x20000000},
-            {"EQUIP_PARAM_GOODS_ST", 0x40000000}
+            {"EquipParamWeapon", 0x0},
+            {"EquipParamProtector", 0x10000000},
+            {"EquipParamAccessory", 0x20000000},
+            {"EquipParamGoods", 0x40000000}
         };
         public bool ReadProcessMemory<T>(IntPtr baseAddress, ref T buffer) where T : unmanaged
         {
