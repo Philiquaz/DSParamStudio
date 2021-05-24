@@ -9,26 +9,27 @@ using System.Threading;
 using ProcessMemoryUtilities.Managed;
 using ProcessMemoryUtilities.Native;
 using SoulsFormats;
+using System.Text;
 
 namespace StudioCore
 {
     class ParamReloader
     {
-        public static SoulsParamMemory memoryHandler;
+        public static SoulsMemoryHandler memoryHandler;
 
         public static void ReloadMemoryParamsDS3()
         {
             var processArray = Process.GetProcessesByName("DarkSoulsIII");
             if (processArray.Any())
             {
-                memoryHandler = new SoulsParamMemory(processArray.First());
+                memoryHandler = new SoulsMemoryHandler(processArray.First());
                 List<Thread> threads = new List<Thread>();
 
                 foreach (var (paramFileName, param) in ParamBank.Params)
                 {
-                    if (SoulsParamMemory.paramOffsetsDS3.ContainsKey(paramFileName))
+                    if (SoulsMemoryHandler.paramOffsetsDS3.ContainsKey(paramFileName))
                     {
-                        threads.Add(new Thread(() => WriteMemoryPARAM(param, SoulsParamMemory.paramOffsetsDS3[paramFileName])));
+                        threads.Add(new Thread(() => WriteMemoryPARAM(param, SoulsMemoryHandler.paramOffsetsDS3[paramFileName])));
                     }
                 }
 
@@ -40,6 +41,19 @@ namespace StudioCore
                 {
                     thread.Join();
                 }
+                memoryHandler.Terminate();
+                memoryHandler = null;
+            }
+        }
+        public static void GiveItemDS3(string paramDefParamType, int itemRowID, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
+        {
+            var processArray = Process.GetProcessesByName("DarkSoulsIII");
+            if (processArray.Any())
+            {
+                memoryHandler = new SoulsMemoryHandler(processArray.First());
+                List<Thread> threads = new List<Thread>();
+
+                memoryHandler.PlayerItemGiveDS3(paramDefParamType, itemRowID, itemQuantityReceived, itemDurabilityReceived);
 
                 memoryHandler.Terminate();
                 memoryHandler = null;
@@ -259,11 +273,11 @@ namespace StudioCore
             }
         }
     }
-    public class SoulsParamMemory
+    public class SoulsMemoryHandler
     {
         public IntPtr memoryHandle;
         private readonly Process gameProcess;
-        public SoulsParamMemory(Process gameProcess)
+        public SoulsMemoryHandler(Process gameProcess)
         {
             this.gameProcess = gameProcess;
             this.memoryHandle = NativeWrapper.OpenProcess(ProcessAccessFlags.ReadWrite, gameProcess.Id);
@@ -366,6 +380,13 @@ namespace StudioCore
                 {"WetAspectParam", 0x1420},
                 {"Wind", 0xA48},
         };
+        private static Dictionary<string, int> ItemGibOffsetsDS3 = new Dictionary<string, int>()
+        {
+            {"EQUIP_PARAM_WEAPON_ST", 0x0},
+            {"EQUIP_PARAM_PROTECTOR_ST", 0x10000000},
+            {"EQUIP_PARAM_ACCESSORY_ST", 0x20000000},
+            {"EQUIP_PARAM_GOODS_ST", 0x40000000}
+        };
         public bool ReadProcessMemory<T>(IntPtr baseAddress, ref T buffer) where T : unmanaged
         {
             return NativeWrapper.ReadProcessMemory(memoryHandle, baseAddress, ref buffer);
@@ -374,6 +395,118 @@ namespace StudioCore
         public bool WriteProcessMemory<T>(IntPtr baseAddress, ref T buffer) where T : unmanaged
         {
             return NativeWrapper.WriteProcessMemory(memoryHandle, baseAddress, ref buffer);
+        }
+
+        public bool WriteProcessMemoryArray<T>(IntPtr baseAddress, T[] buffer) where T : unmanaged
+        {
+            return NativeWrapper.WriteProcessMemoryArray(memoryHandle, baseAddress, buffer);
+        }
+
+        public void ExecuteFunction(byte[] array)
+        {
+            IntPtr buffer = (IntPtr)0x100;
+
+            var address = NativeWrapper.VirtualAllocEx(memoryHandle, IntPtr.Zero, buffer, AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
+
+            if (address != IntPtr.Zero)
+            {
+                if (WriteProcessMemoryArray(address, array))
+                {
+                    var threadHandle = NativeWrapper.CreateRemoteThread(memoryHandle, IntPtr.Zero, (IntPtr)0, address, IntPtr.Zero, ThreadCreationFlags.Immediately, out var threadId);
+                    if (threadHandle != IntPtr.Zero)
+                    {
+                        Kernel32.WaitForSingleObject(threadHandle, 30000);
+                    }
+                }
+                NativeWrapper.VirtualFreeEx(memoryHandle, address, buffer, FreeType.PreservePlaceholder);
+            }
+        }
+
+        public void ExecuteBufferFunction(byte[] array, byte[] argument)
+        {
+            var Size1 = 0x100;
+            var Size2 = 0x100;
+
+            var address = NativeWrapper.VirtualAllocEx(memoryHandle, IntPtr.Zero, (IntPtr)Size1, AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
+            var bufferAddress = NativeWrapper.VirtualAllocEx(memoryHandle, IntPtr.Zero, (IntPtr)Size2, AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
+
+            var bytjmp = 0x2;
+            var bytjmpAr = new byte[7];
+
+            WriteProcessMemoryArray(bufferAddress, argument);
+
+            bytjmpAr = BitConverter.GetBytes((long)bufferAddress);
+            Array.Copy(bytjmpAr, 0, array, bytjmp, bytjmpAr.Length);
+
+            if (address != IntPtr.Zero)
+            {
+                if (WriteProcessMemoryArray(address, array))
+                {
+
+                    var threadHandle = NativeWrapper.CreateRemoteThread(memoryHandle, IntPtr.Zero, (IntPtr)0, address, IntPtr.Zero, ThreadCreationFlags.Immediately, out var threadId);
+                    if (threadHandle != IntPtr.Zero)
+                    {
+                        Kernel32.WaitForSingleObject(threadHandle, 30000);
+                    }
+
+                }
+                NativeWrapper.VirtualFreeEx(memoryHandle, address, (IntPtr)Size1, FreeType.PreservePlaceholder);
+                NativeWrapper.VirtualFreeEx(memoryHandle, address, (IntPtr)Size2, FreeType.PreservePlaceholder);
+            }
+        }
+
+        public void RequestReloadChr(string chrName)
+        {
+            byte[] chrNameBytes = Encoding.Unicode.GetBytes(chrName);
+
+            bool memoryWriteBuffer = true;
+            WriteProcessMemory(gameProcess.MainModule.BaseAddress + 0x4768F7F, ref memoryWriteBuffer);
+
+            var buffer = new byte[]
+            {
+                0x48, 0xBA, 0, 0, 0, 0, 0, 0, 0, 0, //mov rdx,Alloc
+                0x48, 0xA1, 0x78, 0x8E, 0x76, 0x44, 0x01, 0x00, 0x00, 0x00, //mov rax,[144768E78]
+                0x48, 0x8B, 0xC8, //mov rcx,rax
+                0x49, 0xBE, 0x10, 0x1E, 0x8D, 0x40, 0x01, 0x00, 0x00, 0x00, //mov r14,00000001408D1E10
+                0x48, 0x83, 0xEC, 0x28, //sub rsp,28
+                0x41, 0xFF, 0xD6, //call r14
+                0x48, 0x83, 0xC4, 0x28, //add rsp,28
+                0xC3 //ret
+            };
+
+            ExecuteBufferFunction(buffer, chrNameBytes);
+        }
+        public void PlayerItemGiveDS3(string paramDefParamType, int itemRowID, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
+        {//Thanks Church Guard for providing the foundation of this.
+
+            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType))
+            {
+                int paramOffset = ItemGibOffsetsDS3[paramDefParamType];
+
+                //ItemGib ASM in byte format
+                var itemGibByteFunction = new byte[] { 0x48, 0x83, 0xEC, 0x48, 0x4C, 0x8D, 0x01, 0x48, 0x8D, 0x51, 0x10, 0x48, 0xA1, 0x00, 0x23, 0x75, 0x44, 0x01, 0x00, 0x00, 0x00, 0x48, 0x8B, 0xC8, 0xFF, 0x15, 0x02, 0x00, 0x00, 0x00, 0xEB, 0x08, 0x70, 0xBA, 0x7B, 0x40, 0x01, 0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x48, 0xC3 };
+                //ItemGib Arguments Int Array
+                var itemGibArgumentsIntArray = new int[] { 0, 0, 0, 0, 1, itemRowID + paramOffset, itemQuantityReceived, itemDurabilityReceived };
+
+                //Copy itemGibArgumentsIntArray's Bytes into a byte array
+                byte[] itemGibArgumentsByteArray = new byte[Buffer.ByteLength(itemGibArgumentsIntArray)];
+                Buffer.BlockCopy(itemGibArgumentsIntArray, 0, itemGibArgumentsByteArray, 0, itemGibArgumentsByteArray.Length);
+
+                //Allocate Memory for ItemGib and Arguments
+                IntPtr itemGibByteFunctionPtr = NativeWrapper.VirtualAllocEx(memoryHandle, (IntPtr)0, (IntPtr)Buffer.ByteLength(itemGibByteFunction), AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
+                IntPtr itemGibArgumentsPtr = NativeWrapper.VirtualAllocEx(memoryHandle, (IntPtr)0, (IntPtr)Buffer.ByteLength(itemGibArgumentsIntArray), AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
+
+                //Write ItemGib Function and Arguments into the previously allocated memory
+                NativeWrapper.WriteProcessMemoryArray(memoryHandle, itemGibByteFunctionPtr, itemGibByteFunction);
+                NativeWrapper.WriteProcessMemoryArray(memoryHandle, itemGibArgumentsPtr, itemGibArgumentsByteArray);
+
+                //Create a new thread at the copied ItemGib function in memory
+                NativeWrapper.CreateRemoteThread(memoryHandle, itemGibByteFunctionPtr, itemGibArgumentsPtr);
+
+                //Frees memory used by the ItemGib function and it's arguments
+                NativeWrapper.VirtualFreeEx(memoryHandle, itemGibByteFunctionPtr, (IntPtr)Buffer.ByteLength(itemGibByteFunction), FreeType.PreservePlaceholder);
+                NativeWrapper.VirtualFreeEx(memoryHandle, itemGibArgumentsPtr, (IntPtr)Buffer.ByteLength(itemGibArgumentsIntArray), FreeType.PreservePlaceholder);
+            }
         }
 
         public IntPtr GetParamPtrDS3(int Offset)

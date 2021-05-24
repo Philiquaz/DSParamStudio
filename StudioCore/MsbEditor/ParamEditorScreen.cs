@@ -60,6 +60,10 @@ namespace StudioCore.MsbEditor
                 {
                     EditorCommandQueue.AddCommand($@"text/select/{_category.ToString()}/{row.ID}");
                 }
+                if (ImGui.Selectable("Give This Item to the player DS3"))
+                {//This needs a check for gametype but gametype is not readialy accessible in this context
+                    ParamReloader.GiveItemDS3(row.Def.ParamType, (int)row.ID);
+                }
                 ImGui.EndPopup();
             }
         }
