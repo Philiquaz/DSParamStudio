@@ -474,17 +474,36 @@ namespace StudioCore
 
             ExecuteBufferFunction(buffer, chrNameBytes);
         }
-        public void PlayerItemGiveDS3(string paramDefParamType, int itemRowID, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
+        public void PlayerItemGiveDS3(List<PARAM.Row> rows, string paramDefParamType, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
         {//Thanks Church Guard for providing the foundation of this.
 
-            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType))
+            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType) && rows.Any())
             {
                 int paramOffset = ItemGibOffsetsDS3[paramDefParamType];
 
+                List<int> intListProcessing = new List<int>();
+
+                //Padding? Supposedly?
+                intListProcessing.Add(0);
+                intListProcessing.Add(0);
+                intListProcessing.Add(0);
+                intListProcessing.Add(0);
+                //Items to give amount
+                intListProcessing.Add(rows.Count());
+
+                foreach (var row in rows)
+                {
+                    intListProcessing.Add((int)row.ID + paramOffset);
+                    intListProcessing.Add(itemQuantityReceived);
+                    intListProcessing.Add(itemDurabilityReceived);
+                }
+
                 //ItemGib ASM in byte format
                 var itemGibByteFunction = new byte[] { 0x48, 0x83, 0xEC, 0x48, 0x4C, 0x8D, 0x01, 0x48, 0x8D, 0x51, 0x10, 0x48, 0xA1, 0x00, 0x23, 0x75, 0x44, 0x01, 0x00, 0x00, 0x00, 0x48, 0x8B, 0xC8, 0xFF, 0x15, 0x02, 0x00, 0x00, 0x00, 0xEB, 0x08, 0x70, 0xBA, 0x7B, 0x40, 0x01, 0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x48, 0xC3 };
+
                 //ItemGib Arguments Int Array
-                var itemGibArgumentsIntArray = new int[] { 0, 0, 0, 0, 1, itemRowID + paramOffset, itemQuantityReceived, itemDurabilityReceived };
+                int[] itemGibArgumentsIntArray = new int[intListProcessing.Count()];
+                intListProcessing.CopyTo(itemGibArgumentsIntArray);
 
                 //Copy itemGibArgumentsIntArray's Bytes into a byte array
                 byte[] itemGibArgumentsByteArray = new byte[Buffer.ByteLength(itemGibArgumentsIntArray)];
@@ -499,51 +518,9 @@ namespace StudioCore
                 NativeWrapper.WriteProcessMemoryArray(memoryHandle, itemGibArgumentsPtr, itemGibArgumentsByteArray);
 
                 //Create a new thread at the copied ItemGib function in memory
+
                 NativeWrapper.WaitForSingleObject(NativeWrapper.CreateRemoteThread(memoryHandle, itemGibByteFunctionPtr, itemGibArgumentsPtr), 30000);
 
-                //Frees memory used by the ItemGib function and it's arguments
-                NativeWrapper.VirtualFreeEx(memoryHandle, itemGibByteFunctionPtr, (IntPtr)Buffer.ByteLength(itemGibByteFunction), FreeType.PreservePlaceholder);
-                NativeWrapper.VirtualFreeEx(memoryHandle, itemGibArgumentsPtr, (IntPtr)Buffer.ByteLength(itemGibArgumentsIntArray), FreeType.PreservePlaceholder);
-
-                Thread.Sleep(5);
-            }
-        }
-
-        public void PlayerItemGiveDS3(List<PARAM.Row> rows, string paramDefParamType, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
-        {//Thanks Church Guard for providing the foundation of this.
-
-            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType) && rows.Any())
-            {
-                int paramOffset = ItemGibOffsetsDS3[paramDefParamType];
-
-                //ItemGib ASM in byte format
-                var itemGibByteFunction = new byte[] { 0x48, 0x83, 0xEC, 0x48, 0x4C, 0x8D, 0x01, 0x48, 0x8D, 0x51, 0x10, 0x48, 0xA1, 0x00, 0x23, 0x75, 0x44, 0x01, 0x00, 0x00, 0x00, 0x48, 0x8B, 0xC8, 0xFF, 0x15, 0x02, 0x00, 0x00, 0x00, 0xEB, 0x08, 0x70, 0xBA, 0x7B, 0x40, 0x01, 0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x48, 0xC3 };
-                //ItemGib Arguments Int Array
-                var itemGibArgumentsIntArray = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-                //Allocate Memory for ItemGib and Arguments
-                IntPtr itemGibByteFunctionPtr = NativeWrapper.VirtualAllocEx(memoryHandle, (IntPtr)0, (IntPtr)Buffer.ByteLength(itemGibByteFunction), AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
-                IntPtr itemGibArgumentsPtr = NativeWrapper.VirtualAllocEx(memoryHandle, (IntPtr)0, (IntPtr)Buffer.ByteLength(itemGibArgumentsIntArray), AllocationType.Commit | AllocationType.Reserve, MemoryProtectionFlags.ExecuteReadWrite);
-
-                //Write ItemGib Function and Arguments into the previously allocated memory
-                NativeWrapper.WriteProcessMemoryArray(memoryHandle, itemGibByteFunctionPtr, itemGibByteFunction);
-
-                foreach (var row in rows)
-                {
-                    itemGibArgumentsIntArray = new int[] { 0, 0, 0, 0, 1, (int)row.ID + paramOffset, itemQuantityReceived, itemDurabilityReceived };
-
-                    //Copy itemGibArgumentsIntArray's Bytes into a byte array
-                    byte[] itemGibArgumentsByteArray = new byte[Buffer.ByteLength(itemGibArgumentsIntArray)];
-                    Buffer.BlockCopy(itemGibArgumentsIntArray, 0, itemGibArgumentsByteArray, 0, itemGibArgumentsByteArray.Length);
-
-                    NativeWrapper.WriteProcessMemoryArray(memoryHandle, itemGibArgumentsPtr, itemGibArgumentsByteArray);
-
-                    //Create a new thread at the copied ItemGib function in memory
-
-                    NativeWrapper.WaitForSingleObject(NativeWrapper.CreateRemoteThread(memoryHandle, itemGibByteFunctionPtr, itemGibArgumentsPtr), 30000);
-
-                    Thread.Sleep(5);
-                }
 
                 //Frees memory used by the ItemGib function and it's arguments
                 NativeWrapper.VirtualFreeEx(memoryHandle, itemGibByteFunctionPtr, (IntPtr)Buffer.ByteLength(itemGibByteFunction), FreeType.PreservePlaceholder);
