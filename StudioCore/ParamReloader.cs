@@ -42,7 +42,7 @@ namespace StudioCore
                 memoryHandler.Terminate();
             }
         }
-        public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType)
+        public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType, int itemQuantityReceived)
         {
             if (rowsToGib.Any())
             {
@@ -51,7 +51,7 @@ namespace StudioCore
                 {
                     SoulsMemoryHandler memoryHandler = new SoulsMemoryHandler(processArray.First());
 
-                    memoryHandler.PlayerItemGiveDS3(rowsToGib, studioParamType);
+                    memoryHandler.PlayerItemGiveDS3(rowsToGib, studioParamType, itemQuantityReceived);
 
                     memoryHandler.Terminate();
                 }

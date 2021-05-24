@@ -94,6 +94,8 @@ namespace StudioCore.MsbEditor
         public static bool HideEnumsPreference = false;
         public static bool AllowFieldReorderPreference = true;
 
+        public static uint numberOfItemsToGive = 1;
+
         public static bool EditorMode = false;
 
         internal bool _isSearchBarActive = false;
@@ -234,8 +236,20 @@ namespace StudioCore.MsbEditor
                     {
                         if (ImGui.MenuItem("Spawn Selected Items In Game"))
                         {
-                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam);
+                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, (int)numberOfItemsToGive);
                         }
+                        string itemsNum = numberOfItemsToGive.ToString();
+                        ImGui.Indent();
+                        ImGui.Text("Number of Spawned Items");
+                        ImGui.SameLine();
+                        if (ImGui.InputText("##InputGib", ref itemsNum, (uint)2))
+                        {
+                            if (uint.TryParse(itemsNum, out uint result) && result != 0)
+                            {
+                                numberOfItemsToGive = result;
+                            }
+                        }
+                        ImGui.Unindent();
                     }
                 }
                 ImGui.EndMenu();
