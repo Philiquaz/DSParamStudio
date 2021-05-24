@@ -15,21 +15,19 @@ namespace StudioCore
 {
     class ParamReloader
     {
-        public static SoulsMemoryHandler memoryHandler;
-
         public static void ReloadMemoryParamsDS3()
         {
             var processArray = Process.GetProcessesByName("DarkSoulsIII");
             if (processArray.Any())
             {
-                memoryHandler = new SoulsMemoryHandler(processArray.First());
+                SoulsMemoryHandler memoryHandler = new SoulsMemoryHandler(processArray.First());
                 List<Thread> threads = new List<Thread>();
 
                 foreach (var (paramFileName, param) in ParamBank.Params)
                 {
                     if (SoulsMemoryHandler.paramOffsetsDS3.ContainsKey(paramFileName))
                     {
-                        threads.Add(new Thread(() => WriteMemoryPARAM(param, SoulsMemoryHandler.paramOffsetsDS3[paramFileName])));
+                        threads.Add(new Thread(() => WriteMemoryPARAM(param, SoulsMemoryHandler.paramOffsetsDS3[paramFileName], memoryHandler)));
                     }
                 }
 
@@ -42,7 +40,6 @@ namespace StudioCore
                     thread.Join();
                 }
                 memoryHandler.Terminate();
-                memoryHandler = null;
             }
         }
         public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType)
@@ -52,16 +49,15 @@ namespace StudioCore
                 var processArray = Process.GetProcessesByName("DarkSoulsIII");
                 if (processArray.Any())
                 {
-                    memoryHandler = new SoulsMemoryHandler(processArray.First());
+                    SoulsMemoryHandler memoryHandler = new SoulsMemoryHandler(processArray.First());
 
                     memoryHandler.PlayerItemGiveDS3(rowsToGib, studioParamType);
 
                     memoryHandler.Terminate();
-                    memoryHandler = null;
                 }
             }
         }
-        private static void WriteMemoryPARAM(PARAM param, int paramOffset)
+        private static void WriteMemoryPARAM(PARAM param, int paramOffset, SoulsMemoryHandler memoryHandler)
         {
             var BasePtr = memoryHandler.GetParamPtrDS3(paramOffset);
             var BaseDataPtr = memoryHandler.GetToRowPtrDS3(paramOffset);
@@ -84,11 +80,11 @@ namespace StudioCore
                 PARAM.Row row = param[RowId];
                 if (row != null)
                 {
-                    WriteMemoryRow(row, DataSectionPtr);
+                    WriteMemoryRow(row, DataSectionPtr, memoryHandler);
                 }
             }
         }
-        private static void WriteMemoryRow(PARAM.Row row, IntPtr RowDataSectionPtr)
+        private static void WriteMemoryRow(PARAM.Row row, IntPtr RowDataSectionPtr, SoulsMemoryHandler memoryHandler)
         {
             int offset = 0;
             int bitFieldPos = 0;
@@ -96,10 +92,10 @@ namespace StudioCore
 
             foreach (var cell in row.Cells)
             {
-                offset += WriteMemoryCell(cell, RowDataSectionPtr + offset, ref bitFieldPos, ref bits);
+                offset += WriteMemoryCell(cell, RowDataSectionPtr + offset, ref bitFieldPos, ref bits, memoryHandler);
             }
         }
-        private static int WriteMemoryCell(PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits)
+        private static int WriteMemoryCell(PARAM.Cell cell, IntPtr CellDataPtr, ref int bitFieldPos, ref BitArray bits, SoulsMemoryHandler memoryHandler)
         {
             PARAMDEF.DefType displayType = cell.Def.DisplayType;
             // If this can be simplified, that would be ideal. Currently we have to reconcile DefType, a numerical size in bits, and the Type used for the bitField array
@@ -508,13 +504,15 @@ namespace StudioCore
                 //Frees memory used by the ItemGib function and it's arguments
                 NativeWrapper.VirtualFreeEx(memoryHandle, itemGibByteFunctionPtr, (IntPtr)Buffer.ByteLength(itemGibByteFunction), FreeType.PreservePlaceholder);
                 NativeWrapper.VirtualFreeEx(memoryHandle, itemGibArgumentsPtr, (IntPtr)Buffer.ByteLength(itemGibArgumentsIntArray), FreeType.PreservePlaceholder);
+
+                Thread.Sleep(5);
             }
         }
 
         public void PlayerItemGiveDS3(List<PARAM.Row> rows, string paramDefParamType, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
         {//Thanks Church Guard for providing the foundation of this.
 
-            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType))
+            if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType) && rows.Any())
             {
                 int paramOffset = ItemGibOffsetsDS3[paramDefParamType];
 
@@ -543,6 +541,8 @@ namespace StudioCore
                     //Create a new thread at the copied ItemGib function in memory
 
                     NativeWrapper.WaitForSingleObject(NativeWrapper.CreateRemoteThread(memoryHandle, itemGibByteFunctionPtr, itemGibArgumentsPtr), 30000);
+
+                    Thread.Sleep(5);
                 }
 
                 //Frees memory used by the ItemGib function and it's arguments
