@@ -155,9 +155,9 @@ namespace StudioCore.MsbEditor
                 }
                 if (ImGui.BeginMenu("Export CSV", _activeView._selection.paramSelectionExists()))
                 {
-                    if (ImGui.MenuItem("All", null, false,  _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("All", null, false, _activeView._selection.paramSelectionExists()))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditCSVExport");
-                    if (ImGui.MenuItem("Name", null, false,  _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("Name", null, false, _activeView._selection.paramSelectionExists()))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVExport/Name");
                     if (ImGui.BeginMenu("Field"))
                     {
@@ -172,9 +172,9 @@ namespace StudioCore.MsbEditor
                 }
                 if (ImGui.BeginMenu("Import CSV", _activeView._selection.paramSelectionExists()))
                 {
-                    if (ImGui.MenuItem("All", null, false,  _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("All", null, false, _activeView._selection.paramSelectionExists()))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditCSVImport");
-                    if (ImGui.MenuItem("Name", null, false,  _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("Name", null, false, _activeView._selection.paramSelectionExists()))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVImport/Name");
                     if (ImGui.BeginMenu("Field"))
                     {
@@ -237,22 +237,25 @@ namespace StudioCore.MsbEditor
                     {
                         if (ImGui.MenuItem("Spawn Selected Items In Game"))
                         {
-                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, (int)numberOfItemsToGive, activeParam == "EquipParamWeapon" ? (int)upgradeLevelItemToGive : 0);
+                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, activeParam == "EquipParamGoods" ? (int)numberOfItemsToGive : 1, activeParam == "EquipParamWeapon" ? (int)upgradeLevelItemToGive : 0);
                         }
-                        string itemsNum = numberOfItemsToGive.ToString();
-                        ImGui.Indent();
-                        ImGui.Text("Number of Spawned Items");
-                        ImGui.SameLine();
-                        if (ImGui.InputText("##Number of Spawned Items", ref itemsNum, (uint)2))
+                        if (activeParam == "EquipParamGoods")
                         {
-                            if (uint.TryParse(itemsNum, out uint result) && result != 0)
+                            string itemsNum = numberOfItemsToGive.ToString();
+                            ImGui.Indent();
+                            ImGui.Text("Number of Spawned Items");
+                            ImGui.SameLine();
+                            if (ImGui.InputText("##Number of Spawned Items", ref itemsNum, (uint)2))
                             {
-                                numberOfItemsToGive = result;
+                                if (uint.TryParse(itemsNum, out uint result) && result != 0)
+                                {
+                                    numberOfItemsToGive = result;
+                                }
                             }
                         }
-                        if (activeParam == "EquipParamWeapon")
+                        else if (activeParam == "EquipParamWeapon")
                         {
-                            ImGui.Text("   Spawned Weapon Level");
+                            ImGui.Text("Spawned Weapon Level");
                             ImGui.SameLine();
                             string weaponLevel = upgradeLevelItemToGive.ToString();
                             if (ImGui.InputText("##Spawned Weapon Level", ref weaponLevel, (uint)2))
@@ -295,18 +298,18 @@ namespace StudioCore.MsbEditor
                     _mEditRegexResult = r.Information;
                 }
                 ImGui.Text(_mEditRegexResult);
-                ImGui.InputTextMultiline("MEditRegexOutput", ref _lastMEditRegexInput, 65536, new Vector2(1024,256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditRegexOutput", ref _lastMEditRegexInput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuCSVExport"))
             {
-                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024,256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuSingleCSVExport"))
             {
                 ImGui.Text(_currentMEditSingleCSVField);
-                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024,256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuCSVImport"))
@@ -423,7 +426,7 @@ namespace StudioCore.MsbEditor
                         ParamEditorView viewToMofidy = _activeView;
                         if (initcmd[1].Equals("new"))
                             viewToMofidy = AddView();
-                        else 
+                        else
                         {
                             int cmdIndex = -1;
                             bool parsable = int.TryParse(initcmd[1], out cmdIndex);
@@ -452,7 +455,7 @@ namespace StudioCore.MsbEditor
                 }
                 else if (initcmd[0] == "search")
                 {
-                    if (initcmd.Length > 1 )
+                    if (initcmd.Length > 1)
                     {
                         _activeView._selection.getCurrentSearchString() = initcmd[1];
                     }
@@ -540,7 +543,7 @@ namespace StudioCore.MsbEditor
                     ImGui.InputText("Row", ref _currentCtrlVValue, 20);
                     if (ImGui.IsItemEdited())
                     {
-                        offset = (long) ulong.Parse(_currentCtrlVValue) - _clipboardBaseRow;
+                        offset = (long)ulong.Parse(_currentCtrlVValue) - _clipboardBaseRow;
                         _currentCtrlVOffset = offset.ToString();
                     }
                     ImGui.InputText("Offset", ref _currentCtrlVOffset, 20);
@@ -550,7 +553,7 @@ namespace StudioCore.MsbEditor
                         _currentCtrlVValue = (_clipboardBaseRow + offset).ToString();
                     }
                     // Recheck that this is valid
-                    offset = (long) ulong.Parse(_currentCtrlVValue);
+                    offset = (long)ulong.Parse(_currentCtrlVValue);
                     offset = long.Parse(_currentCtrlVOffset);
                 }
                 catch
@@ -581,7 +584,7 @@ namespace StudioCore.MsbEditor
             {
                 if (_views[index] == null)
                     break;
-                index ++;
+                index++;
             }
             ParamEditorView view = new ParamEditorView(this, index);
             if (index < _views.Count)
@@ -650,12 +653,12 @@ namespace StudioCore.MsbEditor
         public void setActiveParam(string param)
         {
             _activeParam = param;
-            if(!_paramStates.ContainsKey(_activeParam))
+            if (!_paramStates.ContainsKey(_activeParam))
                 _paramStates.Add(_activeParam, new ParamEditorParamSelectionState());
         }
         public ref string getCurrentSearchString()
         {
-            if(_activeParam == null)
+            if (_activeParam == null)
                 return ref _globalSearchString;
             return ref _paramStates[_activeParam].currentSearchString;
         }
@@ -665,13 +668,13 @@ namespace StudioCore.MsbEditor
         }
         public PARAM.Row getActiveRow()
         {
-            if(_activeParam == null)
+            if (_activeParam == null)
                 return null;
             return _paramStates[_activeParam].activeRow;
         }
         public void SetActiveRow(PARAM.Row row)
         {
-            if(_activeParam != null)
+            if (_activeParam != null)
             {
                 ParamEditorParamSelectionState s = _paramStates[_activeParam];
                 s.activeRow = row;
@@ -681,10 +684,10 @@ namespace StudioCore.MsbEditor
         }
         public void toggleRowInSelection(PARAM.Row row)
         {
-            if(_activeParam != null)
+            if (_activeParam != null)
             {
                 ParamEditorParamSelectionState s = _paramStates[_activeParam];
-                if(s.selectionRows.Contains(row))
+                if (s.selectionRows.Contains(row))
                     s.selectionRows.Remove(row);
                 else
                     s.selectionRows.Add(row);
@@ -692,31 +695,31 @@ namespace StudioCore.MsbEditor
         }
         public void addRowToSelection(PARAM.Row row)
         {
-            if(_activeParam != null)
+            if (_activeParam != null)
             {
                 ParamEditorParamSelectionState s = _paramStates[_activeParam];
-                if(!s.selectionRows.Contains(row))
+                if (!s.selectionRows.Contains(row))
                     s.selectionRows.Add(row);
             }
         }
         public void removeRowFromSelection(PARAM.Row row)
         {
-            if(_activeParam != null)
+            if (_activeParam != null)
                 _paramStates[_activeParam].selectionRows.Remove(row);
         }
         public List<PARAM.Row> getSelectedRows()
         {
-            if(_activeParam == null)
+            if (_activeParam == null)
                 return null;
             return _paramStates[_activeParam].selectionRows;
         }
         public void cleanSelectedRows()
         {
-            if(_activeParam != null)
+            if (_activeParam != null)
             {
                 ParamEditorParamSelectionState s = _paramStates[_activeParam];
                 s.selectionRows.Clear();
-                if(s.activeRow != null)
+                if (s.activeRow != null)
                     s.selectionRows.Add(s.activeRow);
             }
         }
@@ -766,7 +769,7 @@ namespace StudioCore.MsbEditor
                     scrollTo = ImGui.GetCursorPosY();
             }
             if (doFocus)
-                    ImGui.SetScrollFromPosY(scrollTo - ImGui.GetScrollY());
+                ImGui.SetScrollFromPosY(scrollTo - ImGui.GetScrollY());
             ImGui.EndChild();
             ImGui.NextColumn();
             if (!_selection.paramSelectionExists())
@@ -779,11 +782,11 @@ namespace StudioCore.MsbEditor
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
                 ImGui.InputText("Search rows...", ref _selection.getCurrentSearchString(), 256);
-                if(ImGui.IsItemActive())
+                if (ImGui.IsItemActive())
                     _paramEditor._isSearchBarActive = true;
                 else
                     _paramEditor._isSearchBarActive = false;
-                ImGui.BeginChild("rows"+_selection.getActiveParam());
+                ImGui.BeginChild("rows" + _selection.getActiveParam());
                 IParamDecorator decorator = null;
                 if (_paramEditor._decorators.ContainsKey(_selection.getActiveParam()))
                 {
@@ -849,7 +852,7 @@ namespace StudioCore.MsbEditor
             }
             else
             {
-                ImGui.BeginChild("columns"+_selection.getActiveParam());
+                ImGui.BeginChild("columns" + _selection.getActiveParam());
                 _propEditor.PropEditorParamRow(_selection.getActiveRow());
             }
             ImGui.EndChild();
