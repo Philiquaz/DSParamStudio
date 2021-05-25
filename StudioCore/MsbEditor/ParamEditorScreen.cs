@@ -95,6 +95,7 @@ namespace StudioCore.MsbEditor
         public static bool AllowFieldReorderPreference = true;
 
         public static uint numberOfItemsToGive = 1;
+        public static uint upgradeLevelItemToGive = 0;
 
         public static bool EditorMode = false;
 
@@ -236,17 +237,30 @@ namespace StudioCore.MsbEditor
                     {
                         if (ImGui.MenuItem("Spawn Selected Items In Game"))
                         {
-                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, (int)numberOfItemsToGive);
+                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, (int)numberOfItemsToGive, activeParam == "EquipParamWeapon" ? (int)upgradeLevelItemToGive : 0);
                         }
                         string itemsNum = numberOfItemsToGive.ToString();
                         ImGui.Indent();
                         ImGui.Text("Number of Spawned Items");
                         ImGui.SameLine();
-                        if (ImGui.InputText("##InputGib", ref itemsNum, (uint)2))
+                        if (ImGui.InputText("##Number of Spawned Items", ref itemsNum, (uint)2))
                         {
                             if (uint.TryParse(itemsNum, out uint result) && result != 0)
                             {
                                 numberOfItemsToGive = result;
+                            }
+                        }
+                        if (activeParam == "EquipParamWeapon")
+                        {
+                            ImGui.Text("   Spawned Weapon Level");
+                            ImGui.SameLine();
+                            string weaponLevel = upgradeLevelItemToGive.ToString();
+                            if (ImGui.InputText("##Spawned Weapon Level", ref weaponLevel, (uint)2))
+                            {
+                                if (uint.TryParse(weaponLevel, out uint result) && result < 11)
+                                {
+                                    upgradeLevelItemToGive = result;
+                                }
                             }
                         }
                         ImGui.Unindent();

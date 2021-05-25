@@ -42,7 +42,7 @@ namespace StudioCore
                 memoryHandler.Terminate();
             }
         }
-        public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType, int itemQuantityReceived)
+        public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType, int itemQuantityReceived, int upgradeLevelItemToGive = 0)
         {
             if (rowsToGib.Any())
             {
@@ -51,7 +51,7 @@ namespace StudioCore
                 {
                     SoulsMemoryHandler memoryHandler = new SoulsMemoryHandler(processArray.First());
 
-                    memoryHandler.PlayerItemGiveDS3(rowsToGib, studioParamType, itemQuantityReceived);
+                    memoryHandler.PlayerItemGiveDS3(rowsToGib, studioParamType, itemQuantityReceived, -1,upgradeLevelItemToGive);
 
                     memoryHandler.Terminate();
                 }
@@ -475,7 +475,7 @@ namespace StudioCore
 
             ExecuteBufferFunction(buffer, chrNameBytes);
         }
-        public void PlayerItemGiveDS3(List<PARAM.Row> rows, string paramDefParamType, int itemQuantityReceived = 1, int itemDurabilityReceived = -1)
+        public void PlayerItemGiveDS3(List<PARAM.Row> rows, string paramDefParamType, int itemQuantityReceived = 1, int itemDurabilityReceived = -1, int upgradeLevelItemToGive = 0)
         {//Thanks Church Guard for providing the foundation of this.
 
             if (ItemGibOffsetsDS3.ContainsKey(paramDefParamType) && rows.Any())
@@ -494,7 +494,7 @@ namespace StudioCore
 
                 foreach (var row in rows)
                 {
-                    intListProcessing.Add((int)row.ID + paramOffset);
+                    intListProcessing.Add((int)row.ID + paramOffset + upgradeLevelItemToGive);
                     intListProcessing.Add(itemQuantityReceived);
                     intListProcessing.Add(itemDurabilityReceived);
                 }
