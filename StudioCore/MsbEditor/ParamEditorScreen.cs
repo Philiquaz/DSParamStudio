@@ -93,10 +93,6 @@ namespace StudioCore.MsbEditor
         public static bool HideReferenceRowsPreference = false;
         public static bool HideEnumsPreference = false;
         public static bool AllowFieldReorderPreference = true;
-
-        public static uint numberOfItemsToGive = 1;
-        public static uint upgradeLevelItemToGive = 0;
-
         public static bool EditorMode = false;
 
         internal bool _isSearchBarActive = false;
@@ -233,41 +229,7 @@ namespace StudioCore.MsbEditor
                 string activeParam = _activeView._selection.getActiveParam();
                 if (activeParam != null && _projectSettings.GameType == GameType.DarkSoulsIII)
                 {
-                    if (SoulsMemoryHandler.ItemGibOffsetsDS3.ContainsKey(activeParam))
-                    {
-                        if (ImGui.MenuItem("Spawn Selected Items In Game"))
-                        {
-                            ParamReloader.GiveItemDS3(_activeView._selection.getSelectedRows(), activeParam, activeParam == "EquipParamGoods" ? (int)numberOfItemsToGive : 1, activeParam == "EquipParamWeapon" ? (int)upgradeLevelItemToGive : 0);
-                        }
-                        if (activeParam == "EquipParamGoods")
-                        {
-                            string itemsNum = numberOfItemsToGive.ToString();
-                            ImGui.Indent();
-                            ImGui.Text("Number of Spawned Items");
-                            ImGui.SameLine();
-                            if (ImGui.InputText("##Number of Spawned Items", ref itemsNum, (uint)2))
-                            {
-                                if (uint.TryParse(itemsNum, out uint result) && result != 0)
-                                {
-                                    numberOfItemsToGive = result;
-                                }
-                            }
-                        }
-                        else if (activeParam == "EquipParamWeapon")
-                        {
-                            ImGui.Text("Spawned Weapon Level");
-                            ImGui.SameLine();
-                            string weaponLevel = upgradeLevelItemToGive.ToString();
-                            if (ImGui.InputText("##Spawned Weapon Level", ref weaponLevel, (uint)2))
-                            {
-                                if (uint.TryParse(weaponLevel, out uint result) && result < 11)
-                                {
-                                    upgradeLevelItemToGive = result;
-                                }
-                            }
-                        }
-                        ImGui.Unindent();
-                    }
+                    ParamReloader.GiveItemMenu(_activeView._selection.getSelectedRows(), _activeView._selection.getActiveParam());
                 }
                 ImGui.EndMenu();
             }

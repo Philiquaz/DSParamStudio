@@ -9,12 +9,17 @@ using System.Threading;
 using ProcessMemoryUtilities.Managed;
 using ProcessMemoryUtilities.Native;
 using SoulsFormats;
+using ImGuiNET;
 using System.Text;
 
 namespace StudioCore
 {
     class ParamReloader
     {
+
+        public static uint numberOfItemsToGive = 1;
+        public static uint upgradeLevelItemToGive = 0;
+
         public static void ReloadMemoryParamsDS3()
         {
             var processArray = Process.GetProcessesByName("DarkSoulsIII");
@@ -41,6 +46,43 @@ namespace StudioCore
                 }
                 memoryHandler.Terminate();
             }
+        }
+        public static void GiveItemMenu(List<PARAM.Row> rowsToGib, string param)
+        {
+            if (!SoulsMemoryHandler.ItemGibOffsetsDS3.ContainsKey(param))
+                return;
+            if (ImGui.MenuItem("Spawn Selected Items In Game"))
+            {
+                GiveItemDS3(rowsToGib, param, param == "EquipParamGoods" ? (int)numberOfItemsToGive : 1, param == "EquipParamWeapon" ? (int)upgradeLevelItemToGive : 0);
+            }
+            if (param == "EquipParamGoods")
+            {
+                string itemsNum = numberOfItemsToGive.ToString();
+                ImGui.Indent();
+                ImGui.Text("Number of Spawned Items");
+                ImGui.SameLine();
+                if (ImGui.InputText("##Number of Spawned Items", ref itemsNum, (uint)2))
+                {
+                    if (uint.TryParse(itemsNum, out uint result) && result != 0)
+                    {
+                        numberOfItemsToGive = result;
+                    }
+                }
+            }
+            else if (param == "EquipParamWeapon")
+            {
+                ImGui.Text("Spawned Weapon Level");
+                ImGui.SameLine();
+                string weaponLevel = upgradeLevelItemToGive.ToString();
+                if (ImGui.InputText("##Spawned Weapon Level", ref weaponLevel, (uint)2))
+                {
+                    if (uint.TryParse(weaponLevel, out uint result) && result < 11)
+                    {
+                        upgradeLevelItemToGive = result;
+                    }
+                }
+            }
+            ImGui.Unindent();
         }
         public static void GiveItemDS3(List<PARAM.Row> rowsToGib, string studioParamType, int itemQuantityReceived, int upgradeLevelItemToGive = 0)
         {
