@@ -501,7 +501,7 @@ namespace StudioCore.MsbEditor
                     ImGui.InputText("Row", ref _currentCtrlVValue, 20);
                     if (ImGui.IsItemEdited())
                     {
-                        offset = (long) ulong.Parse(_currentCtrlVValue) - _clipboardBaseRow;
+                        offset = long.Parse(_currentCtrlVValue) - _clipboardBaseRow;
                         _currentCtrlVOffset = offset.ToString();
                     }
                     ImGui.InputText("Offset", ref _currentCtrlVOffset, 20);
@@ -511,7 +511,7 @@ namespace StudioCore.MsbEditor
                         _currentCtrlVValue = (_clipboardBaseRow + offset).ToString();
                     }
                     // Recheck that this is valid
-                    offset = (long) ulong.Parse(_currentCtrlVValue);
+                    offset = long.Parse(_currentCtrlVValue);
                     offset = long.Parse(_currentCtrlVOffset);
                 }
                 catch
@@ -525,7 +525,7 @@ namespace StudioCore.MsbEditor
                     foreach (PARAM.Row r in _clipboardRows)
                     {
                         PARAM.Row newrow = new PARAM.Row(r);// more cloning
-                        newrow.ID = r.ID + offset;
+                        newrow.ID = (int) (r.ID + offset);
                         rowsToInsert.Add(newrow);
                     }
                     EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, false));

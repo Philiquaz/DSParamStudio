@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SoulsFormats
@@ -9,7 +10,7 @@ namespace SoulsFormats
         /// <summary>
         /// Determines how vertices in a mesh are connected to form triangles.
         /// </summary>
-        public class FaceSet
+        public partial class FaceSet
         {
             /// <summary>
             /// Flags on a faceset, mostly just used to determine lod level.
@@ -25,17 +26,22 @@ namespace SoulsFormats
                 /// <summary>
                 /// Low detail mesh.
                 /// </summary>
-                LodLevel1 = 0x01000000,
+                LodLevel1 = 0x0100_0000,
 
                 /// <summary>
                 /// Really low detail mesh.
                 /// </summary>
-                LodLevel2 = 0x02000000,
+                LodLevel2 = 0x0200_0000,
+
+                /// <summary>
+                /// Not confirmed, but suspected to indicate when indices are edge-compressed.
+                /// </summary>
+                EdgeCompressed = 0x4000_0000,
 
                 /// <summary>
                 /// Many meshes have a copy of each faceset with and without this flag. If you remove them, motion blur stops working.
                 /// </summary>
-                MotionBlur = 0x80000000,
+                MotionBlur = 0x8000_0000,
             }
 
             /// <summary>
@@ -56,21 +62,12 @@ namespace SoulsFormats
             /// <summary>
             /// Unknown.
             /// </summary>
-            public byte Unk06 { get; set; }
-
-            /// <summary>
-            /// Unknown.
-            /// </summary>
-            public byte Unk07 { get; set; }
-
-            [HideProperty]
-            public int IndicesCount { get; set; }
+            public short Unk06 { get; set; }
 
             /// <summary>
             /// Indices to vertices in a mesh.
             /// </summary>
-            [HideProperty]
-            public int[] Indices { get; set; }
+            public List<int> Indices { get; set; }
 
             /// <summary>
             /// Creates a new FaceSet with default values and no indices.
@@ -80,29 +77,27 @@ namespace SoulsFormats
                 Flags = FSFlags.None;
                 TriangleStrip = false;
                 CullBackfaces = true;
-                Indices = null;
+                Indices = new List<int>();
             }
 
             /// <summary>
             /// Creates a new FaceSet with the specified values.
             /// </summary>
-            public FaceSet(FSFlags flags, bool triangleStrip, bool cullBackfaces, byte unk06, byte unk07, int[] indices)
+            public FaceSet(FSFlags flags, bool triangleStrip, bool cullBackfaces, short unk06, List<int> indices)
             {
                 Flags = flags;
                 TriangleStrip = triangleStrip;
                 CullBackfaces = cullBackfaces;
                 Unk06 = unk06;
-                Unk07 = unk07;
                 Indices = indices;
             }
 
-            internal FaceSet(BinaryReaderEx br, FLVERHeader header, FlverCache cache, int headerIndexSize, int dataOffset)
+            internal FaceSet(BinaryReaderEx br, FLVERHeader header, int headerIndexSize, int dataOffset)
             {
                 Flags = (FSFlags)br.ReadUInt32();
                 TriangleStrip = br.ReadBoolean();
                 CullBackfaces = br.ReadBoolean();
-                Unk06 = br.ReadByte();
-                Unk07 = br.ReadByte();
+                Unk06 = br.ReadInt16();
                 int indexCount = br.ReadInt32();
                 int indicesOffset = br.ReadInt32();
 
@@ -118,22 +113,26 @@ namespace SoulsFormats
                 if (indexSize == 0)
                     indexSize = headerIndexSize;
 
-                if (indexSize == 16)
+                if (indexSize == 8 ^ Flags.HasFlag(FSFlags.EdgeCompressed))
+                    throw new InvalidDataException("FSFlags.EdgeCompressed probably doesn't mean edge compression after all. Please investigate this.");
+
+                if (indexSize == 8)
                 {
-                    //Indices = new int[indexCount];
-                    IndicesCount = indexCount;
-                    Indices = cache.GetCachedIndices(indexCount);
-                    int i = 0;
-                    foreach (ushort index in br.GetUInt16s(dataOffset + indicesOffset, indexCount))
+                    br.StepIn(dataOffset + indicesOffset);
                     {
-                        Indices[i] = index;
-                        i++;
+                        Indices = EdgeIndexCompression.ReadEdgeIndexGroup(br, indexCount);
                     }
+                    br.StepOut();
+                }
+                else if (indexSize == 16)
+                {
+                    Indices = new List<int>(indexCount);
+                    foreach (ushort index in br.GetUInt16s(dataOffset + indicesOffset, indexCount))
+                        Indices.Add(index);
                 }
                 else if (indexSize == 32)
                 {
-                    IndicesCount = indexCount;
-                    Indices = br.GetInt32s(dataOffset + indicesOffset, indexCount);
+                    Indices = new List<int>(br.GetInt32s(dataOffset + indicesOffset, indexCount));
                 }
                 else
                 {
@@ -146,14 +145,13 @@ namespace SoulsFormats
                 bw.WriteUInt32((uint)Flags);
                 bw.WriteBoolean(TriangleStrip);
                 bw.WriteBoolean(CullBackfaces);
-                bw.WriteByte(Unk06);
-                bw.WriteByte(Unk07);
-                bw.WriteInt32(IndicesCount);
+                bw.WriteInt16(Unk06);
+                bw.WriteInt32(Indices.Count);
                 bw.ReserveInt32($"FaceSetVertices{index}");
 
                 if (header.Version > 0x20005)
                 {
-                    bw.WriteInt32(IndicesCount * (indexSize / 8));
+                    bw.WriteInt32(Indices.Count * (indexSize / 8));
                     bw.WriteInt32(0);
                     bw.WriteInt32(header.Version >= 0x20013 ? indexSize : 0);
                     bw.WriteInt32(0);
@@ -165,12 +163,16 @@ namespace SoulsFormats
                 bw.FillInt32($"FaceSetVertices{index}", (int)bw.Position - dataStart);
                 if (indexSize == 16)
                 {
-                    for (int i = 0; i < IndicesCount; i++)
-                        bw.WriteUInt16((ushort)Indices[i]);
+                    foreach (int i in Indices)
+                        bw.WriteUInt16((ushort)i);
                 }
                 else if (indexSize == 32)
                 {
                     bw.WriteInt32s(Indices);
+                }
+                else
+                {
+                    throw new NotImplementedException($"Unsupported index size: {indexSize}");
                 }
             }
 
@@ -186,7 +188,7 @@ namespace SoulsFormats
             {
                 if (TriangleStrip)
                 {
-                    for (int i = 0; i < IndicesCount - 2; i++)
+                    for (int i = 0; i < Indices.Count - 2; i++)
                     {
                         int vi1 = Indices[i];
                         int vi2 = Indices[i + 1];
@@ -204,8 +206,8 @@ namespace SoulsFormats
                 }
                 else
                 {
-                    totalFaceCount += IndicesCount / 3;
-                    trueFaceCount += IndicesCount / 3;
+                    totalFaceCount += Indices.Count / 3;
+                    trueFaceCount += Indices.Count / 3;
                 }
             }
 
@@ -220,7 +222,7 @@ namespace SoulsFormats
                 {
                     var triangles = new List<int>();
                     bool flip = false;
-                    for (int i = 0; i < IndicesCount - 2; i++)
+                    for (int i = 0; i < Indices.Count - 2; i++)
                     {
                         int vi1 = Indices[i];
                         int vi2 = Indices[i + 1];

@@ -647,23 +647,6 @@ namespace StudioCore.MsbEditor
             ImGui.Columns(1);
         }
 
-        private void PropertyContextMenu(object obj, PropertyInfo propinfo)
-        {
-            if (ImGui.BeginPopupContextItem(propinfo.Name))
-            {
-                var att = propinfo.GetCustomAttribute<MSBParamReference>();
-                if (att != null)
-                {
-                    if (ImGui.Selectable($@"Goto {att.ParamName}"))
-                    {
-                        var id = (int)propinfo.GetValue(obj);
-                        EditorCommandQueue.AddCommand($@"param/select/-1/{att.ParamName}/{id}");
-                    }
-                }
-                ImGui.EndPopup();
-            }
-        }
-
         public void OnGui(PARAM.Row selection, string id, float w, float h)
         {
             ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.145f, 0.145f, 0.149f, 1.0f));
