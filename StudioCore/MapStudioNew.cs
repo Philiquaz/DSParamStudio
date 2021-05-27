@@ -481,7 +481,16 @@ namespace StudioCore
                 }
                 if (ImGui.BeginMenu("Help"))
                 {
-                    ImGui.Text("DSParamStudio is forked from Katalash's DSMapStudio and is currently maintained by Philiquaz.\nFor bug reports and feature requests, ping the right person please.");
+                    if (ImGui.BeginMenu("About"))
+                    {
+                        ImGui.Text("DSParamStudio is forked from Katalash's DSMapStudio and is currently maintained by Philiquaz.\nFor bug reports and feature requests, ping the right person please.");
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.BeginMenu("Edits aren't sticking!"))
+                    {
+                        ImGui.Text("The mechanism that is used to detect if a field has been changed can stop existing before registering a change.\nThis occurs when switching param, row or using tab between fields.\nI hope to have this fixed soon, however it is a complicated issue.\nTo ensure a change sticks, simply click off the field you are editing.");
+                        ImGui.EndMenu();
+                    }
                     ImGui.EndMenu();
                 }
                 ImGui.EndMainMenuBar();
