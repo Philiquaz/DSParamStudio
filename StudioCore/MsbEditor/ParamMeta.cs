@@ -80,7 +80,7 @@ namespace StudioCore.MsbEditor
                 XmlAttribute AltOrd = self.Attributes["AlternativeOrder"];
                 if (AltOrd != null)
                 {
-                    AlternateOrder = new List<string>(AltOrd.InnerText.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                    AlternateOrder = new List<string>(AltOrd.InnerText.Replace("\n", "").Split(',', StringSplitOptions.RemoveEmptyEntries));
                     for (int i = 0; i < AlternateOrder.Count; i++)
                         AlternateOrder[i] = AlternateOrder[i].Trim();
                 }
