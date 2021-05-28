@@ -42,7 +42,12 @@ A: DSMapStudio creates a whole vulkan renderer, and requests all sorts of featur
 * [Microsoft .Net Core 3.1 **Desktop** Runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 * [Visual C++ Redistributable x64 - INSTALL THIS IF THE PROGRAM CRASHES ON STARTUP](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 * **A Vulkan Compatible Graphics Device with support for descriptor indexing**, even if you're just modding DS1: PTDE
-* Intel GPUs currently don't seem to be working properly. At the moment, you will probably need a somewhat recent (2014+) NVIDIA or AMD GPU
+* Intel GPUs currently don't seem to be working properly. At the moment, you will probably need a somewhat recent (2014+) NVIDIA or AMD GPU.
+
+## Troubleshooting:
+* If the program fails to start, the primary causes are .Net Core 3.1 Desktop Runtime and Visual C++ Redistributable. Repair or reinstall these if you're having problems.
+* If the program begins to launch and then fails, primary cause is probably vulkan related. Make sure your computer is using the correct graphics device for the program if you have both.
+* If you are unable to start or open a project, chances are your paramdefs or game install is wonky or misaligned. Support is not given for cracked games. For sekiro, attempt updating paramdefs.
 
 ## Special Thanks
 * Katalash - Made DSMapStudio
