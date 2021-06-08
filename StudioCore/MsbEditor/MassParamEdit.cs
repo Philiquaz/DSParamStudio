@@ -84,6 +84,24 @@ namespace StudioCore.MsbEditor
             }
             return null;
         }
+        public static string PerformNameOperation(string name, string op, string opparam)
+        {
+            try
+            {
+                if (op.Equals("="))
+                {
+                    return opparam;
+                }
+                if (op.Equals("+"))
+                {
+                    return name + opparam;
+                }
+            }
+            catch
+            {
+            }
+            return null;
+        }
 
         public static T PerformBasicOperation<T>(PARAM.Cell c, string op, double opparam) where T : struct, IFormattable
         {
@@ -163,9 +181,11 @@ namespace StudioCore.MsbEditor
                         else
                             affectedRows.AddRange(GetMatchingParamRows(param, comm, false, false));
                     }
+                    bool editName = fieldRx.Match("Name").Success;
                     foreach (PARAM.Row row in affectedRows)
                     {
                         List<PARAM.Cell> affectedCells = GetMatchingCells(row, fieldRx);
+
                         string opparamcontext = opparam;
                         if (isopparamField)
                         {
@@ -180,6 +200,7 @@ namespace StudioCore.MsbEditor
                             if (opparamcontext.Equals(opparam))
                                 return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not look up field {opparam} in row {row.Name}");
                         }
+                        
                         changeCount += affectedCells.Count;
                         foreach (PARAM.Cell cell in affectedCells)
                         {
@@ -189,6 +210,16 @@ namespace StudioCore.MsbEditor
                                 return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not perform operation {op} {opparamcontext} on field {cell.Def.DisplayName}");
                             }
                             partialActions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
+                        }
+                        if (editName)
+                        {
+                            string newval = PerformNameOperation(row.Name, op, opparamcontext);
+                            if (newval == null)
+                            {
+                                return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not perform operation {op} {opparamcontext} on name");
+                            }
+                            partialActions.Add(new PropertiesChangedAction(row.GetType().GetProperty("Name"), -1, row, newval));
+                        
                         }
                     }
                 }
