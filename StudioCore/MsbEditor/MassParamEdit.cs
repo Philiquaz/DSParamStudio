@@ -136,9 +136,10 @@ namespace StudioCore.MsbEditor
         {
             string[] commands = commandsString.Split('\n');
             int changeCount = 0;
-            List<Action> actions = new List<Action>();
+            ActionManager childManager = new ActionManager();
             foreach (string command in commands)
             {
+                List<Action> partialActions = new List<Action>();
                 Match comm = commandRx.Match(command);
                 if (comm.Success)
                 {
@@ -187,7 +188,7 @@ namespace StudioCore.MsbEditor
                             {
                                 return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not perform operation {op} {opparamcontext} on field {cell.Def.DisplayName}");
                             }
-                            actions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
+                            partialActions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
                         }
                     }
                 }
@@ -195,8 +196,9 @@ namespace StudioCore.MsbEditor
                 {
                     return new MassEditResult(MassEditResultType.PARSEERROR, $@"Unrecognised command {command}");
                 }
+                childManager.ExecuteAction(new CompoundAction(partialActions));
             }
-            actionManager.ExecuteAction(new CompoundAction(actions));
+            actionManager.PushSubManager(childManager);
             return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected");
         }
 

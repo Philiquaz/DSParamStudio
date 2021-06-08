@@ -58,6 +58,14 @@ namespace StudioCore.MsbEditor
             RedoStack.Clear();
         }
 
+        public void PushSubManager(ActionManager child)
+        {
+            List<Action> childList = child.UndoStack.ToList();
+            childList.Reverse();
+            UndoStack.Push(new CompoundAction(childList));
+            RedoStack.Clear();
+        }
+
         public Action PeekUndoAction()
         {
             if (UndoStack.Count() == 0)

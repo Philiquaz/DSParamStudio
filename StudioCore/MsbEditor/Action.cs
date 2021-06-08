@@ -309,8 +309,9 @@ namespace StudioCore.MsbEditor
         public override ActionEvent Execute()
         {
             var evt = ActionEvent.NoEvent;
-            foreach (var act in Actions)
+            for (int i = 0; i < Actions.Count; i++)
             {
+                var act = Actions[i];
                 if (act != null)
                 {
                     evt |= act.Execute();
@@ -326,8 +327,9 @@ namespace StudioCore.MsbEditor
         public override ActionEvent Undo()
         {
             var evt = ActionEvent.NoEvent;
-            foreach (var act in Actions)
+            for (int i = Actions.Count - 1; i >= 0; i--)
             {
+                var act = Actions[i];
                 if (act != null)
                 {
                     evt |= act.Undo();
