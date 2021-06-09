@@ -248,7 +248,20 @@ namespace StudioCore.MsbEditor
             {
                 ImGui.Text("param PARAM: id VALUE: FIELD: = VALUE;");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.MassEditHint);
-                ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditRegexInput, 65536, new Vector2(1024, 256));
+                ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditRegexInput, 65536, new Vector2(1024, ImGui.GetTextLineHeightWithSpacing() * 3));
+                if (ImGui.BeginCombo("###", ""))
+                {
+                    string target = _currentMEditRegexInput.Split('\n').LastOrDefault();
+                    foreach (string option in MassParamEditRegex.GetRegexAutocomplete(target, _activeView._selection.getActiveParam()))
+                    {
+                        if (ImGui.Selectable(target + option))
+                        {
+                            _currentMEditRegexInput = _currentMEditRegexInput + option;
+                        }
+                    }
+                    ImGui.EndCombo();
+                }
+
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
                     MassEditResult r = MassParamEditRegex.PerformMassEdit(_currentMEditRegexInput, EditorActionManager, _activeView._selection.getActiveParam(), _activeView._selection.getSelectedRows());
@@ -260,18 +273,18 @@ namespace StudioCore.MsbEditor
                     _mEditRegexResult = r.Information;
                 }
                 ImGui.Text(_mEditRegexResult);
-                ImGui.InputTextMultiline("MEditRegexOutput", ref _lastMEditRegexInput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditRegexOutput", ref _lastMEditRegexInput, 65536, new Vector2(1024, ImGui.GetTextLineHeightWithSpacing() * 3), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuCSVExport"))
             {
-                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, ImGui.GetTextLineHeightWithSpacing() * 3), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuSingleCSVExport"))
             {
                 ImGui.Text(_currentMEditSingleCSVField);
-                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, 256), ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputTextMultiline("MEditOutput", ref _currentMEditCSVOutput, 65536, new Vector2(1024, 128), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndPopup();
             }
             else if (ImGui.BeginPopup("massEditMenuCSVImport"))
@@ -430,7 +443,7 @@ namespace StudioCore.MsbEditor
                     }
                     else if (initcmd[1] == "massEditRegex")
                     {
-                        _currentMEditRegexInput = initcmd.Length > 2 ? initcmd[2] : "";
+                        _currentMEditRegexInput = initcmd.Length > 2 ? initcmd[2] : _currentMEditRegexInput;
                         OpenMassEditPopup("massEditMenuRegex");
                     }
                     else if (initcmd[1] == "massEditCSVExport")

@@ -135,20 +135,93 @@ namespace StudioCore.MsbEditor
         // eg "EquipParamWeapon: "
         private static readonly string paramfilterRx = $@"(param\s+(?<paramrx>[^\s:]+):\s+)";
         // eg "id (100|200)00"
-        private static readonly string rowfilteridRx = $@"(id\s+(?<rowidexp>[^:]+))";
-        // eg "name \s+ Arrow"
-        private static readonly string rowfilternameRx = $@"(name\s+(?<rownamerx>[^:]+))";
+        private static readonly string rowfiltershortkeyRx = $@"((?<rowkey>id|name)\s+)";
+        private static readonly string rowfiltershortRx = $@"({rowfiltershortkeyRx}(?<rowexp>[^:]+))";
         // eg "prop sellValue 100"
-        private static readonly string rowfilterpropRx = $@"(prop\s+(?<rowpropfield>[^\s]+)\s+(?<rowpropvalexp>[^:]+))";
-        // eg "propref originalEquipWep0 Dagger\[.+\]"
-        private static readonly string rowfilterproprefRx = $@"(propref\s+(?<rowpropreffield>[^\s]+)\s+(?<rowproprefnamerx>[^:]+))";
-        public static readonly string rowfilterRx = $@"({rowfilteridRx}|{rowfilternameRx}|{rowfilterpropRx}|{rowfilterproprefRx})";
+        private static readonly string rowfilterlongkeyRx = $@"((?<rowkey>prop|propref)\s+)";
+        private static readonly string rowfilterlongRx = $@"({rowfilterlongkeyRx}(?<rowfield>[^\s]+)\s+(?<rowexp>[^:]+))";
+        public static readonly string rowfilterRx = $@"({rowfiltershortRx}|{rowfilterlongRx})";
         // eg "correctFaith: "
         private static readonly string fieldRx = $@"(?<fieldrx>[^\:]+):\s+";
         // eg "* 2;
-        private static readonly string operationRx = $@"(?<op>=|\+|-|\*|/|ref)\s+(?<fieldtype>field\s+)?(?<opparam>[^;]+);";
+        private static readonly string opRx = $@"(?<op>=|\+|-|\*|/|ref)\s+";
+        private static readonly string opFieldRx = $@"{opRx}(?<fieldtype>field\s+)?";
+        private static readonly string operationRx = $@"{opFieldRx}(?<opparam>[^;]+);";
 
         private static readonly Regex commandRx = new Regex($@"^({paramrowfilterselection}|({paramfilterRx}{rowfilterRx}:\s+)){fieldRx}{operationRx}$");
+
+        public static List<string> GetRegexAutocomplete(string text, string activeViewParam)
+        {
+            if (text == null)
+            {
+                text = "";
+            }
+            List<string> options = new List<string>();
+
+            if (new Regex($@"({paramrowfilterselection}|({paramfilterRx}{rowfilterRx}:\s+)){fieldRx}{opFieldRx}").IsMatch(text))
+            {
+                if (activeViewParam == null || !ParamBank.Params.ContainsKey(activeViewParam))
+                    return options;
+                foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
+                {
+                    options.Add(field.InternalName+": ");
+                }
+                return options;
+            }
+            if (new Regex($@"({paramrowfilterselection}|({paramfilterRx}{rowfilterRx}:\s+)){fieldRx}{opRx}").IsMatch(text))
+            {
+                options.Add("field ");
+                return options;
+            }
+            if (new Regex($@"({paramrowfilterselection}|({paramfilterRx}{rowfilterRx}:\s+)){fieldRx}").IsMatch(text))
+            {
+                options.Add("= ");
+                options.Add("+ ");
+                options.Add("- ");
+                options.Add("* ");
+                options.Add("/ ");
+                options.Add("ref ");
+                return options;
+            }
+            if (new Regex($@"({paramrowfilterselection}|({paramfilterRx}{rowfilterRx}:\s+))").IsMatch(text))
+            {
+                if (activeViewParam == null || !ParamBank.Params.ContainsKey(activeViewParam))
+                    return options;
+                foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
+                {
+                    options.Add(field.InternalName+": ");
+                }
+                return options;
+            }
+            if (new Regex(paramfilterRx+rowfilterlongkeyRx).IsMatch(text))
+            {
+                if (activeViewParam == null || !ParamBank.Params.ContainsKey(activeViewParam))
+                    return options;
+                foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
+                {
+                    options.Add(field.InternalName+" ");
+                }
+                return options;
+            }
+            if (new Regex(paramfilterRx).IsMatch(text))
+            {
+                options.Add("id ");
+                options.Add("name ");
+                options.Add("prop ");
+                options.Add("propref ");
+                return options;
+            }
+            if (text == "")
+            {
+                options.Add("selection: ");
+                foreach(string param in ParamBank.Params.Keys)
+                {
+                    options.Add("param " + param + ": ");
+                }
+                return options;
+            }
+            return options;
+        }
 
         public static MassEditResult PerformMassEdit(string commandsString, ActionManager actionManager, string contextActiveParam, List<PARAM.Row> contextActiveRows)
         {
@@ -248,18 +321,17 @@ namespace StudioCore.MsbEditor
 
         public static List<PARAM.Row> GetMatchingParamRows(PARAM param, Match command, bool lenient, bool failureAllOrNone)
         {
-            Group rowidexp = command.Groups["rowidexp"];
-            Group rownamerx = command.Groups["rownamerx"];
-            Group rowpropfield = command.Groups["rowpropfield"];
-            Group rowpropreffield = command.Groups["rowpropreffield"];
-            if (rowidexp.Success)
-                return GetMatchingParamRowsByID(param, rowidexp.Value, lenient, failureAllOrNone);
-            else if (rownamerx.Success)
-                return GetMatchingParamRowsByName(param, rownamerx.Value, lenient, failureAllOrNone);
-            else if (rowpropfield.Success)
-                return GetMatchingParamRowsByPropVal(param, rowpropfield.Value, command.Groups["rowpropvalexp"].Value, lenient, failureAllOrNone);
-            else if (rowpropreffield.Success)
-                return GetMatchingParamRowsByPropRef(param, rowpropreffield.Value, command.Groups["rowproprefnamerx"].Value, lenient, failureAllOrNone);
+            string rowkeyexp = command.Groups["rowkey"].Value;
+            string rowfield = command.Groups["rowfield"].Value;
+            string rowexp = command.Groups["rowexp"].Value;
+            if (rowkeyexp == "id")
+                return GetMatchingParamRowsByID(param, rowexp, lenient, failureAllOrNone);
+            else if (rowkeyexp == "name")
+                return GetMatchingParamRowsByName(param, rowexp, lenient, failureAllOrNone);
+            else if (rowkeyexp == "prop")
+                return GetMatchingParamRowsByPropVal(param, rowfield, rowexp, lenient, failureAllOrNone);
+            else if (rowkeyexp == "propref")
+                return GetMatchingParamRowsByPropRef(param, rowfield, rowexp, lenient, failureAllOrNone);
             else
                 return failureAllOrNone ? param.Rows : new List<PARAM.Row>();
         }
