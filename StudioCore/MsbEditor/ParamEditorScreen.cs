@@ -512,6 +512,7 @@ namespace StudioCore.MsbEditor
         {
             if (ImGui.BeginPopup("ctrlVPopup"))
             {
+                _isShortcutPopupOpen = true;
                 long offset = 0;
                 try
                 {
@@ -548,6 +549,10 @@ namespace StudioCore.MsbEditor
                     EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, false));
                 }
                 ImGui.EndPopup();
+            }
+            else
+            {
+                _isShortcutPopupOpen = false;
             }
 
         }
