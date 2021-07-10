@@ -363,7 +363,7 @@ namespace StudioCore.MsbEditor
                 {
                     ImGui.OpenPopup("ctrlVPopup");
                 }
-                if (InputTracker.GetKeyDown(Key.Delete))
+                if (!ImGui.IsAnyItemActive() && InputTracker.GetKeyDown(Key.Delete))
                 {
                     if (_activeView._selection.rowSelectionExists())
                     {
