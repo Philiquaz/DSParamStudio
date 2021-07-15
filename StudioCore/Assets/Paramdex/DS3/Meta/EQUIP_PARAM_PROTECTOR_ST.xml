@@ -81,7 +81,7 @@
 	<residentSpEffectId1 Refs="SpEffectParam" />
 	<residentSpEffectId2 Refs="SpEffectParam" />
 	<residentSpEffectId3 Refs="SpEffectParam" />
-	<materialSetId AltName="Upgrade Material ID" />
+	<materialSetId AltName="Upgrade Material ID" Refs="EquipMtrlSetParam"/>
 	<partsDamageRate AltName="Weak Parts Damage %" />
 	<correctSARecover AltName="Poise Recovery Correction" Wiki="Value added to poise recovery time (so negative values are better)." />
 	<faceScaleM_ScaleX AltName="Facescale Male X" />
@@ -96,6 +96,7 @@
 	<iconIdF AltName="Icon ID Female" />
 	<saDurability AltName="Poise Durability" />
 	<defFlickPower AltName="Defence Flick Power" />
+    <reinforceTypeId Refs="ReinforceParamProtector" />
 	<compTrophySedId AltName="Achievement ID" />
 	<shopLv AltName="Shop Level" />
 	<FlickDamageCutRate AltName="Flick Damage %" />
