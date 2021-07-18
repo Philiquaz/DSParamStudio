@@ -1,0 +1,5 @@
+I'm sorry, but you have probably downloaded the source code for DSParamStudio, and not a compiled release.
+That is why you can't find the .exe
+When you return to github, the download is not the green button at the top (thank you github), but look to the sidebar on the right for Releases.
+Hope that helps,
+-Phil
