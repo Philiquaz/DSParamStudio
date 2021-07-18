@@ -46,7 +46,7 @@ A: DSMapStudio creates a whole vulkan renderer, and requests all sorts of featur
 
 ## Troubleshooting:
 * If the program fails to start, the primary causes are .Net Core 3.1 Desktop Runtime and Visual C++ Redistributable. Repair or reinstall these if you're having problems.
-* If the program begins to launch and then fails, primary cause is probably vulkan related. Make sure your computer is using the correct graphics device for the program if you have both.
+* If the program begins to launch and then fails (eg. white screen), try running as an administrator. If that fails, make sure your computer is using the correct graphics device for the program if you have integrated graphics.
 * If you are unable to start or open a project, chances are your paramdefs or game install is wonky or misaligned. Support is not given for cracked games. For sekiro, attempt updating paramdefs.
 
 ## Special Thanks
