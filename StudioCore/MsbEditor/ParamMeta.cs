@@ -281,7 +281,7 @@ namespace StudioCore.MsbEditor
             if (fieldMeta == null)
             {
                 ParamMetaData pdef = ParamMetaData.Get(def.Parent);
-                fieldMeta = new FieldMetaData(pdef, pdef._xml, def);
+                fieldMeta = new FieldMetaData(pdef, def);
             }
             return fieldMeta;
         }
