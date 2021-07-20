@@ -280,7 +280,7 @@ namespace StudioCore.MsbEditor
                             object newval = PerformOperation(cell, op, opparamcontext);
                             if (newval == null)
                             {
-                                return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not perform operation {op} {opparamcontext} on field {cell.Def.DisplayName}");
+                                return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not perform operation {op} {opparamcontext} on field {cell.Def.InternalName}");
                             }
                             partialActions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
                         }
@@ -437,7 +437,7 @@ namespace StudioCore.MsbEditor
             List<PARAM.Cell> clist = new List<PARAM.Cell>();
             foreach (PARAM.Cell c in row.Cells)
             {
-                if (fieldrx.Match(c.Def.DisplayName).Success)
+                if (fieldrx.Match(c.Def.InternalName).Success)
                 {
                     clist.Add(c);
                 }
@@ -521,7 +521,7 @@ namespace StudioCore.MsbEditor
                             continue;
                         object newval = PerformOperation(c, "=", v);
                         if (newval == null)
-                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not assign {v} to field {c.Def.DisplayName}");
+                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not assign {v} to field {c.Def.InternalName}");
                         if (!c.Value.Equals(newval))
                             actions.Add(new PropertiesChangedAction(c.GetType().GetProperty("Value"), -1, c, newval));
                     }
@@ -577,7 +577,7 @@ namespace StudioCore.MsbEditor
                             continue;
                         object newval = PerformOperation(cell, "=", value);
                         if (newval == null)
-                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not assign {value} to field {cell.Def.DisplayName}");
+                            return new MassEditResult(MassEditResultType.OPERATIONERROR, $@"Could not assign {value} to field {cell.Def.InternalName}");
                         if (!cell.Value.Equals(newval))
                             actions.Add(new PropertiesChangedAction(cell.GetType().GetProperty("Value"), -1, cell, newval));
                     }
