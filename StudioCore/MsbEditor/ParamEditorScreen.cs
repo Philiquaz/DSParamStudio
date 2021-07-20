@@ -159,7 +159,7 @@ namespace StudioCore.MsbEditor
                     {
                         foreach (PARAMDEF.Field field in ParamBank.Params[_activeView._selection.getActiveParam()].AppliedParamdef.Fields)
                         {
-                            if (ImGui.MenuItem(field.DisplayName))
+                            if (ImGui.MenuItem(field.InternalName))
                                 EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVExport/{field.InternalName}");
                         }
                         ImGui.EndMenu();
@@ -176,7 +176,7 @@ namespace StudioCore.MsbEditor
                     {
                         foreach (PARAMDEF.Field field in ParamBank.Params[_activeView._selection.getActiveParam()].AppliedParamdef.Fields)
                         {
-                            if (ImGui.MenuItem(field.DisplayName))
+                            if (ImGui.MenuItem(field.InternalName))
                                 EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVImport/{field.InternalName}");
                         }
                         ImGui.EndMenu();
