@@ -6,6 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Authors>Philiquaz</Authors>
     <Version>0.0.1</Version>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
