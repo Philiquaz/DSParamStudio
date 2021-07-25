@@ -147,14 +147,16 @@ namespace StudioCore.MsbEditor
         private List<PARAM.Row> Removed = new List<PARAM.Row>();
         private bool replParams = false;
         private bool appOnly = false;
+        private bool useIDAsIndex = false;
 
-        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool replaceParams, bool appendOnly)
+        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool replaceParams, bool appendOnly, bool useIDasIndex)
         {
             Param = param;
             Clonables.AddRange(rows);
             ParamString = pstring;
             replParams = replaceParams;
             appOnly = appendOnly;
+            useIDAsIndex = useIDasIndex;
         }
 
         public override ActionEvent Execute()
@@ -162,45 +164,52 @@ namespace StudioCore.MsbEditor
             foreach (var row in Clonables)
             {
                 var newrow = new PARAM.Row(row);
-                if (Param[(int) row.ID] != null)
+                if (useIDAsIndex)
                 {
-                    if (replParams)
-                    {
-                        PARAM.Row existing = Param[(int) row.ID];
-                        RemovedIndex.Add(Param.Rows.IndexOf(existing));
-                        Removed.Add(existing);
-                        Param.Rows.Remove(existing);
-                    }
-                    else
-                    {
-                        newrow.Name = row.Name != null ? row.Name + "_1" : "";
-                        int newID = row.ID + 1;
-                        while (Param[newID] != null)
-                        {
-                            newID++;
-                        }
-                        newrow.ID = newID;
-                        Param.Rows.Insert(Param.Rows.IndexOf(Param[(int) newID - 1]) + 1, newrow);
-                    }
+                    Param.Rows.Insert(newrow.ID, newrow);
                 }
-                if (Param[(int) row.ID] == null)
+                else
                 {
-                    newrow.Name = row.Name != null ? row.Name : "";
-                    int index = 0;
-                    if (appOnly)
+                    if (Param[(int) row.ID] != null)
                     {
-                        index = Param.Rows.Count;
-                    }
-                    else
-                    {
-                        foreach (PARAM.Row r in Param.Rows)
+                        if (replParams)
                         {
-                            if (r.ID > newrow.ID)
-                                break;
-                            index++;
+                            PARAM.Row existing = Param[(int) row.ID];
+                            RemovedIndex.Add(Param.Rows.IndexOf(existing));
+                            Removed.Add(existing);
+                            Param.Rows.Remove(existing);
+                        }
+                        else
+                        {
+                            newrow.Name = row.Name != null ? row.Name + "_1" : "";
+                            int newID = row.ID + 1;
+                            while (Param[newID] != null)
+                            {
+                                newID++;
+                            }
+                            newrow.ID = newID;
+                            Param.Rows.Insert(Param.Rows.IndexOf(Param[(int) newID - 1]) + 1, newrow);
                         }
                     }
-                    Param.Rows.Insert(index, newrow);
+                    if (Param[(int) row.ID] == null)
+                    {
+                        newrow.Name = row.Name != null ? row.Name : "";
+                        int index = 0;
+                        if (appOnly)
+                        {
+                            index = Param.Rows.Count;
+                        }
+                        else
+                        {
+                            foreach (PARAM.Row r in Param.Rows)
+                            {
+                                if (r.ID > newrow.ID)
+                                    break;
+                                index++;
+                            }
+                        }
+                        Param.Rows.Insert(index, newrow);
+                    }
                 }
                 Clones.Add(newrow);
             }

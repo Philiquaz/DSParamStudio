@@ -528,7 +528,7 @@ namespace StudioCore.MsbEditor
                 }
                 changeCount = actions.Count;
                 addedCount = addedParams.Count;
-                actions.Add(new AddParamsAction(p, "legacystring", addedParams, replaceParams, appendOnly));
+                actions.Add(new AddParamsAction(p, "legacystring", addedParams, replaceParams, appendOnly, false));
                 if (changeCount != 0 || addedCount != 0)
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected, {addedCount} rows added");

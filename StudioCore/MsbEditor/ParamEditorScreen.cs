@@ -76,6 +76,7 @@ namespace StudioCore.MsbEditor
         private string _clipboardParam = null;
         private List<PARAM.Row> _clipboardRows = new List<PARAM.Row>();
         private long _clipboardBaseRow = 0;
+        private bool _ctrlVuseIndex = false;
         private string _currentCtrlVValue = "0";
         private string _currentCtrlVOffset = "0";
 
@@ -514,41 +515,61 @@ namespace StudioCore.MsbEditor
             if (ImGui.BeginPopup("ctrlVPopup"))
             {
                 _isShortcutPopupOpen = true;
-                long offset = 0;
                 try
                 {
-                    ImGui.InputText("Row", ref _currentCtrlVValue, 20);
-                    if (ImGui.IsItemEdited())
+                    int max = -1;
+                    long offset = 0;
+                    ImGui.Checkbox("Paste after selection", ref _ctrlVuseIndex);
+                    if (_ctrlVuseIndex)
                     {
-                        offset = long.Parse(_currentCtrlVValue) - _clipboardBaseRow;
-                        _currentCtrlVOffset = offset.ToString();
+                        ImGui.Text("Note: You may produce out-of-order or duplicate rows. These may confuse later ID-based row additions.");
+                        List<PARAM.Row> rows = _activeView._selection.getSelectedRows();
+                        PARAM param = ParamBank.Params[_activeView._selection.getActiveParam()];
+                        foreach (PARAM.Row r in rows)
+                        {
+                            max = param.Rows.IndexOf(r) > max ? param.Rows.IndexOf(r) : max;
+                        }
                     }
-                    ImGui.InputText("Offset", ref _currentCtrlVOffset, 20);
-                    if (ImGui.IsItemEdited())
+                    else
                     {
+                        ImGui.InputText("Row", ref _currentCtrlVValue, 20);
+                        if (ImGui.IsItemEdited())
+                        {
+                            offset = long.Parse(_currentCtrlVValue) - _clipboardBaseRow;
+                            _currentCtrlVOffset = offset.ToString();
+                        }
+                        ImGui.InputText("Offset", ref _currentCtrlVOffset, 20);
+                        if (ImGui.IsItemEdited())
+                        {
+                            offset = long.Parse(_currentCtrlVOffset);
+                            _currentCtrlVValue = (_clipboardBaseRow + offset).ToString();
+                        }
+                        // Recheck that this is valid
+                        offset = long.Parse(_currentCtrlVValue);
                         offset = long.Parse(_currentCtrlVOffset);
-                        _currentCtrlVValue = (_clipboardBaseRow + offset).ToString();
                     }
-                    // Recheck that this is valid
-                    offset = long.Parse(_currentCtrlVValue);
-                    offset = long.Parse(_currentCtrlVOffset);
+                    int index = 1;
+                    if (ImGui.Selectable("Submit"))
+                    {
+                        List<PARAM.Row> rowsToInsert = new List<PARAM.Row>();
+                        foreach (PARAM.Row r in _clipboardRows)
+                        {
+                            PARAM.Row newrow = new PARAM.Row(r);// more cloning
+                            if (_ctrlVuseIndex)
+                                newrow.ID = (int) (max+index);
+                            else
+                                newrow.ID = (int) (r.ID + offset);
+                            rowsToInsert.Add(newrow);
+                            index++;
+                        }
+                        bool useVerbatim = false;//_projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne;
+                        EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, useVerbatim, useVerbatim, _ctrlVuseIndex));
+                    }
                 }
                 catch
                 {
                     ImGui.EndPopup();
                     return;
-                }
-                if (ImGui.Selectable("Submit"))
-                {
-                    List<PARAM.Row> rowsToInsert = new List<PARAM.Row>();
-                    foreach (PARAM.Row r in _clipboardRows)
-                    {
-                        PARAM.Row newrow = new PARAM.Row(r);// more cloning
-                        newrow.ID = (int) (r.ID + offset);
-                        rowsToInsert.Add(newrow);
-                    }
-                    bool useVerbatim = false;//_projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne;
-                    EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, useVerbatim, useVerbatim));
                 }
                 ImGui.EndPopup();
             }
