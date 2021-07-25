@@ -146,15 +146,15 @@ namespace StudioCore.MsbEditor
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
                 }
-                if (ImGui.MenuItem("Mass Edit", null, false, true))
+                if (ImGui.MenuItem("Mass Edit"))
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
                 }
-                if (ImGui.BeginMenu("Export CSV", _activeView._selection.paramSelectionExists()))
+                if (ImGui.BeginMenu("Export CSV", _activeView._selection.rowSelectionExists()))
                 {
-                    if (ImGui.MenuItem("All", null, false, _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("All"))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditCSVExport");
-                    if (ImGui.MenuItem("Name", null, false, _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("Name"))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVExport/Name");
                     if (ImGui.BeginMenu("Field"))
                     {
@@ -169,9 +169,9 @@ namespace StudioCore.MsbEditor
                 }
                 if (ImGui.BeginMenu("Import CSV", _activeView._selection.paramSelectionExists()))
                 {
-                    if (ImGui.MenuItem("All", null, false, _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("All"))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditCSVImport");
-                    if (ImGui.MenuItem("Name", null, false, _activeView._selection.paramSelectionExists()))
+                    if (ImGui.MenuItem("Name"))
                         EditorCommandQueue.AddCommand($@"param/menu/massEditSingleCSVImport/Name");
                     if (ImGui.BeginMenu("Field"))
                     {
