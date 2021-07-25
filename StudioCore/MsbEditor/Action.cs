@@ -154,8 +154,8 @@ namespace StudioCore.MsbEditor
             Param = param;
             Clonables.AddRange(rows);
             ParamString = pstring;
-            replParams = replaceParams;
             appOnly = appendOnly;
+            replParams = replaceParams;
             useIDAsIndex = useIDasIndex;
         }
 
@@ -194,21 +194,21 @@ namespace StudioCore.MsbEditor
                     if (Param[(int) row.ID] == null)
                     {
                         newrow.Name = row.Name != null ? row.Name : "";
-                        int index = 0;
                         if (appOnly)
                         {
-                            index = Param.Rows.Count;
+                            Param.Rows.Add(newrow);
                         }
                         else
                         {
+                            int index = 0;
                             foreach (PARAM.Row r in Param.Rows)
                             {
                                 if (r.ID > newrow.ID)
                                     break;
                                 index++;
                             }
+                            Param.Rows.Insert(index, newrow);
                         }
-                        Param.Rows.Insert(index, newrow);
                     }
                 }
                 Clones.Add(newrow);

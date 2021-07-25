@@ -504,7 +504,7 @@ namespace StudioCore.MsbEditor
                     int id = int.Parse(csvs[0]);
                     string name = csvs[1];
                     PARAM.Row row = p[id];
-                    if (row == null)
+                    if (row == null || replaceParams)
                     {
                         row = new PARAM.Row(id, name, p.AppliedParamdef);
                         addedParams.Add(row);
@@ -528,7 +528,7 @@ namespace StudioCore.MsbEditor
                 }
                 changeCount = actions.Count;
                 addedCount = addedParams.Count;
-                actions.Add(new AddParamsAction(p, "legacystring", addedParams, appendOnly, appendOnly && replaceParams, false));
+                actions.Add(new AddParamsAction(p, "legacystring", addedParams, appendOnly, replaceParams, false));
                 if (changeCount != 0 || addedCount != 0)
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected, {addedCount} rows added");

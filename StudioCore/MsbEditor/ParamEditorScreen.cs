@@ -373,7 +373,7 @@ namespace StudioCore.MsbEditor
                 {
                     if (_activeView._selection.rowSelectionExists())
                     {
-                        var act = new DeleteParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], new List<PARAM.Row>() { _activeView._selection.getActiveRow() });
+                        var act = new DeleteParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getSelectedRows());
                         EditorActionManager.ExecuteAction(act);
                         _activeView._selection.SetActiveRow(null);
                     }
