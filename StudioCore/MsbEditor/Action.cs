@@ -145,11 +145,11 @@ namespace StudioCore.MsbEditor
         private List<PARAM.Row> Clones = new List<PARAM.Row>();
         private List<int> RemovedIndex = new List<int>();
         private List<PARAM.Row> Removed = new List<PARAM.Row>();
-        private bool replParams = false;
         private bool appOnly = false;
+        private bool replParams = false;
         private bool useIDAsIndex = false;
 
-        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool replaceParams, bool appendOnly, bool useIDasIndex)
+        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool appendOnly, bool replaceParams, bool useIDasIndex)
         {
             Param = param;
             Clonables.AddRange(rows);

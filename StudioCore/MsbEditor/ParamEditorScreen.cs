@@ -88,6 +88,8 @@ namespace StudioCore.MsbEditor
         private string _currentMEditCSVInput = "";
         private string _currentMEditCSVOutput = "";
         private string _mEditCSVResult = "";
+        private bool _mEditCSVAppendOnly = false;
+        private bool _mEditCSVReplaceRows = false;
 
         public static bool ShowAltNamesPreference = true;
         public static bool AlwaysShowOriginalNamePreference = false;
@@ -291,10 +293,12 @@ namespace StudioCore.MsbEditor
             else if (ImGui.BeginPopup("massEditMenuCSVImport"))
             {
                 ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditCSVInput, 256 * 65536, new Vector2(1024, 256));
+                ImGui.Checkbox("Append new rows instead of ID based insertion (this will create out-of-order IDs)", ref _mEditCSVAppendOnly);
+                if (_mEditCSVAppendOnly)
+                    ImGui.Checkbox("Replace existing rows instead of updating them (they will be moved to the end)", ref _mEditCSVReplaceRows);
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
-                    bool useVerbatim = _projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne || _projectSettings.GameType == GameType.DarkSoulsRemastered;
-                    MassEditResult r = MassParamEditCSV.PerformMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), useVerbatim, useVerbatim);
+                    MassEditResult r = MassParamEditCSV.PerformMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _mEditCSVAppendOnly, _mEditCSVAppendOnly && _mEditCSVReplaceRows);
                     _mEditCSVResult = r.Information;
                 }
                 ImGui.Text(_mEditCSVResult);
@@ -562,8 +566,7 @@ namespace StudioCore.MsbEditor
                             rowsToInsert.Add(newrow);
                             index++;
                         }
-                        bool useVerbatim = false;//_projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne;
-                        EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, useVerbatim, useVerbatim, _ctrlVuseIndex));
+                        EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, false, false, _ctrlVuseIndex));
                     }
                 }
                 catch
