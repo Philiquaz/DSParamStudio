@@ -143,14 +143,18 @@ namespace StudioCore.MsbEditor
         private string ParamString;
         private List<PARAM.Row> Clonables = new List<PARAM.Row>();
         private List<PARAM.Row> Clones = new List<PARAM.Row>();
-        private bool SetSelection = false;
+        private List<int> RemovedIndex = new List<int>();
+        private List<PARAM.Row> Removed = new List<PARAM.Row>();
+        private bool replParams = false;
+        private bool appOnly = false;
 
-        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool setsel)
+        public AddParamsAction(PARAM param, string pstring, List<PARAM.Row> rows, bool replaceParams, bool appendOnly)
         {
             Param = param;
             Clonables.AddRange(rows);
             ParamString = pstring;
-            SetSelection = setsel;
+            replParams = replaceParams;
+            appOnly = appendOnly;
         }
 
         public override ActionEvent Execute()
@@ -158,34 +162,47 @@ namespace StudioCore.MsbEditor
             foreach (var row in Clonables)
             {
                 var newrow = new PARAM.Row(row);
+                if (Param[(int) row.ID] != null)
+                {
+                    if (replParams)
+                    {
+                        PARAM.Row existing = Param[(int) row.ID];
+                        RemovedIndex.Add(Param.Rows.IndexOf(existing));
+                        Removed.Add(existing);
+                        Param.Rows.Remove(existing);
+                    }
+                    else
+                    {
+                        newrow.Name = row.Name != null ? row.Name + "_1" : "";
+                        int newID = row.ID + 1;
+                        while (Param[newID] != null)
+                        {
+                            newID++;
+                        }
+                        newrow.ID = newID;
+                        Param.Rows.Insert(Param.Rows.IndexOf(Param[(int) newID - 1]) + 1, newrow);
+                    }
+                }
                 if (Param[(int) row.ID] == null)
                 {
                     newrow.Name = row.Name != null ? row.Name : "";
                     int index = 0;
-                    foreach (PARAM.Row r in Param.Rows)
+                    if (appOnly)
                     {
-                        if (r.ID > newrow.ID)
-                            break;
-                        index++;
+                        index = Param.Rows.Count;
+                    }
+                    else
+                    {
+                        foreach (PARAM.Row r in Param.Rows)
+                        {
+                            if (r.ID > newrow.ID)
+                                break;
+                            index++;
+                        }
                     }
                     Param.Rows.Insert(index, newrow);
                 }
-                else
-                {
-                    newrow.Name = row.Name != null ? row.Name + "_1" : "";
-                    int newID = row.ID + 1;
-                    while (Param[newID] != null)
-                    {
-                        newID++;
-                    }
-                    newrow.ID = newID;
-                    Param.Rows.Insert(Param.Rows.IndexOf(Param[(int) newID - 1]) + 1, newrow);
-                }
                 Clones.Add(newrow);
-            }
-            if (SetSelection)
-            {
-                // EditorCommandQueue.AddCommand($@"param/select/{ParamString}/{Clones[0].ID}");
             }
             return ActionEvent.NoEvent;
         }
@@ -196,10 +213,14 @@ namespace StudioCore.MsbEditor
             {
                 Param.Rows.Remove(Clones[i]);
             }
-            Clones.Clear();
-            if (SetSelection)
+            for (int i = Removed.Count()-1; i >= 0; i--)
             {
+                Param.Rows.Insert(RemovedIndex[i], Removed[i]);
             }
+            
+            Clones.Clear();
+            RemovedIndex.Clear();
+            Removed.Clear();
             return ActionEvent.NoEvent;
         }
     }

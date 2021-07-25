@@ -479,7 +479,7 @@ namespace StudioCore.MsbEditor
             return gen;
         }
         
-        public static MassEditResult PerformMassEdit(string csvString, ActionManager actionManager, string param)
+        public static MassEditResult PerformMassEdit(string csvString, ActionManager actionManager, string param, bool replaceParams, bool appendOnly)
         {
             try
             {
@@ -528,7 +528,7 @@ namespace StudioCore.MsbEditor
                 }
                 changeCount = actions.Count;
                 addedCount = addedParams.Count;
-                actions.Add(new AddParamsAction(p, "legacystring", addedParams, false));
+                actions.Add(new AddParamsAction(p, "legacystring", addedParams, replaceParams, appendOnly));
                 if (changeCount != 0 || addedCount != 0)
                     actionManager.ExecuteAction(new CompoundAction(actions));
                 return new MassEditResult(MassEditResultType.SUCCESS, $@"{changeCount} cells affected, {addedCount} rows added");

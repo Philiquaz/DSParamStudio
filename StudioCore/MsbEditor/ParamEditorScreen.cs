@@ -292,7 +292,8 @@ namespace StudioCore.MsbEditor
                 ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditCSVInput, 256 * 65536, new Vector2(1024, 256));
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
-                    MassEditResult r = MassParamEditCSV.PerformMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam());
+                    bool useVerbatim = _projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne || _projectSettings.GameType == GameType.DarkSoulsRemastered;
+                    MassEditResult r = MassParamEditCSV.PerformMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), useVerbatim, useVerbatim);
                     _mEditCSVResult = r.Information;
                 }
                 ImGui.Text(_mEditCSVResult);
@@ -546,7 +547,8 @@ namespace StudioCore.MsbEditor
                         newrow.ID = (int) (r.ID + offset);
                         rowsToInsert.Add(newrow);
                     }
-                    EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, false));
+                    bool useVerbatim = false;//_projectSettings.GameType == GameType.DarkSoulsPTDE || _projectSettings.GameType == GameType.Bloodborne;
+                    EditorActionManager.ExecuteAction(new AddParamsAction(ParamBank.Params[_clipboardParam], "legacystring", rowsToInsert, useVerbatim, useVerbatim));
                 }
                 ImGui.EndPopup();
             }
