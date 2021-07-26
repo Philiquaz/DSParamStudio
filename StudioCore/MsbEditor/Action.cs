@@ -309,7 +309,7 @@ namespace StudioCore.MsbEditor
 
         public override ActionEvent Undo()
         {
-            for (int i = 0; i < Deletables.Count(); i++)
+            for (int i = Deletables.Count() -1 ; i >= 0 ; i--)
             {
                 Param.Rows.Insert(RemoveIndices[i], Deletables[i]);
             }

@@ -135,6 +135,7 @@ namespace StudioCore.MsbEditor
                     _clipboardParam = _activeView._selection.getActiveParam();
                     _clipboardRows.Clear();
                     long baseValue = long.MaxValue;
+                    _activeView._selection.sortSelection();
                     foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
                     {
                         _clipboardRows.Add(new PARAM.Row(r));// make a clone
@@ -267,6 +268,7 @@ namespace StudioCore.MsbEditor
 
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
+                    _activeView._selection.sortSelection();
                     MassEditResult r = MassParamEditRegex.PerformMassEdit(_currentMEditRegexInput, EditorActionManager, _activeView._selection.getActiveParam(), _activeView._selection.getSelectedRows());
                     if (r.Type == MassEditResultType.SUCCESS)
                     {
@@ -356,6 +358,7 @@ namespace StudioCore.MsbEditor
                     _clipboardParam = _activeView._selection.getActiveParam();
                     _clipboardRows.Clear();
                     long baseValue = long.MaxValue;
+                    _activeView._selection.sortSelection();
                     foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
                     {
                         _clipboardRows.Add(new PARAM.Row(r));// make a clone
@@ -454,6 +457,7 @@ namespace StudioCore.MsbEditor
                     }
                     else if (initcmd[1] == "massEditCSVExport")
                     {
+                        _activeView._selection.sortSelection();
                         if (_activeView._selection.rowSelectionExists())
                             _currentMEditCSVOutput = MassParamEditCSV.GenerateCSV(_activeView._selection.getSelectedRows());
                         OpenMassEditPopup("massEditMenuCSVExport");
@@ -464,6 +468,7 @@ namespace StudioCore.MsbEditor
                     }
                     else if (initcmd[1] == "massEditSingleCSVExport" && initcmd.Length > 2)
                     {
+                        _activeView._selection.sortSelection();
                         _currentMEditSingleCSVField = initcmd[2];
                         if (_activeView._selection.rowSelectionExists())
                             _currentMEditCSVOutput = MassParamEditCSV.GenerateSingleCSV(_activeView._selection.getSelectedRows(), _currentMEditSingleCSVField);
@@ -733,6 +738,15 @@ namespace StudioCore.MsbEditor
         {
             _activeParam = null;
             _paramStates.Clear();
+        }
+        public void sortSelection()
+        {
+            if (_activeParam != null)
+            {
+                ParamEditorParamSelectionState s = _paramStates[_activeParam];
+                PARAM p = ParamBank.Params[_activeParam];
+                s.selectionRows.Sort((PARAM.Row a, PARAM.Row b) => {return p.Rows.IndexOf(a) - p.Rows.IndexOf(b);});
+            }
         }
     }
 
