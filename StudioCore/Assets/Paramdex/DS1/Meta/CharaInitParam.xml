@@ -37,11 +37,11 @@
     <item_03 Refs="EquipParamGoods" />
     <item_04 Refs="EquipParamGoods" />
     <item_05 Refs="EquipParamGoods" />
-    <item_06 Refs="EquipParamGoods" />
-    <item_07 Refs="EquipParamGoods" />
-    <item_08 Refs="EquipParamGoods" />
-    <item_09 Refs="EquipParamGoods" />
-    <item_10 Refs="EquipParamGoods" />
+    <item_06 Refs="EquipParamGoods" Wiki="Unused (needs testing)" />
+    <item_07 Refs="EquipParamGoods" Wiki="Unused (needs testing)" />
+    <item_08 Refs="EquipParamGoods" Wiki="Unused (needs testing)" />
+    <item_09 Refs="EquipParamGoods" Wiki="Unused (needs testing)" />
+    <item_10 Refs="EquipParamGoods" Wiki="Unused (needs testing)" />
     <npcPlayerFaceGenId />
     <npcPlayerThinkId />
     <baseHp />
