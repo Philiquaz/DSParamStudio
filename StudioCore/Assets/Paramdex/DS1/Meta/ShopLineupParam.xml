@@ -3,7 +3,7 @@
   <Enums>
     <Enum Name="ShopType">
       <Option Value="1" Name="normal shop" />
-      <Option Value="2" Name="attunment menu" />
+      <Option Value="2" Name="attunement menu" />
 	</Enum>
     <Enum Name="EquipType">
       <Option Value="0" Name="Weapon" />

@@ -6,7 +6,7 @@
     <weight />
     <basicPrice Wiki="Soul cost of reinforcement. See ShopLineupParam for shop prices" />
     <sellValue Wiki="Souls received when feeding this weapon to Frampt (unverified)" />
-    <behaviorId Refs="BehaviorParam_PC" />
+    <behaviorId Refs="BehaviorParam_PC" Wiki="Unused (requires testing)" />
     <replaceItemId Refs="EquipParamGoods" />
     <sortId Wiki="ID used to sort this item in the menus" />
     <qwcId />

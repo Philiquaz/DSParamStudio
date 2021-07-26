@@ -19,8 +19,8 @@
     <objDummyId />
     <objAnimId />
     <validPlayerAngle />
-    <spQualifiedType Wiki="Requirement #1. What requirement type to use for spQualifiedID." />
-    <spQualifiedType2 Wiki="Requirement #2. What requirement type to use for spQualifiedID." />
+    <spQualifiedType Enum="QualifierType" Wiki="Requirement #1. What requirement type to use for spQualifiedID." />
+    <spQualifiedType2 Enum="QualifierType" Wiki="Requirement #2. What requirement type to use for spQualifiedID." />
     <validObjAngle />
     <chrSorbType />
     <eventKickTiming />

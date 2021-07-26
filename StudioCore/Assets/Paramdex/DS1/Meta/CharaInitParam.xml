@@ -19,9 +19,9 @@
     <equip_SubBolt Refs="EquipParamWeapon" />
     <equip_Accessory01 Refs="EquipParamAccessory" />
     <equip_Accessory02 Refs="EquipParamAccessory" />
-    <equip_Accessory03 Refs="EquipParamAccessory" />
-    <equip_Accessory04 Refs="EquipParamAccessory" />
-    <equip_Accessory05 Refs="EquipParamAccessory" />
+    <equip_Accessory03 Refs="EquipParamAccessory" Wiki="Unused (does not function)"/>
+    <equip_Accessory04 Refs="EquipParamAccessory" Wiki="Unused (does not function)">
+    <equip_Accessory05 Refs="EquipParamAccessory" Wiki="Unused (does not function)"/>
     <equip_Skill_01 />
     <equip_Skill_02 />
     <equip_Skill_03 />
