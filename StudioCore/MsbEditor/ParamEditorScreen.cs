@@ -132,18 +132,7 @@ namespace StudioCore.MsbEditor
                 }
                 if (ImGui.MenuItem("Copy", "Ctrl+C", false, _activeView._selection.rowSelectionExists()))
                 {
-                    _clipboardParam = _activeView._selection.getActiveParam();
-                    _clipboardRows.Clear();
-                    long baseValue = long.MaxValue;
-                    _activeView._selection.sortSelection();
-                    foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
-                    {
-                        _clipboardRows.Add(new PARAM.Row(r));// make a clone
-                        if (r.ID < baseValue)
-                            baseValue = r.ID;
-                    }
-                    _clipboardBaseRow = baseValue;
-                    _currentCtrlVValue = _clipboardBaseRow.ToString();
+                    CopySelectionToClipboard();
                 }
                 if (ImGui.MenuItem("Paste", "Ctrl+V", false, _clipboardRows.Any()))
                 {
@@ -237,6 +226,22 @@ namespace StudioCore.MsbEditor
                 }
                 ImGui.EndMenu();
             }
+        }
+
+        public void CopySelectionToClipboard()
+        {
+            _clipboardParam = _activeView._selection.getActiveParam();
+            _clipboardRows.Clear();
+            long baseValue = long.MaxValue;
+            _activeView._selection.sortSelection();
+            foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
+            {
+                _clipboardRows.Add(new PARAM.Row(r));// make a clone
+                if (r.ID < baseValue)
+                    baseValue = r.ID;
+            }
+            _clipboardBaseRow = baseValue;
+            _currentCtrlVValue = _clipboardBaseRow.ToString();
         }
 
         public void OpenMassEditPopup(string popup)
@@ -355,18 +360,7 @@ namespace StudioCore.MsbEditor
                 }
                 if (!ImGui.IsAnyItemActive() && _activeView._selection.rowSelectionExists() && InputTracker.GetControlShortcut(Key.C))
                 {
-                    _clipboardParam = _activeView._selection.getActiveParam();
-                    _clipboardRows.Clear();
-                    long baseValue = long.MaxValue;
-                    _activeView._selection.sortSelection();
-                    foreach (PARAM.Row r in _activeView._selection.getSelectedRows())
-                    {
-                        _clipboardRows.Add(new PARAM.Row(r));// make a clone
-                        if (r.ID < baseValue)
-                            baseValue = r.ID;
-                    }
-                    _clipboardBaseRow = baseValue;
-                    _currentCtrlVValue = _clipboardBaseRow.ToString();
+                    CopySelectionToClipboard();
                 }
                 if (_clipboardRows.Count > 00 && _clipboardParam == _activeView._selection.getActiveParam() && !ImGui.IsAnyItemActive() && InputTracker.GetControlShortcut(Key.V))
                 {
