@@ -580,7 +580,7 @@ namespace StudioCore
                     }
                     ImGui.NewLine();
                 }
-                if (_newProjectSettings.GameType == GameType.DarkSoulsIISOTFS || _newProjectSettings.GameType == GameType.DarkSoulsIII || _newProjectSettings.GameType == GameType.Sekiro)
+                if (_newProjectSettings.GameType == GameType.DarkSoulsPTDE || _newProjectSettings.GameType == GameType.DarkSoulsIISOTFS || _newProjectSettings.GameType == GameType.DarkSoulsIII || _newProjectSettings.GameType == GameType.Sekiro)
                 {
                     ImGui.AlignTextToFramePadding();
                     ImGui.Text($@"Load default row names:  ");
