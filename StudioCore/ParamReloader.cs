@@ -320,7 +320,7 @@ namespace StudioCore
         public SoulsMemoryHandler(Process gameProcess)
         {
             this.gameProcess = gameProcess;
-            this.memoryHandle = NativeWrapper.OpenProcess(ProcessAccessFlags.ReadWrite, gameProcess.Id);
+            this.memoryHandle = NativeWrapper.OpenProcess(ProcessAccessFlags.CreateThread|ProcessAccessFlags.ReadWrite, gameProcess.Id);
         }
         public void Terminate()
         {
