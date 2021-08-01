@@ -48,21 +48,50 @@
 		<Option Value="1" Name="Projectile" />
 		<Option Value="2" Name="Hazard" />
 	  </Enum>
+	  <Enum Name="HKSBehaviorID">
+		<Option Value="0" Name="None" />
+		<Option Value="4" Name="Always Guardbreak" />
+		<Option Value="5" Name="Use JailerStagger" />
+		<Option Value="8" Name="Dont increment damage count" />
+		<Option Value="9" Name="No AddDamage" />
+		<Option Value="10" Name="Use SpecialDamageUpper" />
+		<Option Value="11" Name="Is Also Guard (req. speffect 100690)" />
+	  </Enum>
+	  <Enum Name="C0000DamageLevel">
+		<Option Value="0" Name="Adaptive" />
+		<Option Value="1" Name="Lack of" />
+		<Option Value="2" Name="Lack of" />
+		<Option Value="3" Name="Dagger" />
+		<Option Value="4" Name="StraightSword" />
+		<Option Value="5" Name="Ultra" />
+		<Option Value="6" Name="Throw" />
+		<Option Value="7" Name="Far Throw" />
+		<Option Value="8" Name="Pancake" />
+		<Option Value="9" Name="Flip" />
+		<Option Value="10" Name="Kick" />
+		<Option Value="11" Name="Far Throw" />
+		<Option Value="12" Name="Trip Backwards" />
+		<Option Value="13" Name="None" />
+	  </Enum>
+	  
   </Enums>
   <Self Row0Dummy="" AlternativeOrder="KnockbackDist,HitStopTime,
 spEffect0,spEffect1,spEffect2,spEffect3,spEffect4,
+-,
 atkElementCorrectId,
-BlowingCorrection,AtkPhysCorrection,AtkMagCorrection,AtkFireCorrection,AtkThunCorrection,atkDarkCorrection,AtkStamCorrection,
+Blowing Correction,AtkPhysCorrection,AtkMagCorrection,AtkFireCorrection,AtkThunCorrection,atkDarkCorrection,AtkStamCorrection,
+-,
 AtkPhys,AtkMag,AtkFire,AtkThun,atkDark,AtkStam,
 physSpCorrection,magSpCorrection,fireSpCorrection,thunSpCorrection,darkSpCorrection,
 GuardAtkRateCorrection,GuardBreakCorrection,
 GuardAtkRate,GuardBreakRate,
 AtkThrowEscapeCorrection,AtkSuperArmorCorrection,
 AtkSuperArmor,AtkThrowEscape,AtkObj,
+-,
 GuardStaminaCutRate,GuardRate,
 ThrowTypeID,
-damageLevel,
-damageLevelParameter,
+damageLevel, 0x18B,
+damageLevelParameter, pad1,
 mapHitType,
 GuardCutCancelRate,
 AtkAttribute,spAttribute,
@@ -90,6 +119,7 @@ repeatHitSfx,
 atkPowForSfxSe,atkDirForSfxSe,
 atkMaterial,atkSize,DefMaterial,DefSfxMaterial,
 defMaterialVal0,defMaterialVal1,defMaterialVal2,
+-,
 Hit0_Radius,	Hit0_DmyPoly1,	Hit0_DmyPoly2,	Hit0_hitType,	Hit0_VfxId,	Hit0_DummyPolyId0,	Hit0_DummyPolyId1,	hit0_Priority,
 Hit1_Radius,	Hit1_DmyPoly1,	Hit1_DmyPoly2,	Hit1_hitType,	Hit1_VfxId1,Hit1_DummyPolyId0,	Hit1_DummyPolyId1,	hit1_Priority,
 Hit2_Radius,	Hit2_DmyPoly1,	Hit2_DmyPoly2,	Hit2_hitType,	Hit2_VfxId,	Hit2_DummyPolyId0,	Hit2_DummyPolyId1,	hit2_Priority,
@@ -193,8 +223,10 @@ Hit15_Radius,	Hit15_DmyPoly1,	Hit15_DmyPoly2,	Hit15_hitType" />
 	<magSpCorrection AltName="Flat Damage Correction" />
 	<fireSpCorrection AltName="Unknown Correction" />
 	<thunSpCorrection AltName="Unknown Correction" />
-	<damageLevelParameter AltName="Damage Level Parameter" />
+	<damageLevelParameter AltName="HKS BehaviorID" Enum="HKSBehaviorID" />
 	<darkSpCorrection AltName="Unknown Correction" />
     <atkElementCorrectId Refs="AttackElementCorrectParam" Wiki="Override for stat scaling behaviour.\nIf -1, equipped weapon determines AttackElementCorrectParam instead." />
+	<pad1 AltName="HKS BehaviorID 2" Enum="HKSBehaviorID" />
+	<_0x18B AltName="C0000 DamageLevel" Enum="C0000DamageLevel" />
   </Field>
 </PARAMMETA>
