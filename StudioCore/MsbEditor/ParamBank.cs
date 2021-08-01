@@ -476,7 +476,7 @@ namespace StudioCore.MsbEditor
                     Files = paramBnd.Files.Where(f => f.Name.EndsWith(".param")).ToList()
                 };
 
-                BND4 stayBND = new BND4
+                /*BND4 stayBND = new BND4
                 {
                     BigEndian = false,
                     Compression = DCX.Type.DCX_DFLT_10000_44_9,
@@ -486,10 +486,10 @@ namespace StudioCore.MsbEditor
                     Format = Binder.Format.Compression | Binder.Format.Flag6 | Binder.Format.LongOffsets | Binder.Format.Names1,
                     Unicode = true,
                     Files = paramBnd.Files.Where(f => f.Name.EndsWith(".stayparam")).ToList()
-                };
+                };*/
 
                 Utils.WriteWithBackup(dir, mod, @"param\gameparam\gameparam_dlc2.parambnd.dcx", paramBND);
-                Utils.WriteWithBackup(dir, mod, @"param\gameparam\stayparam.parambnd.dcx", stayBND);
+                //Utils.WriteWithBackup(dir, mod, @"param\stayparam\stayparam.parambnd.dcx", stayBND);
             }
         }
 
