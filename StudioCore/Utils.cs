@@ -217,25 +217,32 @@ namespace StudioCore
 
             var writepath = (moddir == null) ? assetgamepath : assetmodpath;
 
-            if (File.Exists(writepath + ".temp"))
+            try
             {
-                File.Delete(writepath + ".temp");
-            }
-            if (ds3reg && item is BND4 bnd)
-            {
-                SFUtil.EncryptDS3Regulation(writepath + ".temp", bnd);
-            }
-            else
-            {
-                item.Write(writepath + ".temp");
-            }
+                if (File.Exists(writepath + ".temp"))
+                {
+                    File.Delete(writepath + ".temp");
+                }
+                if (ds3reg && item is BND4 bnd)
+                {
+                    SFUtil.EncryptDS3Regulation(writepath + ".temp", bnd);
+                }
+                else
+                {
+                    item.Write(writepath + ".temp");
+                }
 
-            if (File.Exists(writepath))
-            {
-                File.Copy(writepath, writepath + ".prev", true);
-                File.Delete(writepath);
+                if (File.Exists(writepath))
+                {
+                    File.Copy(writepath, writepath + ".prev", true);
+                    File.Delete(writepath);
+                }
+                File.Move(writepath + ".temp", writepath);
             }
-            File.Move(writepath + ".temp", writepath);
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error saving file: "+writepath+"\nOther files will be saved.", "Error Saving", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.None);
+            }
         }
 
         public static void WriteStringWithBackup(string gamedir, string moddir, string assetpath, string item)
