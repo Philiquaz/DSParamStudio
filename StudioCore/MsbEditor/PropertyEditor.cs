@@ -155,7 +155,7 @@ namespace StudioCore.MsbEditor
                 {
                     val = "";
                 }
-                if (ImGui.InputText("##value", ref val, 40))
+                if (ImGui.InputText("##value", ref val, 128))
                 {
                     newval = val;
                     return true;
