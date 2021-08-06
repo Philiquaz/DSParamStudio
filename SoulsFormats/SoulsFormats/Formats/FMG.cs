@@ -212,12 +212,12 @@ namespace SoulsFormats
             /// <summary>
             /// The ID of this entry.
             /// </summary>
-            public int ID;
+            public int ID {get; set;}
 
             /// <summary>
             /// The text of this entry.
             /// </summary>
-            public string Text;
+            public string Text {get; set;}
 
             /// <summary>
             /// Creates a new entry with the specified ID and text.
