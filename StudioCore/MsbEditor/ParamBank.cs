@@ -7,6 +7,7 @@ using SoulsFormats;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace StudioCore.MsbEditor
 {
@@ -120,17 +121,25 @@ namespace StudioCore.MsbEditor
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
-            if (!File.Exists($@"{dir}\\param\gameparam\gameparam.parambnd.dcx"))
+
+            string paramBinderName = "gameparam.parambnd.dcx";
+
+            if (Directory.GetParent(dir).Parent.FullName.Contains("BLUS"))
+            {
+                paramBinderName = "gameparamna.parambnd.dcx";
+            }
+
+            if (!File.Exists($@"{dir}\\param\gameparam\{paramBinderName}"))
             {
                 MessageBox.Show("Could not find DES regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // Load params
-            var param = $@"{mod}\param\gameparam\gameparam.parambnd.dcx";
+            var param = $@"{mod}\param\gameparam\{paramBinderName}";
             if (!File.Exists(param))
             {
-                param = $@"{dir}\param\gameparam\gameparam.parambnd.dcx";
+                param = $@"{dir}\param\gameparam\{paramBinderName}";
             }
             BND3 paramBnd = BND3.Read(param);
 
@@ -518,6 +527,44 @@ namespace StudioCore.MsbEditor
             }
             Utils.WriteWithBackup(dir, mod, @"param\gameparam\gameparam.parambnd.dcx", paramBnd);
         }
+        private static void SaveParamsDES()
+        {
+            var dir = AssetLocator.GameRootDirectory;
+            var mod = AssetLocator.GameModDirectory;
+
+            string paramBinderName = "gameparam.parambnd.dcx";
+
+            if (Directory.GetParent(dir).Parent.FullName.Contains("BLUS"))
+            {
+                paramBinderName = "gameparamna.parambnd.dcx";
+            }
+
+            Debug.WriteLine(paramBinderName);
+
+            if (!File.Exists($@"{dir}\\param\gameparam\{paramBinderName}"))
+            {
+                MessageBox.Show("Could not find param file. Cannot save.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Load params
+            var param = $@"{mod}\param\gameparam\{paramBinderName}";
+            if (!File.Exists(param))
+            {
+                param = $@"{dir}\param\gameparam\{paramBinderName}";
+            }
+            BND3 paramBnd = BND3.Read(param);
+
+            // Replace params with edited ones
+            foreach (var p in paramBnd.Files)
+            {
+                if (_params.ContainsKey(Path.GetFileNameWithoutExtension(p.Name)))
+                {
+                    p.Bytes = _params[Path.GetFileNameWithoutExtension(p.Name)].Write();
+                }
+            }
+            Utils.WriteWithBackup(dir, mod, $@"param\gameparam\{paramBinderName}", paramBnd);
+        }
 
         public static void SaveParams(bool loose=false)
         {
@@ -528,6 +575,10 @@ namespace StudioCore.MsbEditor
             if (AssetLocator.Type == GameType.DarkSoulsPTDE)
             {
                 SaveParamsDS1();
+            }
+            if (AssetLocator.Type == GameType.DemonsSouls)
+            {
+                SaveParamsDES();
             }
             if (AssetLocator.Type == GameType.DarkSoulsIISOTFS)
             {
