@@ -9,6 +9,7 @@ using SoulsFormats;
 using ImGuiNET;
 using System.Net.Http.Headers;
 using System.Security;
+using System.Text.RegularExpressions;
 
 namespace StudioCore.MsbEditor
 {
@@ -217,7 +218,7 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        public void PropEditorParamRow(PARAM.Row row)
+        public void PropEditorParamRow(PARAM.Row row, ref string propSearchString)
         {
             IReadOnlyList<PARAM.Cell> cells = new List<PARAM.Cell>();
             cells = row.Cells;
@@ -225,12 +226,25 @@ namespace StudioCore.MsbEditor
             ImGui.Separator();
             int id = 0;
 
+            if (propSearchString != null)
+                ImGui.InputText("Search...", ref propSearchString, 255);
+            Regex propSearchRx = null;
+            try
+            {
+                propSearchRx = new Regex(propSearchString.ToLower());
+            }
+            catch
+            {
+            }
+            ImGui.NextColumn();
+            ImGui.NextColumn();
+
             // This should be rewritten somehow it's super ugly
             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.8f, 0.8f, 0.8f, 1.0f));
             var nameProp = row.GetType().GetProperty("Name");
             var idProp = row.GetType().GetProperty("ID");
-            PropEditorPropInfoRow(row, nameProp, "Name", ref id);
-            PropEditorPropInfoRow(row, idProp, "ID", ref id);
+            PropEditorPropInfoRow(row, nameProp, "Name", ref id, propSearchRx);
+            PropEditorPropInfoRow(row, idProp, "ID", ref id, propSearchRx);
             ImGui.PopStyleColor();
 
             ParamMetaData meta  = ParamMetaData.Get(row.Def);
@@ -245,40 +259,50 @@ namespace StudioCore.MsbEditor
                     }
                     if (row[field] == null)
                         continue;
-                    PropEditorPropCellRow(row[field], ref id);
+                    PropEditorPropCellRow(row[field], ref id, propSearchRx);
                 }
                 foreach (var cell in cells)
                 {
                     if (!meta.AlternateOrder.Contains(cell.Def.InternalName))
-                        PropEditorPropCellRow(cell, ref id);
+                        PropEditorPropCellRow(cell, ref id, propSearchRx);
                 }
             }
             else
             {
                 foreach (var cell in cells)
                 {
-                    PropEditorPropCellRow(cell, ref id);
+                    PropEditorPropCellRow(cell, ref id, propSearchRx);
                 }
             }
             ImGui.Columns(1);
         }
         
         // Many parameter options, which may be simplified.
-        private void PropEditorPropInfoRow(PARAM.Row row, PropertyInfo prop, string visualName, ref int id)
+        private void PropEditorPropInfoRow(PARAM.Row row, PropertyInfo prop, string visualName, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(prop.GetValue(row), ref id, visualName, null, prop.PropertyType, prop, null, row);
+            PropEditorPropRow(prop.GetValue(row), ref id, visualName, null, prop.PropertyType, prop, null, row, propSearchRx);
         }
-        private void PropEditorPropCellRow(PARAM.Cell cell, ref int id)
+        private void PropEditorPropCellRow(PARAM.Cell cell, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, null);
+            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, null, propSearchRx);
         }
-        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell, PARAM.Row nullableRow)
+        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell, PARAM.Row nullableRow, Regex propSearchRx)
         {
             List<string> RefTypes = cellMeta == null ? null : cellMeta.RefTypes;
             string VirtualRef = cellMeta == null ? null : cellMeta.VirtualRef;
             ParamEnum Enum = cellMeta == null ? null : cellMeta.EnumType;
             string Wiki = cellMeta == null ? null : cellMeta.Wiki;
             bool IsBool = cellMeta == null ? false : cellMeta.IsBool;
+            string AltName = cellMeta == null ? null : cellMeta.AltName;
+
+            if (propSearchRx != null)
+            {
+                if (!propSearchRx.IsMatch(internalName.ToLower()) && !(AltName != null && propSearchRx.IsMatch(AltName.ToLower())))
+                {
+                    return;
+                }
+            }
+
             object newval = null;
             ImGui.PushID(id);
             ImGui.AlignTextToFramePadding();
@@ -654,7 +678,8 @@ namespace StudioCore.MsbEditor
             ImGui.SetNextWindowPos(new Vector2(w - 370, 20), ImGuiCond.FirstUseEver);
             ImGui.Begin($@"Properties##{id}");
             ImGui.BeginChild("propedit");
-            PropEditorParamRow(selection);
+            string _noSearchStr = null;
+            PropEditorParamRow(selection, ref _noSearchStr);
             ImGui.EndChild();
             ImGui.End();
             ImGui.PopStyleColor();

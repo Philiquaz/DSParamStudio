@@ -346,7 +346,7 @@ namespace StudioCore.MsbEditor
                 if (!ImGui.IsAnyItemActive() && _activeView._selection.paramSelectionExists() && InputTracker.GetControlShortcut(Key.A))
                 {
                     _clipboardParam = _activeView._selection.getActiveParam();
-                    Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_activeView._selection.getCurrentSearchString());
+                    Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_activeView._selection.getCurrentRowSearchString());
                     if (!m.Success)
                     {
                         foreach (PARAM.Row row in ParamBank.Params[_activeView._selection.getActiveParam()].Rows)
@@ -435,7 +435,7 @@ namespace StudioCore.MsbEditor
                 {
                     if (initcmd.Length > 1)
                     {
-                        _activeView._selection.getCurrentSearchString() = initcmd[1];
+                        _activeView._selection.getCurrentRowSearchString() = initcmd[1];
                     }
                 }
                 else if (initcmd[0] == "menu" && initcmd.Length > 1)
@@ -643,7 +643,8 @@ namespace StudioCore.MsbEditor
 
     internal class ParamEditorSelectionState
     {
-        private static string _globalSearchString = "";
+        private static string _globalRowSearchString = "";
+        private static string _globalPropSearchString = "";
         private string _activeParam = null;
         private Dictionary<string, ParamEditorParamSelectionState> _paramStates = new Dictionary<string, ParamEditorParamSelectionState>();
 
@@ -661,11 +662,17 @@ namespace StudioCore.MsbEditor
             if (!_paramStates.ContainsKey(_activeParam))
                 _paramStates.Add(_activeParam, new ParamEditorParamSelectionState());
         }
-        public ref string getCurrentSearchString()
+        public ref string getCurrentRowSearchString()
         {
             if (_activeParam == null)
-                return ref _globalSearchString;
-            return ref _paramStates[_activeParam].currentSearchString;
+                return ref _globalRowSearchString;
+            return ref _paramStates[_activeParam].currentRowSearchString;
+        }
+        public ref string getCurrentPropSearchString()
+        {
+            if (_activeParam == null)
+                return ref _globalPropSearchString;
+            return ref _paramStates[_activeParam].currentPropSearchString;
         }
         public bool rowSelectionExists()
         {
@@ -746,7 +753,8 @@ namespace StudioCore.MsbEditor
 
     internal class ParamEditorParamSelectionState
     {
-        internal string currentSearchString = "";
+        internal string currentRowSearchString = "";
+        internal string currentPropSearchString = "";
         internal PARAM.Row activeRow = null;
         internal List<PARAM.Row> selectionRows = new List<PARAM.Row>();
     }
@@ -795,7 +803,7 @@ namespace StudioCore.MsbEditor
             {
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
-                ImGui.InputText("Search rows...", ref _selection.getCurrentSearchString(), 256);
+                ImGui.InputText("Search rows...", ref _selection.getCurrentRowSearchString(), 256);
                 if (ImGui.IsItemActive())
                     _paramEditor._isSearchBarActive = true;
                 else
@@ -809,7 +817,7 @@ namespace StudioCore.MsbEditor
 
                 PARAM para = ParamBank.Params[_selection.getActiveParam()];
                 List<PARAM.Row> p;
-                Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentSearchString());
+                Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentRowSearchString());
                 if (!m.Success)
                 {
                     p = para.Rows;
@@ -867,7 +875,7 @@ namespace StudioCore.MsbEditor
             else
             {
                 ImGui.BeginChild("columns" + _selection.getActiveParam());
-                _propEditor.PropEditorParamRow(_selection.getActiveRow());
+                _propEditor.PropEditorParamRow(_selection.getActiveRow(), ref _selection.getCurrentPropSearchString());
             }
             ImGui.EndChild();
         }
