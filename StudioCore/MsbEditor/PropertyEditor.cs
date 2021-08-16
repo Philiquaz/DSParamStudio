@@ -313,10 +313,14 @@ namespace StudioCore.MsbEditor
                 if (UIHints.AddImGuiHintButton(internalName, ref Wiki))
                     cellMeta.Wiki = Wiki;
             }
+
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 1.0f, 0.0f, 1.0f));
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
-                ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  <{String.Join(',', RefTypes)}>");
+                ImGui.TextUnformatted($@"  <{String.Join(',', RefTypes)}>");
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
-                ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), @$"  {Enum.name}");
+                ImGui.TextUnformatted($@"  {Enum.name}");
+            ImGui.PopStyleColor();
+
             //PropertyRowMetaDefContextMenu();
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(-1);
@@ -337,7 +341,11 @@ namespace StudioCore.MsbEditor
             if (ParamEditorScreen.HideReferenceRowsPreference == false && RefTypes != null)
                 PropertyRowRefs(RefTypes, oldval);
             if (ParamEditorScreen.HideEnumsPreference == false && Enum != null)
-                ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), Enum.values.GetValueOrDefault(oldval.ToString(), "Not Enumerated"));
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));
+                ImGui.TextUnformatted(Enum.values.GetValueOrDefault(oldval.ToString(), "Not Enumerated"));
+                ImGui.PopStyleColor();
+            }
             if ((ParamEditorScreen.HideReferenceRowsPreference == false || ParamEditorScreen.HideEnumsPreference == false) && PropertyRowMetaValueContextMenu(oldval, ref newval, RefTypes, Enum))
             {
                 changed = true;
@@ -407,21 +415,25 @@ namespace StudioCore.MsbEditor
                     if (r == null)
                         continue;
                     entryFound = true;
+                    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));
                     if (r.Name == null || r.Name.Equals(""))
                     {
-                        ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), "Unnamed Row");
+                        ImGui.TextUnformatted("Unnamed Row");
                     }
                     else
                     {
-                        ImGui.TextColored(new Vector4(1.0f, 0.5f, 0.5f, 1.0f), r.Name + hint);
+                        ImGui.TextUnformatted(r.Name + hint);
                     }
+                    ImGui.PopStyleColor();
                     ImGui.NewLine();
                 }
             }
             ImGui.SameLine();
             if (!entryFound)
             {
-                ImGui.TextColored(new Vector4(0.0f, 0.0f, 0.0f, 1.0f), "___");
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui.TextUnformatted("___");
+                ImGui.PopStyleColor();
             }
         }
         private void PropertyRowNameContextMenu(string originalName, FieldMetaData cellMeta)

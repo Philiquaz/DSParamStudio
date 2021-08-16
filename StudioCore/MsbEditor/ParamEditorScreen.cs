@@ -44,7 +44,9 @@ namespace StudioCore.MsbEditor
             if (entry != null)
             {
                 ImGui.SameLine();
-                ImGui.TextColored(new Vector4(1.0f, 1.0f, 0.0f, 1.0f), $@" <{entry.Text}>");
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+                ImGui.TextUnformatted($@" <{entry.Text}>");
+                ImGui.PopStyleColor();
             }
         }
 
