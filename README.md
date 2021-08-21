@@ -6,7 +6,7 @@ These are the same as for DSMapStudio.
 ### Game instructions
 * **Dark Souls Prepare to die Edition**: Game must be unpacked with UDSFM before usage (https://www.nexusmods.com/darksouls/mods/1304).
 * **Dark Souls Remastered**: Not officially supported by MapStudio, but I presume params are unchanged and work fine.
-* **Dark Souls 2 SOTFS**: Use UXM (https://www.nexusmods.com/sekiro/mods/26) to unpack the game. Params must also be decrypted before use (you can open and save them with Yapped Honey Bear edition (https://github.com/vawser/Yapped-Honey-Bear) until I implement this natively). Vanilla Dark Souls 2 is not supported.
+* **Dark Souls 2 SOTFS**: Use UXM (https://www.nexusmods.com/sekiro/mods/26) to unpack the game. ParamStudio is capable of decrypting params. Vanilla Dark Souls 2 is not supported.
 * **Dark Souls 3 and Sekiro**: Use UXM to extract the game files.
 * **Demon's Souls**: Tested against the US version, but any valid full game dump of Demon's Souls will probably work out of the box. Make sure to disable the RPCS3 file cache to test changes if using the emulator.
 * **Bloodborne**: Any valid full game dump should work out of the box. Note that some dumps will have the base game (1.0) and the patch as separate, so the patch should be merged on top of the base game before use. You're on your own for installing mods to console at the moment.
