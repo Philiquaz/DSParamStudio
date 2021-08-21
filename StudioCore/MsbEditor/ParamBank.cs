@@ -217,8 +217,8 @@ namespace StudioCore.MsbEditor
             }
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
-                MessageBox.Show("Use yapped to decrypt your DS2 regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show("Attempting to decrypt DS2 regulation file, else functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //return;
             }
 
             // Keep track of loaded params as we load loose and regulation params
@@ -263,11 +263,26 @@ namespace StudioCore.MsbEditor
 
             // Load params
             var param = $@"{mod}\enc_regulation.bnd.dcx";
+            BND4 paramBnd;
             if (!File.Exists(param))
             {
+                // If there is no mod file, check the base file. Decrypt it if you have to.
                 param = $@"{dir}\enc_regulation.bnd.dcx";
+                if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
+                {
+                    paramBnd = SFUtil.DecryptDS2Regulation(param);
+                }
+                // No need to decrypt
+                else
+                {
+                    paramBnd = BND4.Read(param);
+                }
             }
-            BND4 paramBnd = BND4.Read(param);
+            // Mod file exists, use that.
+            else
+            {
+                paramBnd = BND4.Read(param);
+            }
             EnemyParam = GetParam(paramBnd, "EnemyParam.param");
             if (EnemyParam != null)
             {
@@ -395,11 +410,35 @@ namespace StudioCore.MsbEditor
 
             // Load params
             var param = $@"{mod}\enc_regulation.bnd.dcx";
+            BND4 paramBnd;
             if (!File.Exists(param))
             {
+                // If there is no mod file, check the base file. Decrypt it if you have to.
                 param = $@"{dir}\enc_regulation.bnd.dcx";
+                if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
+                {
+                    // Decrypt the file
+                    paramBnd = SFUtil.DecryptDS2Regulation(param);
+
+                    // Since the file is encrypted, check for a backup. If it has none, then make one and write a decrypted one.
+                    if (!File.Exists($@"{param}.bak"))
+                    {
+                        File.Copy(param, $@"{param}.bak", true);
+                        paramBnd.Write(param);
+                    }
+
+                }
+                // No need to decrypt
+                else
+                {
+                    paramBnd = BND4.Read(param);
+                }
             }
-            BND4 paramBnd = BND4.Read(param);
+            // Mod file exists, use that.
+            else
+            {
+                paramBnd = BND4.Read(param);
+            }
 
             // If params aren't loose, replace params with edited ones
             if (!loose)
