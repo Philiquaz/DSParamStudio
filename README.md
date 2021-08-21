@@ -6,7 +6,7 @@ These are the same as for DSMapStudio.
 ### Game instructions
 * **Dark Souls Prepare to die Edition**: Game must be unpacked with UDSFM before usage (https://www.nexusmods.com/darksouls/mods/1304).
 * **Dark Souls Remastered**: Not officially supported by MapStudio, but I presume params are unchanged and work fine.
-* **Dark Souls 2 SOTFS**: Use UXM (https://www.nexusmods.com/sekiro/mods/26) to unpack the game. Params must also be decrypted before use (you can open and save them with Yapped Honey Bear edition (https://github.com/vawser/Yapped-Honey-Bear) until I implement this natively). Vanilla Dark Souls 2 is not supported.
+* **Dark Souls 2 SOTFS**: Use UXM (https://www.nexusmods.com/sekiro/mods/26) to unpack the game. ParamStudio is capable of decrypting params. Vanilla Dark Souls 2 is not supported.
 * **Dark Souls 3 and Sekiro**: Use UXM to extract the game files.
 * **Demon's Souls**: Tested against the US version, but any valid full game dump of Demon's Souls will probably work out of the box. Make sure to disable the RPCS3 file cache to test changes if using the emulator.
 * **Bloodborne**: Any valid full game dump should work out of the box. Note that some dumps will have the base game (1.0) and the patch as separate, so the patch should be merged on top of the base game before use. You're on your own for installing mods to console at the moment.
@@ -30,6 +30,9 @@ Features include:
 * Mass editing features including:
     * A syntax for selecting fields and setting their value and performing basic arithmetic on them, using constants or values from other fields
     * CSV import / export for more complicated edits, and for possible version control.
+* Game hooks for DS3 including
+    * Reloading params in a running game (excluding row addition/deletion)
+    * Itemgib
 
 ### Q: Is this the end of DSMapStudio's param editor?
 A: No, this is more of a stopgap measure for providing features to modders. DSMapStudio is not currently being developed and I am not in a position to make official releases. Rather than release stuff with Kata's name on it and have him be pinged over random bugs he is uninvolved with, this should allow me to make tools and give them to people. Since this was original developed inside DSMapStudio, it should remain compatible and updates should be readily portable to DSMapStudio.
