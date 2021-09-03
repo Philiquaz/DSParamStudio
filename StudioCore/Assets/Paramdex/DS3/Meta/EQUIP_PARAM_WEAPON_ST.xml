@@ -365,7 +365,7 @@
 	<swordArtId Refs="SwordArtsParam" Wiki="Determines the SwordArtsParam ID to use." />
 	<correctLuck AltName="Luck Scaling" Wiki="The base scaling value used for Luck.\nNote that this is multiplied by reinforcement (via ReinforceParamWeapon)." />
 	<reinforceWeaponId Refs="EquipParamWeapon" />
-	<displayTypeId Enum="DisplayType" AltName="Weapon Class" Wiki="This is the weapon class displayed in the in-game menu." />
+	<displayTypeId VRef="menuValue" Enum="DisplayType" AltName="Weapon Class" Wiki="This is the weapon class displayed in the in-game menu." />
 	<weaponVfx0 AltName="1 - Weapon Vfx ID" Wiki="Vfx ID to apply" />
 	<weaponVfx1 AltName="2 - Weapon Vfx ID" Wiki="Vfx ID to apply" />
 	<weaponVfx2 AltName="3 - Weapon Vfx ID" Wiki="Vfx ID to apply" />

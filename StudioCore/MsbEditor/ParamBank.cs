@@ -217,7 +217,7 @@ namespace StudioCore.MsbEditor
             }
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
-                MessageBox.Show("Gonna try to decrypt your DS2 regulation file or functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Attempting to decrypt DS2 regulation file, else functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 //return;
             }
 
