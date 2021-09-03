@@ -623,7 +623,10 @@ namespace StudioCore.MsbEditor
         {
             _projectSettings = newSettings;
             foreach (ParamEditorView view in _views)
-                view._selection.cleanAllSelectionState();
+            {
+                if (view != null)
+                    view._selection.cleanAllSelectionState();
+            }
         }
 
         public override void Save()
