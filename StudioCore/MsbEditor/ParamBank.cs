@@ -70,18 +70,18 @@ namespace StudioCore.MsbEditor
                 _paramdefs.Add(pdef.ParamType, pdef);
             }
         }
-        
+
         public static void LoadParamDefaultNames()
         {
             var dir = AssetLocator.GetParamNamesDir();
             var files = Directory.GetFiles(dir, "*.txt");
-            while (Params == null); //super hack
-                Thread.Sleep(100);
+            while (Params == null) ; //super hack
+            Thread.Sleep(100);
             foreach (var f in files)
             {
                 int last = f.LastIndexOf('\\') + 1;
                 string file = f.Substring(last);
-                string param = file.Substring(0, file.Length-4);
+                string param = file.Substring(0, file.Length - 4);
                 if (!_params.ContainsKey(param))
                     continue;
                 string names = File.ReadAllText(f);
@@ -367,7 +367,7 @@ namespace StudioCore.MsbEditor
             AssetLocator = l;
             ReloadParams();
         }
-        
+
         private static void SaveParamsDS1()
         {
             var dir = AssetLocator.GameRootDirectory;
@@ -605,7 +605,7 @@ namespace StudioCore.MsbEditor
             Utils.WriteWithBackup(dir, mod, $@"param\gameparam\{paramBinderName}", paramBnd);
         }
 
-        public static void SaveParams(bool loose=false)
+        public static void SaveParams(bool loose = false)
         {
             if (_params == null)
             {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PARAMMETA XmlVersion="0">
+<Self Row0Dummy="" />
+<Field>
+<IconID AltName="Icon ID" /> 
+<EffectID AltName="Effect ID" /> 
+<WeaponID AltName="Weapon ID" /> 
+<ArmorID AltName="Armor ID" /> 
+<AmmunitionID AltName="Ammunition ID" /> 
+<RingID AltName="Ring ID" /> 
+<SpellID AltName="Spell ID" /> 
+<GestureID AltName="Gesture ID" /> 
+<SortID AltName="Sort ID" /> 
+<BaseBuyPrice AltName="Base Buy Price" /> 
+<SellPrice AltName="Sell Price" /> 
+<AnimationSpeed AltName="Animation Speed" /> 
+<ItemUseAnimation AltName="Item Use Animation" /> 
+<ItemUsageID AltName="Item Usage ID" /> 
+<MaxHeld AltName="Max Held" /> 
+<ItemType AltName="Item Type" /> 
+<SpellSchool AltName="Spell School" /> 
+<ItemState AltName="Item State" /> 
+</Field>
+</PARAMMETA>
