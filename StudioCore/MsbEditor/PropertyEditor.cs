@@ -596,11 +596,15 @@ namespace StudioCore.MsbEditor
                     continue;
                 if (ImGui.Selectable($@"Go to first in {param.Key}"))
                 {   
+                            Console.WriteLine($@"{foundfield.InternalName} - {searchValue}");
+                            Console.WriteLine($@"{param.Key}");
                     foreach (PARAM.Row row in param.Value.Rows)
                     {
-                        if (row[foundfield.InternalName].Value.Equals(searchValue))
+                            Console.WriteLine($@"{row.ID} - {row[foundfield.InternalName].Value}");
+                        if (row[foundfield.InternalName].Value.ToString().Equals(searchValue.ToString()))
                         {
                             EditorCommandQueue.AddCommand($@"param/select/-1/{param.Key}/{row.ID}");
+                            Console.WriteLine($@"param/select/-1/{param.Key}/{row.ID}");
                             break;
                         }
                     }
