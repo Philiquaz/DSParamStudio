@@ -374,7 +374,7 @@ namespace StudioCore.MsbEditor
                     {
                         var act = new DeleteParamsAction(ParamBank.Params[_activeView._selection.getActiveParam()], _activeView._selection.getSelectedRows());
                         EditorActionManager.ExecuteAction(act);
-                        _activeView._selection.SetActiveRow(null);
+                        _activeView._selection.SetActiveRow(null, true);
                     }
                 }
             }
@@ -392,16 +392,17 @@ namespace StudioCore.MsbEditor
                 }
                 return;
             }
-
+            
+            // Parse commands
             bool doFocus = false;
             // Parse select commands
             if (initcmd != null)
             {
-                if (initcmd[0] == "select")
+                if (initcmd[0] == "select" || initcmd[0] == "view")
                 {
                     if (initcmd.Length > 2 && ParamBank.Params.ContainsKey(initcmd[2]))
                     {
-                        doFocus = true;
+                        doFocus = initcmd[0] == "select";
 
                         ParamEditorView viewToMofidy = _activeView;
                         if (initcmd[1].Equals("new"))
@@ -418,7 +419,7 @@ namespace StudioCore.MsbEditor
                         viewToMofidy._selection.setActiveParam(initcmd[2]);
                         if (initcmd.Length > 3)
                         {
-                            viewToMofidy._selection.SetActiveRow(null);
+                            viewToMofidy._selection.SetActiveRow(null, doFocus);
                             var p = ParamBank.Params[viewToMofidy._selection.getActiveParam()];
                             int id;
                             var parsed = int.TryParse(initcmd[3], out id);
@@ -427,7 +428,7 @@ namespace StudioCore.MsbEditor
                                 var r = p.Rows.FirstOrDefault(r => r.ID == id);
                                 if (r != null)
                                 {
-                                    viewToMofidy._selection.SetActiveRow(r);
+                                    viewToMofidy._selection.SetActiveRow(r, doFocus);
                                 }
                             }
                         }
@@ -492,7 +493,7 @@ namespace StudioCore.MsbEditor
                 {
                     if (view == null)
                         continue;
-                    string name = view._selection.rowSelectionExists() ? view._selection.getActiveRow().Name : null;
+                    string name = view._selection.getActiveRow() != null ? view._selection.getActiveRow().Name : null;
                     string toDisplay = (view == _activeView ? "**" : "") + (name == null || name.Trim().Equals("") ? "Param Editor View" : name) + (view == _activeView ? "**" : "");
                     ImGui.SetNextWindowSize(new Vector2(1280.0f, 720.0f), ImGuiCond.Once);
                     ImGui.SetNextWindowDockID(ImGui.GetID("DockSpace_ParamEditorViews"), ImGuiCond.Once);
@@ -689,7 +690,7 @@ namespace StudioCore.MsbEditor
                 return null;
             return _paramStates[_activeParam].activeRow;
         }
-        public void SetActiveRow(PARAM.Row row)
+        public void SetActiveRow(PARAM.Row row, bool clearSelection)
         {
             if (_activeParam != null)
             {
@@ -789,8 +790,8 @@ namespace StudioCore.MsbEditor
             {
                 if (ImGui.Selectable(param.Key, param.Key == _selection.getActiveParam()))
                 {
-                    _selection.setActiveParam(param.Key);
-                    //_selection.SetActiveRow(null);
+                    //_selection.setActiveParam(param.Key);
+                    EditorCommandQueue.AddCommand($@"param/view/{_viewIndex}/{param.Key}");
                 }
                 if (doFocus && param.Key == _selection.getActiveParam())
                     scrollTo = ImGui.GetCursorPosY();
@@ -843,7 +844,7 @@ namespace StudioCore.MsbEditor
                         }
                         else
                         {
-                            if (InputTracker.GetKey(Key.LShift))
+                            if (InputTracker.GetKey(Key.LShift) && _selection.getActiveRow() != null)
                             {
                                 _selection.cleanSelectedRows();
                                 int start = p.IndexOf(_selection.getActiveRow());
@@ -856,7 +857,8 @@ namespace StudioCore.MsbEditor
                                 _selection.addRowToSelection(r);
                             }
                             else
-                                _selection.SetActiveRow(r);
+                                //_selection.SetActiveRow(r);
+                                EditorCommandQueue.AddCommand($@"param/view/{_viewIndex}/{_selection.getActiveParam()}/{r.ID}");
                         }
                     }
                     if (decorator != null)
@@ -872,7 +874,7 @@ namespace StudioCore.MsbEditor
             }
             ImGui.EndChild();
             ImGui.NextColumn();
-            if (!_selection.rowSelectionExists())
+            if (_selection.getActiveRow() == null)
             {
                 ImGui.BeginChild("columnsNONE");
                 ImGui.Text("Select a row to see properties");

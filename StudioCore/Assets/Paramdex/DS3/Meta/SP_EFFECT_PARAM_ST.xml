@@ -733,7 +733,7 @@
     <CurseResistChange AltName="Resist: Curse +" />
     <FrostResistChange AltName="Resist: Frost +" />
     <poisonAtkRate AltName="Damage %: Poison" />
-    <toxicAtkRate AltName="Damage %: Curse" />
+    <toxicAtkRate AltName="Damage %: Toxic" />
     <bleedAtkRate AltName="Damage %: Bleed" />
     <toxicAtkRate AltName="Damage %: Curse" />
     <Unk22 AltName="Damage %: Frost" />
