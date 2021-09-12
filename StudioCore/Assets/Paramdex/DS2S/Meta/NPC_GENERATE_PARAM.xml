@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PARAMMETA XmlVersion="0">
+<Self Row0Dummy="" />
+<Field>
+<NPCID AltName="NPC ID" /> 
+<RightWeaponID AltName="Right Weapon ID" /> 
+<RightWeaponID AltName="Right Weapon ID" /> 
+<RightWeaponID AltName="Right Weapon ID" /> 
+<LeftWeaponID AltName="Left Weapon ID" /> 
+<LeftWeaponID AltName="Left Weapon ID" /> 
+<LeftWeaponID AltName="Left Weapon ID" /> 
+<HeadArmorID AltName="Head Armor ID" /> 
+<ChestArmorID AltName="Chest Armor ID" /> 
+<HandsArmorID AltName="Hands Armor ID" /> 
+<LegsArmorID AltName="Legs Armor ID" /> 
+</Field>
+</PARAMMETA>

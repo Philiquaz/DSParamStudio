@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PARAMMETA XmlVersion="0">
+<Self Row0Dummy="" />
+<Field>
+<AggroGroup AltName="AggroGroup" /> 
+<DeathEventID AltName="DeathEventID" /> 
+<GeneratorRegistParam AltName="GeneratorRegistParam" /> 
+<ApperanceEventID AltName="ApperanceEventID" /> 
+<PreviousHostileEventID1 AltName="PreviousHostileEventID1" /> 
+<PreviousHostileEventID2 AltName="PreviousHostileEventID2" /> 
+<LocationEventID1 AltName="LocationEventID1" /> 
+<LocationEventID2 AltName="LocationEventID2" /> 
+<LocationEventID3 AltName="LocationEventID3" /> 
+<LocationEventID4 AltName="LocationEventID4" /> 
+<LocationEventID5 AltName="LocationEventID5" /> 
+<MapObjectBonfireID AltName="Map Object Bonfire ID" /> 
+<LocationEventID AltName="LocationEventID" /> 
+<LocationEventID AltName="LocationEventID" /> 
+<AIThinkID AltName="AIThinkID" /> 
+<ActivationEventID1 AltName="ActivationEventID1" /> 
+<ActivationEventID2 AltName="ActivationEventID2" /> 
+<HostileEventID1 AltName="HostileEventID1" /> 
+<HostileEventID2 AltName="HostileEventID2" /> 
+<LocationEventID1 AltName="LocationEventID1" /> 
+<LocationEventID2 AltName="LocationEventID2" /> 
+<ItemLotID1 AltName="ItemLotID1" /> 
+<ItemLotID2 AltName="ItemLotID2" /> 
+<GraveEventID AltName="GraveEventID" /> 
+</Field>
+</PARAMMETA>
