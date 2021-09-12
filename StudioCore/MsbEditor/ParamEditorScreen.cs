@@ -178,6 +178,10 @@ namespace StudioCore.MsbEditor
                     }
                     ImGui.EndMenu();
                 }
+                if (ImGui.MenuItem("Sort rows by ID", _activeView._selection.paramSelectionExists()))
+                {
+                    MassParamEditOther.SortRows(_activeView._selection.getActiveParam(), EditorActionManager);
+                }
                 ImGui.EndMenu();
             }
             if (ImGui.BeginMenu("View"))

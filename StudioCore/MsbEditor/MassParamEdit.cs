@@ -593,4 +593,15 @@ namespace StudioCore.MsbEditor
             }
         }
     }
+
+    public class MassParamEditOther
+    {
+        public static void SortRows(string paramName, ActionManager manager)
+        {
+            PARAM param = ParamBank.Params[paramName];
+            List<PARAM.Row> newRows = new List<PARAM.Row>(param.Rows.ToArray());
+            newRows.Sort((PARAM.Row a, PARAM.Row b)=>{return a.ID - b.ID;});
+            manager.ExecuteAction(new AddParamsAction(param, paramName, newRows, true, true, false)); //appending same params and allowing overwrite
+        }
+    }
 }
