@@ -86,6 +86,7 @@ namespace StudioCore.MsbEditor
         private string _currentMEditRegexInput = "";
         private string _lastMEditRegexInput = "";
         private string _mEditRegexResult = "";
+        private bool _currentMEditSingleCSVSpaces = false;
         private string _currentMEditSingleCSVField = "";
         private string _currentMEditCSVInput = "";
         private string _currentMEditCSVOutput = "";
@@ -320,10 +321,11 @@ namespace StudioCore.MsbEditor
             else if (ImGui.BeginPopup("massEditMenuSingleCSVImport"))
             {
                 ImGui.Text(_currentMEditSingleCSVField);
+                ImGui.Checkbox("Space separator", ref _currentMEditSingleCSVSpaces);
                 ImGui.InputTextMultiline("MEditRegexInput", ref _currentMEditCSVInput, 256 * 65536, new Vector2(1024, ImGui.GetTextLineHeightWithSpacing() * 4));
                 if (ImGui.Selectable("Submit", false, ImGuiSelectableFlags.DontClosePopups))
                 {
-                    MassEditResult r = MassParamEditCSV.PerformSingleMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _currentMEditSingleCSVField, false);
+                    MassEditResult r = MassParamEditCSV.PerformSingleMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _currentMEditSingleCSVField, _currentMEditSingleCSVSpaces);
                     _mEditCSVResult = r.Information;
                 }
                 ImGui.Text(_mEditCSVResult);
