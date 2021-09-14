@@ -2,16 +2,16 @@
 <PARAMMETA XmlVersion="0">
 <Self Row0Dummy="" />
 <Field>
-<NPCID AltName="NPC ID" /> 
-<RightWeaponID AltName="Right Weapon ID" /> 
-<RightWeaponID AltName="Right Weapon ID" /> 
-<RightWeaponID AltName="Right Weapon ID" /> 
-<LeftWeaponID AltName="Left Weapon ID" /> 
-<LeftWeaponID AltName="Left Weapon ID" /> 
-<LeftWeaponID AltName="Left Weapon ID" /> 
-<HeadArmorID AltName="Head Armor ID" /> 
-<ChestArmorID AltName="Chest Armor ID" /> 
-<HandsArmorID AltName="Hands Armor ID" /> 
-<LegsArmorID AltName="Legs Armor ID" /> 
+<NPCID AltName="NPC ID" Refs="NpcInfoParam" /> 
+<RightWeaponID AltName="Right Weapon ID" Refs="WeaponParam" /> 
+<RightWeaponID AltName="Right Weapon ID" Refs="WeaponParam" /> 
+<RightWeaponID AltName="Right Weapon ID" Refs="WeaponParam" /> 
+<LeftWeaponID AltName="Left Weapon ID" Refs="WeaponParam" /> 
+<LeftWeaponID AltName="Left Weapon ID" Refs="WeaponParam" /> 
+<LeftWeaponID AltName="Left Weapon ID" Refs="WeaponParam" /> 
+<HeadArmorID AltName="Head Armor ID" Refs="ArmorParam" /> 
+<ChestArmorID AltName="Chest Armor ID" Refs="ArmorParam" /> 
+<HandsArmorID AltName="Hands Armor ID" Refs="ArmorParam" /> 
+<LegsArmorID AltName="Legs Armor ID" Refs="ArmorParam" /> 
 </Field>
 </PARAMMETA>

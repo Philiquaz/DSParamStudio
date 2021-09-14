@@ -1,3 +1,4 @@
+0 Default
 10020000 Things Betwixt
 10040000 Majula
 10100000 Forest of Fallen Giants

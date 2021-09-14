@@ -2,8 +2,8 @@
 <PARAMMETA XmlVersion="0">
 <Self Row0Dummy="" />
 <Field>
-<EffectID AltName="Effect ID" Wiki="The SFX Id of this particular bullet. Sometimes unlisted here but provided by the EMEVD."/> 
-<SpawnLocation AltName="Spawn Location" /> 
+<EffectID AltName="Effect ID" Wiki="The SFX Id of this particular bullet. Sometimes unlisted here and sometimes provided by the EMEVD."/> 
+<SpawnLocation AltName="Spawn Location" Wiki="Where the effect/bullet will spawn in relation to the parent." /> 
 <SpawnFlag AltName="Spawn Flag" /> 
 <IsVisibleOnline AltName="Is Visible Online" /> 
 <SpawnFlag AltName="Spawn Flag" /> 
@@ -48,12 +48,12 @@
 <EffectonDeath AltName="Effect on Death" /> 
 <EffectonDeathDuration AltName="Effect on Death Duration" /> 
 <BehavioronCollision AltName="Behavior on Collision" /> 
-<ChildBullet1ID1 AltName="Child Bullet 1 - ID 1" Refs="BulletParam" /> 
-<ChildBullet1ID2 AltName="Child Bullet 1 - ID 2"  Refs="BulletParam" /> 
-<ChildBullet2ID1 AltName="Child Bullet 2 - ID 1"  Refs="BulletParam" /> 
-<ChildBullet2ID2 AltName="Child Bullet 2 - ID 2"  Refs="BulletParam" /> 
-<ChildBullet3ID1 AltName="Child Bullet 3 - ID 1"  Refs="BulletParam" /> 
-<ChildBullet3ID2 AltName="Child Bullet 3 - ID 2"  Refs="BulletParam" /> 
+<ChildBullet1ID1 AltName="Child Bullet 1 - ID 1 (Bullet)" Refs="BulletParam" /> 
+<ChildBullet1ID2 AltName="Child Bullet 1 - ID 2 (Damage)"  Refs="BulletParam" /> 
+<ChildBullet2ID1 AltName="Child Bullet 2 - ID 1 (Bullet)"  Refs="BulletParam" /> 
+<ChildBullet2ID2 AltName="Child Bullet 2 - ID 2 (Damage)"  Refs="BulletParam" /> 
+<ChildBullet3ID1 AltName="Child Bullet 3 - ID 1 (Bullet)"  Refs="BulletParam" /> 
+<ChildBullet3ID2 AltName="Child Bullet 3 - ID 2 (Damage)"  Refs="BulletParam" /> 
 <SpawnChildBulletsonCollision AltName="Spawn Child Bullets on Collision" /> 
 <SpawnChildBulletsonTimeout AltName="Spawn Child Bullets on Timeout" /> 
 <SpawnChildBulletson AltName="Spawn Child Bullets on ?" /> 
