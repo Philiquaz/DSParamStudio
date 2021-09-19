@@ -341,11 +341,11 @@ namespace StudioCore.MsbEditor
             List<PARAM.Row> rlist = new List<PARAM.Row>();
             try
             {
-                Regex rx = lenient? new Regex($@".*{rowvalexp}.*") : new Regex(rowvalexp);
+                Regex rx = lenient ? new Regex(rowvalexp) : new Regex($@"^{rowvalexp}$");
                 foreach (PARAM.Row row in param.Rows)
                 {
                     string term = row.ID.ToString();
-                    if (rx.Match(lenient ? term.ToLower() : term).Success)
+                    if (rx.Match(term).Success)
                         rlist.Add(row);
                 }
                 return rlist;
@@ -361,7 +361,7 @@ namespace StudioCore.MsbEditor
             List<PARAM.Row> rlist = new List<PARAM.Row>();
             try
             {
-                Regex rownamerx = lenient ? new Regex($@".*{namerx.ToLower()}.*") : new Regex(namerx);
+                Regex rownamerx = lenient ? new Regex(namerx.ToLower()) : new Regex($@"^{namerx}$");
                 foreach (PARAM.Row row in param.Rows)
                 {
                     string nameToMatch = row.Name == null ? "" : row.Name;
@@ -381,12 +381,12 @@ namespace StudioCore.MsbEditor
             List<PARAM.Row> rlist = new List<PARAM.Row>();
             try
             {
-                Regex rx = lenient ? new Regex($@".*{rowvalexp.ToLower()}.*") : new Regex(rowvalexp);
+                Regex rx = lenient ? new Regex(rowvalexp.ToLower()) : new Regex($@"^{rowvalexp}$");
                 foreach (PARAM.Row row in param.Rows)
                 {
                     PARAM.Cell c = row[rowfield.Replace(@"\s", " ")];
                     string term = c.Value.ToString();
-                    if (c != null && rx.Match(lenient ? term.ToLower() : term).Success)
+                    if (c != null && rx.Match(term).Success)
                         rlist.Add(row);
                 }
                 return rlist;
@@ -402,7 +402,7 @@ namespace StudioCore.MsbEditor
             List<PARAM.Row> rlist = new List<PARAM.Row>();
             try
             {
-                Regex rownamerx = lenient ? new Regex($@".*{namerx.ToLower()}.*") : new Regex(namerx);
+                Regex rownamerx = lenient ? new Regex(namerx.ToLower()) : new Regex($@"^{namerx}$");
                 foreach (PARAM.Row row in param.Rows)
                 {
                     PARAM.Cell c = row[rowfield.Replace(@"\s", " ")];
