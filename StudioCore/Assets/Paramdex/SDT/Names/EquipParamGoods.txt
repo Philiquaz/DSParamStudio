@@ -257,3 +257,55 @@
 90020 DamageCheck20
 90030 AISoundCheck00
 90031 AISoundCheck01
+910000 Debugging Skills Lifted: New Game -- デバッグ用スキル解禁：ニューゲーム
+910010 Debugging skills lifted: Castle -- デバッグ用スキル解禁：城下
+910020 Debugging skills lifted: Samurai residence -- デバッグ用スキル解禁：武家屋敷
+910030 Debugging skills lifted: Honjo -- デバッグ用スキル解禁：本城
+910040 Debugging skills lifted: Hidden prison -- デバッグ用スキル解禁：隠し牢
+910050 Debugging skills lifted: Dungeon -- デバッグ用スキル解禁：地下牢
+910060 Debugging skills lifted: Temple -- デバッグ用スキル解禁：寺
+910070 Debugging skills lifted: Valley -- デバッグ用スキル解禁：渓谷
+910080 Debugging skills lifted: Lower valley -- デバッグ用スキル解禁：渓谷下層
+910090 Debugging Skills Lifted: Sick Village -- デバッグ用スキル解禁：病み村
+910100 Debugging skill lifted: Honjo_Ninja army invasion -- デバッグ用スキル解禁：本城_忍軍襲来時
+910110 Debugging skill lifted: Submerged city -- デバッグ用スキル解禁：水没都
+910120 Debugging skills lifted: Honjo_Tokugawa invasion -- デバッグ用スキル解禁：本城_徳川襲来時
+910130 Debugging skill lifted: Hidden prison _ When Tokugawa attacks -- デバッグ用スキル解禁：隠し牢_徳川襲来時
+910140 Debugging skills lifted: Castle_Tokugawa invasion -- デバッグ用スキル解禁：城下_徳川襲来時
+910150 Debugging skills lifted: Game clear -- デバッグ用スキル解禁：ゲームクリア
+920000 Debugging skills lifted: New game for checking enemies -- デバッグ用スキル解禁：敵チェック用ニューゲーム
+920010 Debugging skill lifted: Castle for checking enemies -- デバッグ用スキル解禁：敵チェック用城下
+920020 Debugging skills lifted: Samurai residence for checking enemies -- デバッグ用スキル解禁：敵チェック用武家屋敷
+920030 Debugging skill lifted: Honjo for checking enemies -- デバッグ用スキル解禁：敵チェック用本城
+920040 Debugging skill lifted: Hidden prison for checking enemies -- デバッグ用スキル解禁：敵チェック用隠し牢
+920050 Debugging skills lifted: Enemy check dungeon -- デバッグ用スキル解禁：敵チェック用地下牢
+920060 Debugging skill lifted: Enemy check temple -- デバッグ用スキル解禁：敵チェック用寺
+920070 Debugging skills lifted: Enemy check valley -- デバッグ用スキル解禁：敵チェック用渓谷
+920080 Debugging skill lifted: Lower layer of valley for checking enemies -- デバッグ用スキル解禁：敵チェック用渓谷下層
+920090 Debugging skill lifted: Enemy check sick village -- デバッグ用スキル解禁：敵チェック用病み村
+920100 Debugging skill lifted: Enemy check Honjo_Ninja army invasion -- デバッグ用スキル解禁：敵チェック用本城_忍軍襲来時
+920110 Debugging skill lifted: Submerged city for checking enemies -- デバッグ用スキル解禁：敵チェック用水没都
+920120 Debugging skill lifted: Enemy check Honjo_When Tokugawa attacks -- デバッグ用スキル解禁：敵チェック用本城_徳川襲来時
+920130 Debugging skill lifted: Hidden prison for checking enemies_When Tokugawa attacks -- デバッグ用スキル解禁：敵チェック用隠し牢_徳川襲来時
+920140 Debugging skill lifted: Enemy check castle _ Tokugawa invasion -- デバッグ用スキル解禁：敵チェック用城下_徳川襲来時
+920150 Debugging skill lifted: Clear enemy check game -- デバッグ用スキル解禁：敵チェック用ゲームクリア
+930000 Debugging skill voucher: New game for checking enemies -- デバッグ用スキル引換券：敵チェック用ニューゲーム
+930010 Debugging skill voucher: Castle for checking enemies -- デバッグ用スキル引換券：敵チェック用城下
+930020 Debugging skill voucher: Samurai residence for checking enemies -- デバッグ用スキル引換券：敵チェック用武家屋敷
+930030 Debugging skill voucher: Honjo for checking enemies -- デバッグ用スキル引換券：敵チェック用本城
+930040 Debugging skill voucher: Hidden prison for checking enemies -- デバッグ用スキル引換券：敵チェック用隠し牢
+930050 Debugging skill voucher: Enemy check dungeon -- デバッグ用スキル引換券：敵チェック用地下牢
+930060 Debugging skill voucher: Enemy check temple -- デバッグ用スキル引換券：敵チェック用寺
+930070 Debugging skill voucher: Enemy check valley -- デバッグ用スキル引換券：敵チェック用渓谷
+930080 Debugging skill voucher: Lower layer of valley for checking enemies -- デバッグ用スキル引換券：敵チェック用渓谷下層
+930090 Debugging skill voucher: Enemy check sick village -- デバッグ用スキル引換券：敵チェック用病み村
+930100 Debugging skill voucher: Honjo for enemy check_When the Ninja army invades -- デバッグ用スキル引換券：敵チェック用本城_忍軍襲来時
+930110 Debugging skill voucher: Submerged city for checking enemies -- デバッグ用スキル引換券：敵チェック用水没都
+930120 Debugging skill voucher: Honjo for enemy check_When Tokugawa attacks -- デバッグ用スキル引換券：敵チェック用本城_徳川襲来時
+930130 Debugging skill voucher: Hidden prison for checking enemies_When Tokugawa attacks -- デバッグ用スキル引換券：敵チェック用隠し牢_徳川襲来時
+930140 Debugging skill voucher: Castle for checking enemies_When Tokugawa attacks -- デバッグ用スキル引換券：敵チェック用城下_徳川襲来時
+930150 Debugging skill voucher: Clear enemy check game -- デバッグ用スキル引換券：敵チェック用ゲームクリア
+999996 Debugging skill lifted: No derivative attacks -- デバッグ用スキル解禁：派生攻撃なし
+999997 Debugging skills lifted: Everything except immortal slashing / acquisition of form charges -- デバッグ用スキル解禁：不死斬り/形代取得以外全て
+999998 Debugging Skills Lifted: Everything except Immortal Slash -- デバッグ用スキル解禁：不死斬り以外全て
+999999 Debugging skills lifted: All -- デバッグ用スキル解禁：全て

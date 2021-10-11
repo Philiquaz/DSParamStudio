@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PARAMDEF XmlVersion="0">
+<PARAMDEF XmlVersion="1">
   <ParamType>EQUIP_PARAM_WEAPON_ST</ParamType>
-  <Unk06>0</Unk06>
+  <DataVersion>3</DataVersion>
   <BigEndian>False</BigEndian>
   <Unicode>True</Unicode>
-  <Version>201</Version>
+  <FormatVersion>201</FormatVersion>
   <Fields>
     <Field Def="s32 behaviorVariationId = 4800" />
     <Field Def="s32 sortId = 850000" />
@@ -128,15 +128,15 @@
     <Field Def="u8 simpleModelForDlc:1" />
     <Field Def="u8 ubyteLanternWep:1" />
     <Field Def="u8 isVersusGhostWep:1" />
-    <Field Def="u8 baseChangeCategory:1" />
+    <Field Def="u8 baseChangeCategory:6 = 0">
+      <Enum>WEP_BASE_CHANGE_CATEGORY</Enum>
+      <EditFlags>None</EditFlags>
+      <Minimum>0</Minimum>
+      <Maximum>16</Maximum>
+    </Field>
     <Field Def="u8 isDragonSlayer:1" />
     <Field Def="u8 isDeposit:1" />
     <Field Def="u8 disableMultiDropShare:1" />
-    <Field Def="u8 Bool1:1" />
-    <Field Def="u8 Bool2:1" />
-    <Field Def="u8 DisableShoot:1" />
-    <Field Def="u8 EnableRepository:1 = 1" />
-    <Field Def="u8 DisableMultiDropShare2:1" />
     <Field Def="u8 IsDiscard:1 = 1" />
     <Field Def="u8 IsDrop:1 = 1" />
     <Field Def="u8 Bool3:1" />

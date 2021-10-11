@@ -327,15 +327,10 @@
 	<simpleModelForDlc IsBool="" />
 	<ubyteLanternWep IsBool="" />
 	<isVersusGhostWep IsBool="" />
-    <baseChangeCategory AltName="Infusion A" IsBool="" Wiki="Infusion A/B/C/D determines infusion ico.\nFFFF Normal\nTFFF Heavy\nFTFF Sharp\nTTFF Refined\nFFTF Crystal\nTFTF Simple\nFTTF Fire\nTTTF Chaos\nFFFT Lightning\nTFFT Deep\nFTFT Dark\nTTFT Poison\nFFTT Blood\nTFTT Raw\nFTTT Blessed\nTTTT Hollow" />
-    <isDragonSlayer AltName="Infusion B" IsBool="" Wiki="Infusion A/B/C/D determines infusion icon.\nFFFF Normal\nTFFF Heavy\nFTFF Sharp\nTTFF Refined\nFFTF Crystal\nTFTF Simple\nFTTF Fire\nTTTF Chaos\nFFFT Lightning\nTFFT Deep\nFTFT Dark\nTTFT Poison\nFFTT Blood\nTFTT Raw\nFTTT Blessed\nTTTT Hollow" />
-    <isDeposit AltName="Infusion C" IsBool="" Wiki="Infusion A/B/C/D determines infusion icon.\nFFFF Normal\nTFFF Heavy\nFTFF Sharp\nTTFF Refined\nFFTF Crystal\nTFTF Simple\nFTTF Fire\nTTTF Chaos\nFFFT Lightning\nTFFT Deep\nFTFT Dark\nTTFT Poison\nFFTT Blood\nTFTT Raw\nFTTT Blessed\nTTTT Hollow" />
-    <disableMultiDropShare AltName="Infusion D" IsBool="" Wiki="Infusion A/B/C/D determines infusion icon.\nFFFF Normal\nTFFF Heavy\nFTFF Sharp\nTTFF Refined\nFFTF Crystal\nTFTF Simple\nFTTF Fire\nTTTF Chaos\nFFFT Lightning\nTFFT Deep\nFTFT Dark\nTTFT Poison\nFFTT Blood\nTFTT Raw\nFTTT Blessed\nTTTT Hollow" />
-	<Bool1 IsBool="" />
-	<Bool2 IsBool="" />
-	<DisableShoot IsBool="" />
-	<EnableRepository IsBool="" />
-	<DisableMultiDropShare2 IsBool="" />
+    <baseChangeCategory AltName="Infusion Icon ID" Wiki="Determines the infusion icon used by the weapon, goes from 0 to 16" />
+    <isDragonSlaye IsBool=""/>
+    <isDeposit IsBool=""/>
+    <disableMultiDropShare IsBool=""/>
 	<IsDiscard IsBool="" />
 	<IsDrop IsBool="" />
 	<Bool3 IsBool="" />

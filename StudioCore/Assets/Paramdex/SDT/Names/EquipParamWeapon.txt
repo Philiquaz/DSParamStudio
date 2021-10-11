@@ -166,3 +166,9 @@
 1780000 Unknown Loaded Spear
 1790000 Unknown Finger Whistle
 2700000 Unknown Prosthetic Tool
+8000000 Debug non-killing sword -- デバッグ無殺刀
+8000100 Debug Special Sword -- デバッグ必殺刀
+8000200 Debug bare hand sword -- デバッグ素手刀
+9500000 Wire weapon -- ワイヤー武器
+9600000 parachute -- 落下傘
+9700000 Immortal sword -- 不死斬りの刀
