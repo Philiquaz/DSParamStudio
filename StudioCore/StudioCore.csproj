@@ -402,6 +402,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\Lib\oo2core_6_win64.dll" Link="oo2core_6_win64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Assets\Paramdex\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
