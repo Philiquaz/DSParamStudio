@@ -149,8 +149,12 @@ namespace StudioCore
                     {
                         bits = new BitArray(8);
                     }
-                    bits.Set(bitFieldPos, Convert.ToBoolean(cell.Value));
-                    bitFieldPos++;
+                    BitArray cellValueBitArray = new BitArray(new byte[] { (byte)cell.Value });
+                    for (int i = 0; i < cell.Def.BitSize; i++)
+                    {
+                        bits.Set(bitFieldPos, cellValueBitArray[bitFieldPos]);
+                        bitFieldPos++;
+                    }
                     if (bitFieldPos == 8)
                     {
                         byte valueRead = 0;
