@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Globalization;
+using System.Threading;
 using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -170,8 +172,14 @@ namespace StudioCore
             }
         }
 
+        public void SetupCSharpDefaults()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+        }
+
         public void Run()
         {
+            SetupCSharpDefaults();
             long previousFrameTicks = 0;
             Stopwatch sw = new Stopwatch();
             sw.Start();
