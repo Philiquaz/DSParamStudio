@@ -316,6 +316,7 @@ namespace StudioCore.MsbEditor
                 return;
             }
 
+            var vparam = $@"{dir}\Data0.bdt";
             // Load loose params if they exist
             if (File.Exists($@"{mod}\\param\gameparam\gameparam_dlc2.parambnd.dcx"))
             {
@@ -324,18 +325,18 @@ namespace StudioCore.MsbEditor
                 BND4 lparamBnd = BND4.Read(lparam);
 
                 LoadParamFromBinder(lparamBnd, ref _params);
-                return;
             }
-
-            // Load params
-            var param = $@"{mod}\Data0.bdt";
-            var vparam = $@"{dir}\Data0.bdt";
-            if (!File.Exists(param))
+            else
             {
-                param = vparam;
+                // Load params
+                var param = $@"{mod}\Data0.bdt";
+                if (!File.Exists(param))
+                {
+                    param = vparam;
+                }
+                BND4 paramBnd = SFUtil.DecryptDS3Regulation(param);
+                LoadParamFromBinder(paramBnd, ref _params);
             }
-            BND4 paramBnd = SFUtil.DecryptDS3Regulation(param);
-            LoadParamFromBinder(paramBnd, ref _params);
             BND4 vParamBnd = SFUtil.DecryptDS3Regulation(vparam);
             LoadParamFromBinder(vParamBnd, ref _vanillaParams);
         }
@@ -374,6 +375,8 @@ namespace StudioCore.MsbEditor
                 {
                     LoadParamsBBSekrio();
                 }
+                if (_vanillaParams.Count == 0)
+                    _vanillaParams = _params; //temporary safety for other games
                 IsLoading = false;
             });
         }
