@@ -218,10 +218,14 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        public void PropEditorParamRow(PARAM.Row row, ref string propSearchString)
+        public void PropEditorParamRow(PARAM.Row row, PARAM.Row vrow, ref string propSearchString)
         {
+            ParamMetaData meta = ParamMetaData.Get(row.Def);
             IReadOnlyList<PARAM.Cell> cells = new List<PARAM.Cell>();
+            IReadOnlyList<PARAM.Cell> vcells = new List<PARAM.Cell>();
             cells = row.Cells;
+            if (vrow != null)
+                vcells = vrow.Cells;
             ImGui.Columns(2);
             ImGui.Separator();
             int id = 0;
@@ -247,32 +251,22 @@ namespace StudioCore.MsbEditor
             PropEditorPropInfoRow(row, idProp, "ID", ref id, propSearchRx);
             ImGui.PopStyleColor();
 
-            ParamMetaData meta  = ParamMetaData.Get(row.Def);
-            if (meta != null && meta.AlternateOrder != null && ParamEditorScreen.AllowFieldReorderPreference)
+            List<string> fieldOrder = meta != null && ParamEditorScreen.AllowFieldReorderPreference ? meta.AlternateOrder : new List<string>();
+            foreach (PARAMDEF.Field field in row.Def.Fields)
             {
-                foreach (var field in meta.AlternateOrder)
-                {
-                    if (field.Equals("-"))
-                    {
-                        ImGui.Separator();
-                        continue;
-                    }
-                    if (row[field] == null)
-                        continue;
-                    PropEditorPropCellRow(row[field], ref id, propSearchRx);
-                }
-                foreach (var cell in cells)
-                {
-                    if (!meta.AlternateOrder.Contains(cell.Def.InternalName))
-                        PropEditorPropCellRow(cell, ref id, propSearchRx);
-                }
+                if (!fieldOrder.Contains(field.InternalName))
+                    fieldOrder.Add(field.InternalName);
             }
-            else
+            foreach (var field in fieldOrder)
             {
-                foreach (var cell in cells)
+                if (field.Equals("-"))
                 {
-                    PropEditorPropCellRow(cell, ref id, propSearchRx);
+                    ImGui.Separator();
+                    continue;
                 }
+                if (row[field] == null)
+                    continue;
+                PropEditorPropCellRow(row[field], vrow==null?null:vrow[field], ref id, propSearchRx);
             }
             ImGui.Columns(1);
         }
@@ -280,13 +274,13 @@ namespace StudioCore.MsbEditor
         // Many parameter options, which may be simplified.
         private void PropEditorPropInfoRow(PARAM.Row row, PropertyInfo prop, string visualName, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(prop.GetValue(row), ref id, visualName, null, prop.PropertyType, prop, null, row, propSearchRx);
+            PropEditorPropRow(prop.GetValue(row), null, ref id, visualName, null, prop.PropertyType, prop, null, row, propSearchRx);
         }
-        private void PropEditorPropCellRow(PARAM.Cell cell, ref int id, Regex propSearchRx)
+        private void PropEditorPropCellRow(PARAM.Cell cell, PARAM.Cell vcell, ref int id, Regex propSearchRx)
         {
-            PropEditorPropRow(cell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, null, propSearchRx);
+            PropEditorPropRow(cell.Value, vcell==null?null:vcell.Value, ref id, cell.Def.InternalName, FieldMetaData.Get(cell.Def), cell.Value.GetType(), cell.GetType().GetProperty("Value"), cell, null, propSearchRx);
         }
-        private void PropEditorPropRow(object oldval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell, PARAM.Row nullableRow, Regex propSearchRx)
+        private void PropEditorPropRow(object oldval, object vanillaval, ref int id, string internalName, FieldMetaData cellMeta, Type propType, PropertyInfo proprow, PARAM.Cell nullableCell, PARAM.Row nullableRow, Regex propSearchRx)
         {
             List<string> RefTypes = cellMeta == null ? null : cellMeta.RefTypes;
             string VirtualRef = cellMeta == null ? null : cellMeta.VirtualRef;
@@ -326,6 +320,9 @@ namespace StudioCore.MsbEditor
             ImGui.SetNextItemWidth(-1);
             bool changed = false;
 
+            if (vanillaval != null && !oldval.Equals(vanillaval))
+                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.2f, 0.22f, 0.2f, 1f));
+
             bool matchDefault = nullableCell != null && nullableCell.Def.Default.Equals(oldval);
             if (matchDefault)
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1.0f));
@@ -353,6 +350,8 @@ namespace StudioCore.MsbEditor
             }
 
             UpdateProperty(proprow, nullableCell != null ? (object)nullableCell : nullableRow, newval, changed, committed);
+            if (vanillaval != null && oldval != vanillaval)
+                ImGui.PopStyleColor();
             ImGui.NextColumn();
             ImGui.PopID();
             id++;
@@ -687,7 +686,7 @@ namespace StudioCore.MsbEditor
             ImGui.Columns(1);
         }
 
-        public void OnGui(PARAM.Row selection, string id, float w, float h)
+        public void OnGui(PARAM.Row selection, PARAM.Row vselection, string id, float w, float h)
         {
             ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.145f, 0.145f, 0.149f, 1.0f));
             ImGui.SetNextWindowSize(new Vector2(350, h - 80), ImGuiCond.FirstUseEver);
@@ -695,7 +694,7 @@ namespace StudioCore.MsbEditor
             ImGui.Begin($@"Properties##{id}");
             ImGui.BeginChild("propedit");
             string _noSearchStr = null;
-            PropEditorParamRow(selection, ref _noSearchStr);
+            PropEditorParamRow(selection, vselection, ref _noSearchStr);
             ImGui.EndChild();
             ImGui.End();
             ImGui.PopStyleColor();

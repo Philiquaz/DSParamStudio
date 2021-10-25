@@ -806,6 +806,7 @@ namespace StudioCore.MsbEditor
                 ImGui.SetScrollFromPosY(scrollTo - ImGui.GetScrollY());
             ImGui.EndChild();
             ImGui.NextColumn();
+            string activeParam = _selection.getActiveParam();
             if (!_selection.paramSelectionExists())
             {
                 ImGui.BeginChild("rowsNONE");
@@ -813,6 +814,8 @@ namespace StudioCore.MsbEditor
             }
             else
             {
+                PARAM para = ParamBank.Params[activeParam];
+                PARAM vpara = ParamBank.VanillaParams[activeParam];
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
                 ImGui.InputText("Search rows...", ref _selection.getCurrentRowSearchString(), 256);
@@ -820,14 +823,12 @@ namespace StudioCore.MsbEditor
                     _paramEditor._isSearchBarActive = true;
                 else
                     _paramEditor._isSearchBarActive = false;
-                ImGui.BeginChild("rows" + _selection.getActiveParam());
+                ImGui.BeginChild("rows" + activeParam);
                 IParamDecorator decorator = null;
-                if (_paramEditor._decorators.ContainsKey(_selection.getActiveParam()))
+                if (_paramEditor._decorators.ContainsKey(activeParam))
                 {
-                    decorator = _paramEditor._decorators[_selection.getActiveParam()];
+                    decorator = _paramEditor._decorators[activeParam];
                 }
-
-                PARAM para = ParamBank.Params[_selection.getActiveParam()];
                 List<PARAM.Row> p;
                 Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentRowSearchString());
                 if (!m.Success)
@@ -842,6 +843,16 @@ namespace StudioCore.MsbEditor
                 scrollTo = 0;
                 foreach (var r in p)
                 {
+                    bool diffCol = false;
+                    if (vpara[r.ID] == null)
+                    {
+                        diffCol = true;
+                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.7f,1,0.7f,1));
+                    }
+                    else
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.9f,0.9f,0.9f,1));
+                    }
                     if (ImGui.Selectable($@"{r.ID} {r.Name}", _selection.getSelectedRows().Contains(r)))
                     {
                         if (InputTracker.GetKey(Key.LControl))
@@ -864,8 +875,12 @@ namespace StudioCore.MsbEditor
                             }
                             else
                                 //_selection.SetActiveRow(r);
-                                EditorCommandQueue.AddCommand($@"param/view/{_viewIndex}/{_selection.getActiveParam()}/{r.ID}");
+                                EditorCommandQueue.AddCommand($@"param/view/{_viewIndex}/{activeParam}/{r.ID}");
                         }
+                    }
+                    if (diffCol)
+                    {
+                        ImGui.PopStyleColor();
                     }
                     if (decorator != null)
                     {
@@ -878,17 +893,18 @@ namespace StudioCore.MsbEditor
                 if (doFocus)
                     ImGui.SetScrollFromPosY(scrollTo - ImGui.GetScrollY());
             }
+            PARAM.Row activeRow = _selection.getActiveRow();
             ImGui.EndChild();
             ImGui.NextColumn();
-            if (_selection.getActiveRow() == null)
+            if (activeRow == null)
             {
                 ImGui.BeginChild("columnsNONE");
                 ImGui.Text("Select a row to see properties");
             }
             else
             {
-                ImGui.BeginChild("columns" + _selection.getActiveParam());
-                _propEditor.PropEditorParamRow(_selection.getActiveRow(), ref _selection.getCurrentPropSearchString());
+                ImGui.BeginChild("columns" + activeParam);
+                _propEditor.PropEditorParamRow(activeRow, ParamBank.VanillaParams[activeParam][activeRow.ID], ref _selection.getCurrentPropSearchString());
             }
             ImGui.EndChild();
         }

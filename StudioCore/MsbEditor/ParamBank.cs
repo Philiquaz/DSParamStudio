@@ -20,6 +20,7 @@ namespace StudioCore.MsbEditor
         private static AssetLocator AssetLocator = null;
 
         private static Dictionary<string, PARAM> _params = null;
+        private static Dictionary<string, PARAM> _vanillaParams = null;
         private static Dictionary<string, PARAMDEF> _paramdefs = null;
 
         public static bool IsLoading { get; private set; } = false;
@@ -35,7 +36,19 @@ namespace StudioCore.MsbEditor
                 return _params;
             }
         }
+        public static IReadOnlyDictionary<string, PARAM> VanillaParams
+        {
+            get
+            {
+                if (IsLoading)
+                {
+                    return null;
+                }
+                return _vanillaParams;
+            }
+        }
 
+        //DS2 Only
         private static PARAM GetParam(BND4 parambnd, string paramfile)
         {
             var bndfile = parambnd.Files.Find(x => Path.GetFileName(x.Name) == paramfile);
@@ -89,7 +102,7 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        private static void LoadParamFromBinder(IBinder parambnd)
+        private static void LoadParamFromBinder(IBinder parambnd, ref Dictionary<string, PARAM> paramBank)
         {
             // Load every param in the regulation
             // _params = new Dictionary<string, PARAM>();
@@ -103,7 +116,7 @@ namespace StudioCore.MsbEditor
                 {
                     continue;
                 }
-                if (_params.ContainsKey(Path.GetFileNameWithoutExtension(f.Name)))
+                if (paramBank.ContainsKey(Path.GetFileNameWithoutExtension(f.Name)))
                 {
                     continue;
                 }
@@ -113,7 +126,7 @@ namespace StudioCore.MsbEditor
                     continue;
                 }
                 p.ApplyParamdef(_paramdefs[p.ParamType]);
-                _params.Add(Path.GetFileNameWithoutExtension(f.Name), p);
+                paramBank.Add(Path.GetFileNameWithoutExtension(f.Name), p);
             }
         }
 
@@ -143,7 +156,7 @@ namespace StudioCore.MsbEditor
             }
             BND3 paramBnd = BND3.Read(param);
 
-            LoadParamFromBinder(paramBnd);
+            LoadParamFromBinder(paramBnd, ref _params);
         }
 
         private static void LoadParamsDS1()
@@ -164,7 +177,7 @@ namespace StudioCore.MsbEditor
             }
             BND3 paramBnd = BND3.Read(param);
 
-            LoadParamFromBinder(paramBnd);
+            LoadParamFromBinder(paramBnd, ref _params);
         }
 
         private static void LoadParamsBBSekrio()
@@ -185,7 +198,7 @@ namespace StudioCore.MsbEditor
             }
             BND4 paramBnd = BND4.Read(param);
 
-            LoadParamFromBinder(paramBnd);
+            LoadParamFromBinder(paramBnd, ref _params);
         }
 
         /// <summary>
@@ -290,7 +303,7 @@ namespace StudioCore.MsbEditor
                 EnemyParam.ApplyParamdef(def);
             }
 
-            LoadParamFromBinder(paramBnd);
+            LoadParamFromBinder(paramBnd, ref _params);
         }
 
         private static void LoadParamsDS3()
@@ -310,24 +323,28 @@ namespace StudioCore.MsbEditor
                 var lparam = $@"{mod}\param\gameparam\gameparam_dlc2.parambnd.dcx";
                 BND4 lparamBnd = BND4.Read(lparam);
 
-                LoadParamFromBinder(lparamBnd);
+                LoadParamFromBinder(lparamBnd, ref _params);
                 return;
             }
 
             // Load params
             var param = $@"{mod}\Data0.bdt";
+            var vparam = $@"{dir}\Data0.bdt";
             if (!File.Exists(param))
             {
-                param = $@"{dir}\Data0.bdt";
+                param = vparam;
             }
             BND4 paramBnd = SFUtil.DecryptDS3Regulation(param);
-            LoadParamFromBinder(paramBnd);
+            LoadParamFromBinder(paramBnd, ref _params);
+            BND4 vParamBnd = SFUtil.DecryptDS3Regulation(vparam);
+            LoadParamFromBinder(vParamBnd, ref _vanillaParams);
         }
 
         public static void ReloadParams()
         {
             _paramdefs = new Dictionary<string, PARAMDEF>();
             _params = new Dictionary<string, PARAM>();
+            _vanillaParams = new Dictionary<string, PARAM>();
             IsLoading = true;
 
             Task.Run(() =>
@@ -337,7 +354,6 @@ namespace StudioCore.MsbEditor
                     LoadParamdefs();
                 }
 
-                _params = new Dictionary<string, PARAM>();
                 if (AssetLocator.Type == GameType.DemonsSouls)
                 {
                     LoadParamsDES();
