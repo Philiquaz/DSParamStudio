@@ -197,7 +197,7 @@ namespace StudioCore.MsbEditor
                 }
                 if (ImGui.MenuItem("Check all params for edits", null, false, !ParamBank.IsLoading))
                 {
-                    RemoveView(_activeView);
+                    ParamBank.refreshParamDirtyCache();
                 }
                 if (ImGui.MenuItem("Show alternate field names", null, ShowAltNamesPreference))
                     ShowAltNamesPreference = !ShowAltNamesPreference;
