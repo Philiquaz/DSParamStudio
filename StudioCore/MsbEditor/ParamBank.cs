@@ -169,6 +169,7 @@ namespace StudioCore.MsbEditor
             BND3 paramBnd = BND3.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            LoadParamFromBinder(BND3.Read($@"{dir}\param\gameparam\{paramBinderName}"), ref _vanillaParams);
         }
 
         private static void LoadParamsDS1()
@@ -190,6 +191,7 @@ namespace StudioCore.MsbEditor
             BND3 paramBnd = BND3.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            LoadParamFromBinder(BND3.Read($@"{dir}\param\GameParam\GameParam.parambnd"), ref _vanillaParams);
         }
 
         private static void LoadParamsBBSekrio()
@@ -211,6 +213,7 @@ namespace StudioCore.MsbEditor
             BND4 paramBnd = BND4.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            LoadParamFromBinder(BND4.Read($@"{dir}\param\gameparam\gameparam.parambnd.dcx"), ref _vanillaParams);
         }
 
         /// <summary>
@@ -316,6 +319,17 @@ namespace StudioCore.MsbEditor
             }
 
             LoadParamFromBinder(paramBnd, ref _params);
+            BND4 vParamBnd = null;
+            if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
+            {
+                vParamBnd = SFUtil.DecryptDS2Regulation($@"{dir}\enc_regulation.bnd.dcx");
+            }
+            // No need to decrypt
+            else
+            {
+                vParamBnd = BND4.Read($@"{dir}\enc_regulation.bnd.dcx");
+            }
+            LoadParamFromBinder(vParamBnd, ref _vanillaParams);
         }
 
         private static void LoadParamsDS3()
