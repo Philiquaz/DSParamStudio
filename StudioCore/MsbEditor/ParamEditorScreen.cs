@@ -195,6 +195,10 @@ namespace StudioCore.MsbEditor
                 {
                     RemoveView(_activeView);
                 }
+                if (ImGui.MenuItem("Check all params for edits", null, false, !ParamBank.IsLoading))
+                {
+                    RemoveView(_activeView);
+                }
                 if (ImGui.MenuItem("Show alternate field names", null, ShowAltNamesPreference))
                     ShowAltNamesPreference = !ShowAltNamesPreference;
                 if (ImGui.MenuItem("Always show original field names", null, AlwaysShowOriginalNamePreference))
@@ -409,6 +413,8 @@ namespace StudioCore.MsbEditor
                     if (initcmd.Length > 2 && ParamBank.Params.ContainsKey(initcmd[2]))
                     {
                         doFocus = initcmd[0] == "select";
+                        if (_activeView._selection.getActiveRow() != null)
+                            ParamBank.refreshParamRowDirtyCache(_activeView._selection.getActiveRow(), ParamBank.VanillaParams[_activeView._selection.getActiveParam()], ParamBank.DirtyParamCache[_activeView._selection.getActiveParam()]);
 
                         ParamEditorView viewToMofidy = _activeView;
                         if (initcmd[1].Equals("new"))
@@ -421,7 +427,7 @@ namespace StudioCore.MsbEditor
                                 viewToMofidy = _views[cmdIndex];
                         }
                         _activeView = viewToMofidy;
-
+                        
                         viewToMofidy._selection.setActiveParam(initcmd[2]);
                         if (initcmd.Length > 3)
                         {
@@ -438,6 +444,9 @@ namespace StudioCore.MsbEditor
                                 }
                             }
                         }
+                        if (_activeView._selection.getActiveRow() != null)
+                            ParamBank.refreshParamRowDirtyCache(_activeView._selection.getActiveRow(), ParamBank.VanillaParams[_activeView._selection.getActiveParam()], ParamBank.DirtyParamCache[_activeView._selection.getActiveParam()]);
+
                     }
                 }
                 else if (initcmd[0] == "search")
@@ -816,6 +825,7 @@ namespace StudioCore.MsbEditor
             {
                 PARAM para = ParamBank.Params[activeParam];
                 PARAM vpara = ParamBank.VanillaParams[activeParam];
+                HashSet<int> dirtyCache = ParamBank.DirtyParamCache[activeParam];
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
                 ImGui.InputText("Search rows...", ref _selection.getCurrentRowSearchString(), 256);
@@ -844,7 +854,7 @@ namespace StudioCore.MsbEditor
                 foreach (var r in p)
                 {
                     bool diffCol = false;
-                    if (vpara[r.ID] == null)
+                    if (dirtyCache.Contains(r.ID))
                     {
                         diffCol = true;
                         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.7f,1,0.7f,1));

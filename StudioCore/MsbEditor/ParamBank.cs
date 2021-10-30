@@ -22,6 +22,7 @@ namespace StudioCore.MsbEditor
         private static Dictionary<string, PARAM> _params = null;
         private static Dictionary<string, PARAM> _vanillaParams = null;
         private static Dictionary<string, PARAMDEF> _paramdefs = null;
+        private static Dictionary<string, HashSet<int>> _paramDirtyCache = null; //If param != vanillaparam
 
         public static bool IsLoading { get; private set; } = false;
 
@@ -45,6 +46,17 @@ namespace StudioCore.MsbEditor
                     return null;
                 }
                 return _vanillaParams;
+            }
+        }
+        public static IReadOnlyDictionary<string, HashSet<int>> DirtyParamCache
+        {
+            get
+            {
+                if (IsLoading)
+                {
+                    return null;
+                }
+                return _paramDirtyCache;
             }
         }
 
@@ -377,8 +389,47 @@ namespace StudioCore.MsbEditor
                 }
                 if (_vanillaParams.Count == 0)
                     _vanillaParams = _params; //temporary safety for other games
+                _paramDirtyCache = new Dictionary<string, HashSet<int>>();
+                foreach (string param in _params.Keys)
+                    _paramDirtyCache.Add(param, new HashSet<int>());
                 IsLoading = false;
             });
+        }
+
+        public static void refreshParamDirtyCache()
+        {
+            _paramDirtyCache = new Dictionary<string, HashSet<int>>();
+            foreach (string param in _params.Keys)
+            {
+                HashSet<int> cache = new HashSet<int>();
+                _paramDirtyCache.Add(param, cache);
+                PARAM p = _params[param];
+                PARAM vp = _vanillaParams[param];
+                foreach (PARAM.Row row in _params[param].Rows)
+                {
+                    refreshParamRowDirtyCache(row, vp, cache);
+                }
+            }
+        }
+        public static void refreshParamRowDirtyCache(PARAM.Row row, PARAM vanillaParam, HashSet<int> cache)
+        {
+            PARAM.Row vrow = vanillaParam[row.ID];
+            if (vrow == null)
+            {
+                cache.Add(row.ID);
+                return;
+            }
+            foreach (PARAMDEF.Field field in row.Def.Fields)
+            {
+                if (field.InternalType == "dummy8")
+                    continue;
+                if (!row[field.InternalName].Value.Equals(vrow[field.InternalName].Value))
+                {
+                    cache.Add(row.ID);
+                    return;
+                }
+            }
+            cache.Remove(row.ID);
         }
 
         public static void LoadParams(AssetLocator l)

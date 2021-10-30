@@ -251,7 +251,7 @@ namespace StudioCore.MsbEditor
             PropEditorPropInfoRow(row, idProp, "ID", ref id, propSearchRx);
             ImGui.PopStyleColor();
 
-            List<string> fieldOrder = meta != null && ParamEditorScreen.AllowFieldReorderPreference ? meta.AlternateOrder : new List<string>();
+            List<string> fieldOrder = meta != null && meta.AlternateOrder != null && ParamEditorScreen.AllowFieldReorderPreference ? meta.AlternateOrder : new List<string>();
             foreach (PARAMDEF.Field field in row.Def.Fields)
             {
                 if (!fieldOrder.Contains(field.InternalName))
@@ -350,7 +350,7 @@ namespace StudioCore.MsbEditor
             }
 
             UpdateProperty(proprow, nullableCell != null ? (object)nullableCell : nullableRow, newval, changed, committed);
-            if (vanillaval != null && oldval != vanillaval)
+            if (vanillaval != null && !oldval.Equals(vanillaval))
                 ImGui.PopStyleColor();
             ImGui.NextColumn();
             ImGui.PopID();
