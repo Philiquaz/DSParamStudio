@@ -141,6 +141,7 @@ namespace StudioCore.MsbEditor
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/ctrlVPopup");
                 }
+                ImGui.Separator();
                 if (ImGui.MenuItem("Mass Edit"))
                 {
                     EditorCommandQueue.AddCommand($@"param/menu/massEditRegex");
@@ -195,10 +196,12 @@ namespace StudioCore.MsbEditor
                 {
                     RemoveView(_activeView);
                 }
-                if (ImGui.MenuItem("Check all params for edits", null, false, !ParamBank.IsLoading))
+                ImGui.Separator();
+                if (ImGui.MenuItem("Check all params for edits (Slow!)", null, false, !ParamBank.IsLoading))
                 {
                     ParamBank.refreshParamDirtyCache();
                 }
+                ImGui.Separator();
                 if (ImGui.MenuItem("Show alternate field names", null, ShowAltNamesPreference))
                     ShowAltNamesPreference = !ShowAltNamesPreference;
                 if (ImGui.MenuItem("Always show original field names", null, AlwaysShowOriginalNamePreference))
@@ -209,6 +212,7 @@ namespace StudioCore.MsbEditor
                     HideEnumsPreference = !HideEnumsPreference;
                 if (ImGui.MenuItem("Allow field reordering", null, AllowFieldReorderPreference))
                     AllowFieldReorderPreference = !AllowFieldReorderPreference;
+                ImGui.Separator();
                 if (!EditorMode && ImGui.MenuItem("Editor Mode", null, EditorMode))
                     EditorMode = true;
                 if (EditorMode && ImGui.BeginMenu("Editor Mode"))
