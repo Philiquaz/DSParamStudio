@@ -11,6 +11,7 @@ using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using System.Runtime.InteropServices;
 
 namespace StudioCore
 {
@@ -177,9 +178,30 @@ namespace StudioCore
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
 
+        public void SetupParamStudioConfig()
+        {
+            string self = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+            Utils.setRegistry("executable", self);
+            string reg = Utils.readRegistry("reorderFieldsPreference");
+            if (reg != null)
+                ParamEditorScreen.AllowFieldReorderPreference = reg == "true";
+            reg = Utils.readRegistry("hideEnumsPreference");
+            if (reg != null)
+                ParamEditorScreen.HideEnumsPreference = reg == "true";
+            //TODO: the rest
+        }
+        public void SaveParamStudioConfig()
+        {
+            Utils.setRegistry("reorderFieldsPreference", ParamEditorScreen.AllowFieldReorderPreference ? "true" : "false");
+            Utils.setRegistry("hideEnumsPreference", ParamEditorScreen.HideEnumsPreference ? "true" : "false");
+            //TODO: the rest
+        }
+
         public void Run()
         {
             SetupCSharpDefaults();
+            SetupParamStudioConfig();
+            new StudioServer();
             long previousFrameTicks = 0;
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -370,6 +392,11 @@ namespace StudioCore
             return success;
         }
 
+        //Unhappy with this being here
+        [DllImport("user32.dll", EntryPoint="ShowWindow")]  
+        [return: MarshalAs(UnmanagedType.Bool)]  
+        private static extern bool _user32_ShowWindow(IntPtr hWnd, int nCmdShow);
+
         private void Update(float deltaseconds)
         {
             ImguiRenderer.Update(deltaseconds, InputTracker.FrameSnapshot);
@@ -380,6 +407,12 @@ namespace StudioCore
             if (command != null)
             {
                 commandsplit = command.Split($@"/");
+            }
+            if (commandsplit != null && commandsplit[0] == "windowFocus")
+            {
+                //this is a hack, cannot grab focus except for when un-minimising
+                _user32_ShowWindow(_window.Handle, 6);
+                _user32_ShowWindow(_window.Handle, 9);
             }
 
             ImGui.BeginFrame(); // Imguizmo begin frame
@@ -685,12 +718,6 @@ namespace StudioCore
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(8, 8));
             if (FirstFrame)
             {
-                ImGui.SetNextWindowFocus();
-            }
-            string[] mapcmds = null;
-            if (commandsplit != null && commandsplit[0] == "map")
-            {
-                mapcmds = commandsplit.Skip(1).ToArray();
                 ImGui.SetNextWindowFocus();
             }
 
