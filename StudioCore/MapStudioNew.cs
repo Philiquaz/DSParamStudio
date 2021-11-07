@@ -182,19 +182,29 @@ namespace StudioCore
         {
             string self = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
             Utils.setRegistry("executable", self);
-            string reg = Utils.readRegistry("reorderFieldsPreference");
+            string reg = Utils.readRegistry("showAltNamesPreference");
             if (reg != null)
-                ParamEditorScreen.AllowFieldReorderPreference = reg == "true";
+                ParamEditorScreen.ShowAltNamesPreference = reg == "true";
+            reg = Utils.readRegistry("alwaysShowOriginalNamePreference");
+            if (reg != null)
+                ParamEditorScreen.AlwaysShowOriginalNamePreference = reg == "true";
+            reg = Utils.readRegistry("hideReferenceRowsPreference");
+            if (reg != null)
+                ParamEditorScreen.HideReferenceRowsPreference = reg == "true";
             reg = Utils.readRegistry("hideEnumsPreference");
             if (reg != null)
                 ParamEditorScreen.HideEnumsPreference = reg == "true";
-            //TODO: the rest
+            reg = Utils.readRegistry("allFieldReorderPreference");
+            if (reg != null)
+                ParamEditorScreen.AllowFieldReorderPreference = reg == "true";
         }
         public void SaveParamStudioConfig()
         {
-            Utils.setRegistry("reorderFieldsPreference", ParamEditorScreen.AllowFieldReorderPreference ? "true" : "false");
+            Utils.setRegistry("showAltNamesPreference", ParamEditorScreen.ShowAltNamesPreference ? "true" : "false");
+            Utils.setRegistry("alwaysShowOriginalNamePreference", ParamEditorScreen.AlwaysShowOriginalNamePreference ? "true" : "false");
+            Utils.setRegistry("hideReferenceRowsPreference", ParamEditorScreen.HideReferenceRowsPreference ? "true" : "false");
             Utils.setRegistry("hideEnumsPreference", ParamEditorScreen.HideEnumsPreference ? "true" : "false");
-            //TODO: the rest
+            Utils.setRegistry("allFieldReorderPreference", ParamEditorScreen.AllowFieldReorderPreference ? "true" : "false");
         }
 
         public void Run()
@@ -251,8 +261,8 @@ namespace StudioCore
 
             //DestroyAllObjects();
             _gd.Dispose();
+            SaveParamStudioConfig();
             CFG.Save();
-
             System.Windows.Forms.Application.Exit();
         }
 
@@ -500,6 +510,7 @@ namespace StudioCore
                     {
                         ParamEditor.SaveAll();
                         TextEditor.SaveAll();
+                        SaveParamStudioConfig();
                     }
                     ImGui.EndMenu();
                 }
