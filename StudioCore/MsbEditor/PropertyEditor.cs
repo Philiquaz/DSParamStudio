@@ -569,12 +569,13 @@ namespace StudioCore.MsbEditor
                         continue;
                     ParamMetaData meta = ParamMetaData.Get(ParamBank.Params[rt].AppliedParamdef);
                     int maxResultsPerRefType = 15/reftypes.Count;
-                    List<PARAM.Row> rows = MassParamEditRegex.GetMatchingParamRowsByName(ParamBank.Params[rt], _refContextCurrentAutoComplete, true, false);
+                    Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_refContextCurrentAutoComplete);
+                    List<PARAM.Row> rows = MassParamEditRegex.GetMatchingParamRows(ParamBank.Params[rt], m, true, false);
                     foreach (PARAM.Row r in rows)
                     {
                         if (maxResultsPerRefType <= 0)
                             break;
-                        if (ImGui.Selectable(r.Name))
+                        if (ImGui.Selectable(r.ID+": "+r.Name))
                         {
                             if (meta!=null && meta.FixedOffset!=0)
                                 newval = (int) r.ID - meta.FixedOffset;
