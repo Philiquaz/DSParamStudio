@@ -657,12 +657,12 @@ namespace StudioCore
         }
 
         public static void setRegistry(string name, string value) {
-            RegistryKey rkey = Registry.LocalMachine.CreateSubKey($@"Software\DSParamStudio");
+            RegistryKey rkey = Registry.CurrentUser.CreateSubKey($@"Software\DSParamStudio");
             rkey.SetValue(name, value);
         }
         
         public static string readRegistry(string name) {
-            RegistryKey rkey = Registry.LocalMachine.CreateSubKey($@"Software\DSParamStudio");
+            RegistryKey rkey = Registry.CurrentUser.CreateSubKey($@"Software\DSParamStudio");
             var v = rkey.GetValue(name);
             return v == null ? null : v.ToString();
         }

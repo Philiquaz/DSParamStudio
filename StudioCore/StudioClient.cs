@@ -31,14 +31,12 @@ namespace StudioCore
         {
             try
             {
-                RegistryKey rkey = Registry.LocalMachine.CreateSubKey($@"Software\DSParamStudio");
+                RegistryKey rkey = Registry.CurrentUser.CreateSubKey($@"Software\DSParamStudio");
                 var v = rkey.GetValue("executable");
                 if (v != null)
                 {
                     string exe = v.ToString();
-                    int startIndex = exe.LastIndexOf('\\');
-                    int dotIndex = exe.LastIndexOf('.');
-                    string appl = exe.Substring(startIndex==-1?0:startIndex, dotIndex==-1?exe.Length:dotIndex);
+                    string appl = Path.GetFileNameWithoutExtension(exe);
                     Process[] procs = Process.GetProcessesByName(appl);
                     if (procs.Length == 0){
                         Process.Start(new ProcessStartInfo(exe));
@@ -98,7 +96,7 @@ namespace StudioCore
 
         internal StudioClient(int timeout)
         {
-            clientStream = new NamedPipeClientStream($@"\.\DSParamStudio\pipe\CommandQueue");
+            clientStream = new NamedPipeClientStream(".", $@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.InOut, PipeOptions.None);
             clientStream.Connect(timeout);
             clientReader = new StreamReader(clientStream);
             clientWriter = new StreamWriter(clientStream);
