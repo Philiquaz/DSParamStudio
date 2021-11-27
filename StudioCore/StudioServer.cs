@@ -5,8 +5,11 @@ using System.IO;
 using System.IO.Pipes;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
 using System.Diagnostics;
 using System.Threading;
+using System.Security.Principal;
+using System.Security.AccessControl;
 
 namespace StudioCore
 {
@@ -15,15 +18,20 @@ namespace StudioCore
 
         private NamedPipeServerStream serverStream = null;
         private List<ServerClient> activeConnections = new List<ServerClient>();
+        private PipeSecurity pipeSecurity;
 
         public StudioServer()
         {
             try
             {
-            serverStream = new NamedPipeServerStream($@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.InOut, System.IO.Pipes.NamedPipeServerStream.MaxAllowedServerInstances);
+            pipeSecurity = new PipeSecurity();
+            pipeSecurity.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), PipeAccessRights.ReadWrite, AccessControlType.Allow));
+            
+            serverStream = NamedPipeServerStreamConstructors.New($@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.InOut, System.IO.Pipes.NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 0, 0, pipeSecurity);
+            
             serverStream.BeginWaitForConnection(handleConnection, serverStream);
 
-            //new Thread(TestThread).Start();
+            new Thread(TestThread).Start();
             }
             catch
             {
@@ -31,19 +39,25 @@ namespace StudioCore
         }
 
         private void handleConnection(IAsyncResult res){
-            serverStream = new NamedPipeServerStream($@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.InOut, System.IO.Pipes.NamedPipeServerStream.MaxAllowedServerInstances);
-            serverStream.BeginWaitForConnection(handleConnection, serverStream);
+            //serverStream = new NamedPipeServerStream($@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.In, System.IO.Pipes.NamedPipeServerStream.MaxAllowedServerInstances);
+            
 
             NamedPipeServerStream srv = (NamedPipeServerStream)res.AsyncState;
-            srv.EndWaitForConnection(res);
+            //srv.EndWaitForConnection(res);
+            serverStream.EndWaitForConnection(res);
+            serverStream = NamedPipeServerStreamConstructors.New($@"\.\DSParamStudio\pipe\CommandQueue", PipeDirection.InOut, System.IO.Pipes.NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 0, 0, pipeSecurity);
+            serverStream.BeginWaitForConnection(handleConnection, serverStream);
             ServerClient sv = new ServerClient(srv);
             activeConnections.Add(sv);
 
             while (srv.IsConnected)
             {
                 string command = sv.reader.ReadLine();
-                EditorCommandQueue.AddCommand("windowFocus");
-                EditorCommandQueue.AddCommand(command);
+                if (command != null && command.Length > 0)
+                {
+                    EditorCommandQueue.AddCommand("windowFocus");
+                    EditorCommandQueue.AddCommand(command);
+                }
             }
         }
 
@@ -53,13 +67,19 @@ namespace StudioCore
             if (c == null)
                 Console.WriteLine("Failed to start client");
             Console.WriteLine("Client created");
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
             c.sendMessage("param/view/new/EquipParamProtector/0");
             Console.WriteLine("test message sent");
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
             c.sendMessage("param/view/new/EquipParamWeapon/0");
             Thread.Sleep(5000);
-            StudioClient.StartParamStudio();
+            c.CloseClient();
+            //StudioClient.StartParamStudio();
+            Thread.Sleep(5000);
+            c = StudioClient.StartClient();
+            Thread.Sleep(5000);
+            c.sendMessage("param/view/new/EquipParamProtector/0");
+            c.CloseClient();
         }
 
         internal class ServerClient

@@ -211,7 +211,7 @@ namespace StudioCore
         {
             SetupCSharpDefaults();
             SetupParamStudioConfig();
-            new StudioServer();
+            //new StudioServer();
             long previousFrameTicks = 0;
             Stopwatch sw = new Stopwatch();
             sw.Start();
