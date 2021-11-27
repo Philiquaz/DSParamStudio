@@ -133,16 +133,16 @@ namespace StudioCore.MsbEditor
         // eg "selection"
         private static readonly string paramrowfilterselection = $@"(selection:\s+)";
         // eg "EquipParamWeapon: "
-        private static readonly string paramfilterRx = $@"(param\s+(?<paramrx>[^\s:]+):\s+)";
+        private static readonly string paramfilterRx = $@"(param\s+(?<paramrx>[^:]+):\s+)";
         // eg "id (100|200)00"
         private static readonly string rowfiltershortkeyRx = $@"((?<rowkey>id|name)\s+)";
         private static readonly string rowfiltershortRx = $@"({rowfiltershortkeyRx}(?<rowexp>[^:]+))";
         // eg "prop sellValue 100"
         private static readonly string rowfilterlongkeyRx = $@"((?<rowkey>prop|propref)\s+)";
-        private static readonly string rowfilterlongRx = $@"({rowfilterlongkeyRx}(?<rowfield>[^\s]+)\s+(?<rowexp>[^:]+))";
+        private static readonly string rowfilterlongRx = $@"({rowfilterlongkeyRx}(?<rowfield>[^:]+)\s+(?<rowexp>[^:]+))";
         public static readonly string rowfilterRx = $@"({rowfiltershortRx}|{rowfilterlongRx})";
         // eg "correctFaith: "
-        private static readonly string fieldRx = $@"(?<fieldrx>[^\:]+):\s+";
+        private static readonly string fieldRx = $@"(?<fieldrx>[^:]+):\s+";
         // eg "* 2;
         private static readonly string opRx = $@"(?<op>=|\+|-|\*|/|ref)\s+";
         private static readonly string opFieldRx = $@"{opRx}(?<fieldtype>field\s+)?";
@@ -164,7 +164,7 @@ namespace StudioCore.MsbEditor
                     return options;
                 foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
                 {
-                    options.Add(field.InternalName+": ");
+                    options.Add(Regex.Escape(field.InternalName)+": ");
                 }
                 return options;
             }
@@ -189,7 +189,7 @@ namespace StudioCore.MsbEditor
                     return options;
                 foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
                 {
-                    options.Add(field.InternalName+": ");
+                    options.Add(Regex.Escape(field.InternalName)+": ");
                 }
                 return options;
             }
@@ -199,7 +199,7 @@ namespace StudioCore.MsbEditor
                     return options;
                 foreach (PARAMDEF.Field field in ParamBank.Params[activeViewParam].AppliedParamdef.Fields)
                 {
-                    options.Add(field.InternalName+" ");
+                    options.Add(Regex.Escape(field.InternalName)+" ");
                 }
                 return options;
             }
@@ -216,7 +216,7 @@ namespace StudioCore.MsbEditor
                 options.Add("selection: ");
                 foreach(string param in ParamBank.Params.Keys)
                 {
-                    options.Add("param " + param + ": ");
+                    options.Add("param " + Regex.Escape(param) + ": ");
                 }
                 return options;
             }
@@ -385,6 +385,8 @@ namespace StudioCore.MsbEditor
                 foreach (PARAM.Row row in param.Rows)
                 {
                     PARAM.Cell c = row[rowfield.Replace(@"\s", " ")];
+                    if (c==null)
+                        continue;
                     string term = c.Value.ToString();
                     if (c != null && rx.Match(term).Success)
                         rlist.Add(row);

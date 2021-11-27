@@ -482,13 +482,13 @@ namespace StudioCore.MsbEditor
                 ImGui.EndPopup();
             }
         }
-        private void PropertyRowValueContextMenu(string visualName, string VirtualRef, dynamic oldval)
+        private void PropertyRowValueContextMenu(string internalName, string VirtualRef, dynamic oldval)
         {
             if (ImGui.BeginPopupContextItem("quickMEdit"))
             {
                 if (ImGui.Selectable("Edit all selected..."))
                 {
-                    EditorCommandQueue.AddCommand($@"param/menu/massEditRegex/selection: {visualName}: ");
+                    EditorCommandQueue.AddCommand($@"param/menu/massEditRegex/selection: {Regex.Escape(internalName)}: ");
                 }
                 if (VirtualRef != null)
                     PropertyRowVirtualRefContextItems(VirtualRef, oldval);
