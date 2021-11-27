@@ -533,19 +533,20 @@ namespace StudioCore.MsbEditor
             foreach (string rt in reftypes)
             {
                 if (!ParamBank.Params.ContainsKey(rt))
-                {
                     continue;
-                }
                 int searchVal = (int) oldval;
                 ParamMetaData meta = ParamMetaData.Get(ParamBank.Params[rt].AppliedParamdef);
                 if (meta != null)
                 {
                     if (meta.Row0Dummy && searchVal == 0)
                         continue;
+                    if (meta.FixedOffset != 0 && searchVal > 0)
+                    {
+                        searchVal = searchVal + meta.FixedOffset;
+                    }
                     if (meta.OffsetSize > 0 && searchVal > 0 && ParamBank.Params[rt][(int) searchVal] == null)
                     {
-                        // Test if previous row exists. In future, add param meta to determine size of offset
-                        searchVal = (int) oldval - (int) oldval % meta.OffsetSize;
+                        searchVal = (int) searchVal - (int) oldval % meta.OffsetSize;
                     }
                 }
                 if (ParamBank.Params[rt][searchVal] != null)
@@ -564,6 +565,9 @@ namespace StudioCore.MsbEditor
             {
                 foreach (string rt in reftypes)
                 {
+                    if (!ParamBank.Params.ContainsKey(rt))
+                        continue;
+                    ParamMetaData meta = ParamMetaData.Get(ParamBank.Params[rt].AppliedParamdef);
                     int maxResultsPerRefType = 15/reftypes.Count;
                     List<PARAM.Row> rows = MassParamEditRegex.GetMatchingParamRowsByName(ParamBank.Params[rt], _refContextCurrentAutoComplete, true, false);
                     foreach (PARAM.Row r in rows)
@@ -572,7 +576,10 @@ namespace StudioCore.MsbEditor
                             break;
                         if (ImGui.Selectable(r.Name))
                         {
-                            newval = (int) r.ID;
+                            if (meta!=null && meta.FixedOffset!=0)
+                                newval = (int) r.ID - meta.FixedOffset;
+                            else
+                                newval = (int) r.ID;
                             _refContextCurrentAutoComplete = "";
                             return true;
                         }
