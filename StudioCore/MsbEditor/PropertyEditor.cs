@@ -401,15 +401,20 @@ namespace StudioCore.MsbEditor
                         continue;
                     PARAM.Row r = param[(int) oldval];
                     ImGui.SameLine();
-                    if (r == null && (int) oldval > 0)
+                    if (r == null && (int) oldval > 0 && meta != null)
                     {
-                        if (meta != null && meta.OffsetSize > 0)
+                        int altval = oldval;
+                        if (meta.FixedOffset != 0)
                         {
-                            // Test if previous row exists. In future, add param meta to determine size of offset
-                            int altval = (int) oldval - (int) oldval % meta.OffsetSize;
-                            r = ParamBank.Params[rt][altval];
-                            hint = $@"(+{(int) oldval % meta.OffsetSize})";
+                            altval = oldval + meta.FixedOffset;
+                            hint += meta.FixedOffset>0 ? "+"+meta.FixedOffset.ToString() : meta.FixedOffset.ToString();
                         }
+                        if (meta.OffsetSize > 0)
+                        {
+                            altval = (int) altval - (int) altval % meta.OffsetSize;
+                            hint += "+"+((int) oldval % meta.OffsetSize).ToString();
+                        }
+                        r = ParamBank.Params[rt][altval];
                     }
                     if (r == null)
                         continue;

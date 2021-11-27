@@ -23,6 +23,11 @@ namespace StudioCore.MsbEditor
         /// Max value of trailing digits used for offset, +1
         /// </summary>
         public int OffsetSize {get; set;}
+
+        /// <summary>
+        /// Value to offset references by
+        /// </summary>
+        public int FixedOffset {get; set;}
         
         /// <summary>
         /// Whether row 0 is a dummy to be ignored
@@ -71,6 +76,11 @@ namespace StudioCore.MsbEditor
                 if (Off != null)
                 {
                     OffsetSize = int.Parse(Off.InnerText);
+                }
+                XmlAttribute FixOff = self.Attributes["FixedOffset"];
+                if (FixOff != null)
+                {
+                    FixedOffset = int.Parse(FixOff.InnerText);
                 }
                 XmlAttribute R0 = self.Attributes["Row0Dummy"];
                 if (R0 != null)
@@ -185,6 +195,7 @@ namespace StudioCore.MsbEditor
             if(_xml == null)
                 return;
             SetIntXmlProperty("OffsetSize", OffsetSize, _xml, "PARAMMETA", "Self");
+            SetIntXmlProperty("FixedOffset", FixedOffset, _xml, "PARAMMETA", "Self");
             SetBoolXmlProperty("Row0Dummy", Row0Dummy, _xml, "PARAMMETA", "Self");
             SetStringListXmlProperty("AlternativeOrder", AlternateOrder, "-,", _xml, "PARAMMETA", "Self");
         }
