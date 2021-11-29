@@ -25,6 +25,8 @@ namespace StudioCore.MsbEditor
 
     public class FMGItemParamDecorator : IParamDecorator
     {
+        private static Vector4 FMGLINKCOLOUR = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+
         private FMGBank.ItemCategory _category = FMGBank.ItemCategory.None;
 
         private Dictionary<int, FMG.Entry> _entryCache = new Dictionary<int, FMG.Entry>();
@@ -44,7 +46,7 @@ namespace StudioCore.MsbEditor
             if (entry != null)
             {
                 ImGui.SameLine();
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.Text, FMGLINKCOLOUR);
                 ImGui.TextUnformatted($@" <{entry.Text}>");
                 ImGui.PopStyleColor();
             }
@@ -786,6 +788,10 @@ namespace StudioCore.MsbEditor
 
     public class ParamEditorView
     {
+        private static Vector4 DIRTYCOLOUR = new Vector4(0.7f,1,0.7f,1);
+        private static Vector4 CLEANCOLOUR = new Vector4(0.9f,0.9f,0.9f,1);
+        private static Regex ROWFILTERMATCHER = new Regex(MassParamEditRegex.rowfilterRx);
+
         private ParamEditorScreen _paramEditor;
         internal int _viewIndex;
 
@@ -844,7 +850,7 @@ namespace StudioCore.MsbEditor
                     decorator = _paramEditor._decorators[activeParam];
                 }
                 List<PARAM.Row> p;
-                Match m = new Regex(MassParamEditRegex.rowfilterRx).Match(_selection.getCurrentRowSearchString());
+                Match m = ROWFILTERMATCHER.Match(_selection.getCurrentRowSearchString());
                 if (!m.Success)
                 {
                     p = para.Rows;
@@ -857,16 +863,10 @@ namespace StudioCore.MsbEditor
                 scrollTo = 0;
                 foreach (var r in p)
                 {
-                    bool diffCol = false;
                     if (dirtyCache.Contains(r.ID))
-                    {
-                        diffCol = true;
-                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.7f,1,0.7f,1));
-                    }
+                        ImGui.PushStyleColor(ImGuiCol.Text, DIRTYCOLOUR);
                     else
-                    {
-                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.9f,0.9f,0.9f,1));
-                    }
+                        ImGui.PushStyleColor(ImGuiCol.Text, CLEANCOLOUR);
                     if (ImGui.Selectable($@"{r.ID} {r.Name}", _selection.getSelectedRows().Contains(r)))
                     {
                         if (InputTracker.GetKey(Key.LControl))
@@ -892,10 +892,7 @@ namespace StudioCore.MsbEditor
                                 EditorCommandQueue.AddCommand($@"param/view/{_viewIndex}/{activeParam}/{r.ID}");
                         }
                     }
-                    if (diffCol)
-                    {
-                        ImGui.PopStyleColor();
-                    }
+                    ImGui.PopStyleColor();
                     if (decorator != null)
                     {
                         decorator.DecorateContextMenu(r);

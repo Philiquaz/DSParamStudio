@@ -559,7 +559,6 @@ namespace StudioCore.MsbEditor
             }
             // Add searchbar for named editing
             ImGui.InputText("##value", ref _refContextCurrentAutoComplete, 128);
-            // Unordered scanthrough search for matching param entries.
             // This should be replaced by a proper search box with a scroll and everything
             if (_refContextCurrentAutoComplete != "")
             {
