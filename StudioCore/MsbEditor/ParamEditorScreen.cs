@@ -199,7 +199,7 @@ namespace StudioCore.MsbEditor
                     RemoveView(_activeView);
                 }
                 ImGui.Separator();
-                if (ImGui.MenuItem("Check all params for edits (Slow!)", null, false, !ParamBank.IsLoading))
+                if (ImGui.MenuItem("Check all params for edits (Slow!)", null, false, !ParamBank.IsLoadingVParams))
                 {
                     ParamBank.refreshParamDirtyCache();
                 }
@@ -232,7 +232,7 @@ namespace StudioCore.MsbEditor
             }
             if (ImGui.BeginMenu("Game"))
             {
-                if (ImGui.MenuItem("Hot Reload Params", "F5", false, _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoading == false))
+                if (ImGui.MenuItem("Hot Reload Params", "F5", false, _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoadingParams == false))
                 {
                     ParamReloader.ReloadMemoryParamsDS3();
                 }
@@ -395,14 +395,14 @@ namespace StudioCore.MsbEditor
                 }
             }
 
-            if (InputTracker.GetKey(Key.F5) && _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoading == false)
+            if (InputTracker.GetKey(Key.F5) && _projectSettings != null && _projectSettings.GameType == GameType.DarkSoulsIII && ParamBank.IsLoadingParams == false)
             {
                 ParamReloader.ReloadMemoryParamsDS3();
             }
 
             if (ParamBank.Params == null)
             {
-                if (ParamBank.IsLoading)
+                if (ParamBank.IsLoadingParams)
                 {
                     ImGui.Text("Loading...");
                 }

@@ -24,13 +24,16 @@ namespace StudioCore.MsbEditor
         private static Dictionary<string, PARAMDEF> _paramdefs = null;
         private static Dictionary<string, HashSet<int>> _paramDirtyCache = null; //If param != vanillaparam
 
-        public static bool IsLoading { get; private set; } = false;
+        public static bool IsDefsLoaded { get; private set; } = false;
+        public static bool IsMetaLoaded { get; private set; } = false;
+        public static bool IsLoadingParams { get; private set; } = false;
+        public static bool IsLoadingVParams { get; private set; } = false;
 
         public static IReadOnlyDictionary<string, PARAM> Params
         {
             get
             {
-                if (IsLoading)
+                if (IsLoadingParams)
                 {
                     return null;
                 }
@@ -41,7 +44,7 @@ namespace StudioCore.MsbEditor
         {
             get
             {
-                if (IsLoading)
+                if (IsLoadingVParams)
                 {
                     return null;
                 }
@@ -52,7 +55,7 @@ namespace StudioCore.MsbEditor
         {
             get
             {
-                if (IsLoading)
+                if (IsLoadingParams || IsLoadingVParams)
                 {
                     return null;
                 }
@@ -94,6 +97,11 @@ namespace StudioCore.MsbEditor
                 ParamMetaData.XmlDeserialize($@"{mdir}\{fName}", pdef);
                 _paramdefs.Add(pdef.ParamType, pdef);
             }
+        }
+
+        public static void LoadParamMeta()
+        {
+
         }
 
         public static void LoadParamDefaultNames()
@@ -372,7 +380,10 @@ namespace StudioCore.MsbEditor
             _paramdefs = new Dictionary<string, PARAMDEF>();
             _params = new Dictionary<string, PARAM>();
             _vanillaParams = new Dictionary<string, PARAM>();
-            IsLoading = true;
+            IsDefsLoaded = false;
+            IsMetaLoaded = false;
+            IsLoadingParams = true;
+            IsLoadingVParams = true;
 
             Task.Run(() =>
             {
@@ -380,6 +391,8 @@ namespace StudioCore.MsbEditor
                 {
                     LoadParamdefs();
                 }
+                IsDefsLoaded = true;
+                IsMetaLoaded = true;
 
                 if (AssetLocator.Type == GameType.DemonsSouls)
                 {
@@ -406,7 +419,8 @@ namespace StudioCore.MsbEditor
                 _paramDirtyCache = new Dictionary<string, HashSet<int>>();
                 foreach (string param in _params.Keys)
                     _paramDirtyCache.Add(param, new HashSet<int>());
-                IsLoading = false;
+                IsLoadingVParams = false;
+                IsLoadingParams = false;
             });
         }
 
