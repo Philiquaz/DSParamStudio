@@ -221,11 +221,6 @@ namespace StudioCore.MsbEditor
         public void PropEditorParamRow(PARAM.Row row, PARAM.Row vrow, ref string propSearchString)
         {
             ParamMetaData meta = ParamMetaData.Get(row.Def);
-            IReadOnlyList<PARAM.Cell> cells = new List<PARAM.Cell>();
-            IReadOnlyList<PARAM.Cell> vcells = new List<PARAM.Cell>();
-            cells = row.Cells;
-            if (vrow != null)
-                vcells = vrow.Cells;
             ImGui.Columns(2);
             ImGui.Separator();
             int id = 0;
@@ -266,7 +261,10 @@ namespace StudioCore.MsbEditor
                 }
                 if (row[field] == null)
                     continue;
-                PropEditorPropCellRow(row[field], vrow==null?null:vrow[field], ref id, propSearchRx);
+                List<PARAM.Cell> matches = row.Cells.Where(cell => cell.Def.InternalName == field).ToList();
+                List<PARAM.Cell> vmatches = vrow==null ? matches : vrow.Cells.Where(cell => cell.Def.InternalName == field).ToList();
+                for (int i=0; i<matches.Count; i++)
+                    PropEditorPropCellRow(matches[i], vrow==null ? null : vmatches[i], ref id, propSearchRx);
             }
             ImGui.Columns(1);
         }
