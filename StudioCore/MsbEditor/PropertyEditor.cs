@@ -262,7 +262,7 @@ namespace StudioCore.MsbEditor
                 if (row[field] == null)
                     continue;
                 List<PARAM.Cell> matches = row.Cells.Where(cell => cell.Def.InternalName == field).ToList();
-                List<PARAM.Cell> vmatches = vrow==null ? matches : vrow.Cells.Where(cell => cell.Def.InternalName == field).ToList();
+                List<PARAM.Cell> vmatches = vrow==null ? null : vrow.Cells.Where(cell => cell.Def.InternalName == field).ToList();
                 for (int i=0; i<matches.Count; i++)
                     PropEditorPropCellRow(matches[i], vrow==null ? null : vmatches[i], ref id, propSearchRx);
             }

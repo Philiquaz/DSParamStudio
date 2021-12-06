@@ -419,7 +419,7 @@ namespace StudioCore.MsbEditor
                     if (initcmd.Length > 2 && ParamBank.Params.ContainsKey(initcmd[2]))
                     {
                         doFocus = initcmd[0] == "select";
-                        if (_activeView._selection.getActiveRow() != null)
+                        if (_activeView._selection.getActiveRow() != null && !ParamBank.IsLoadingVParams)
                             ParamBank.refreshParamRowDirtyCache(_activeView._selection.getActiveRow(), ParamBank.VanillaParams[_activeView._selection.getActiveParam()], ParamBank.DirtyParamCache[_activeView._selection.getActiveParam()]);
 
                         ParamEditorView viewToMofidy = _activeView;
@@ -450,7 +450,7 @@ namespace StudioCore.MsbEditor
                                 }
                             }
                         }
-                        if (_activeView._selection.getActiveRow() != null)
+                        if (_activeView._selection.getActiveRow() != null && !ParamBank.IsLoadingVParams)
                             ParamBank.refreshParamRowDirtyCache(_activeView._selection.getActiveRow(), ParamBank.VanillaParams[_activeView._selection.getActiveParam()], ParamBank.DirtyParamCache[_activeView._selection.getActiveParam()]);
 
                     }
@@ -834,7 +834,6 @@ namespace StudioCore.MsbEditor
             else
             {
                 PARAM para = ParamBank.Params[activeParam];
-                PARAM vpara = ParamBank.VanillaParams[activeParam];
                 HashSet<int> dirtyCache = ParamBank.DirtyParamCache[activeParam];
                 ImGui.Text("id VALUE | name ROW | prop FIELD VALUE | propref FIELD ROW");
                 UIHints.AddImGuiHintButton("MassEditHint", ref UIHints.SearchBarHint);
@@ -863,7 +862,7 @@ namespace StudioCore.MsbEditor
                 scrollTo = 0;
                 foreach (var r in p)
                 {
-                    if (dirtyCache.Contains(r.ID))
+                    if (dirtyCache != null && dirtyCache.Contains(r.ID))
                         ImGui.PushStyleColor(ImGuiCol.Text, DIRTYCOLOUR);
                     else
                         ImGui.PushStyleColor(ImGuiCol.Text, CLEANCOLOUR);
@@ -915,7 +914,7 @@ namespace StudioCore.MsbEditor
             else
             {
                 ImGui.BeginChild("columns" + activeParam);
-                _propEditor.PropEditorParamRow(activeRow, ParamBank.VanillaParams[activeParam][activeRow.ID], ref _selection.getCurrentPropSearchString());
+                _propEditor.PropEditorParamRow(activeRow, ParamBank.VanillaParams != null ? ParamBank.VanillaParams[activeParam][activeRow.ID] : null, ref _selection.getCurrentPropSearchString());
             }
             ImGui.EndChild();
         }

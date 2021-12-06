@@ -110,7 +110,6 @@ namespace StudioCore
 
             MsbEditor.ParamBank.LoadParams(_assetLocator);
             MsbEditor.FMGBank.LoadFMGs(_assetLocator);
-            MsbEditor.MtdBank.LoadMtds(_assetLocator);
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             var fonts = ImGui.GetIO().Fonts;
@@ -272,7 +271,6 @@ namespace StudioCore
             _assetLocator.SetFromProjectSettings(newsettings, moddir);
             MsbEditor.ParamBank.ReloadParams();
             MsbEditor.FMGBank.ReloadFMGs();
-            MsbEditor.MtdBank.ReloadMtds();
             ParamEditor.OnProjectChanged(_projectSettings);
             TextEditor.OnProjectChanged(_projectSettings);
         }

@@ -55,7 +55,7 @@ namespace StudioCore.MsbEditor
         {
             get
             {
-                if (IsLoadingParams || IsLoadingVParams)
+                if (IsLoadingParams)
                 {
                     return null;
                 }
@@ -84,32 +84,37 @@ namespace StudioCore.MsbEditor
             return null;
         }
 
-        private static void LoadParamdefs()
+        private static List<(string, PARAMDEF)> LoadParamdefs()
         {
             _paramdefs = new Dictionary<string, PARAMDEF>();
             var dir = AssetLocator.GetParamdefDir();
             var files = Directory.GetFiles(dir, "*.xml");
-            var mdir = AssetLocator.GetParammetaDir();
+            List<(string, PARAMDEF)> defPairs = new List<(string, PARAMDEF)>();
             foreach (var f in files)
             {
                 var pdef = PARAMDEF.XmlDeserialize(f);
-                var fName = f.Substring(f.LastIndexOf('\\') + 1);
-                ParamMetaData.XmlDeserialize($@"{mdir}\{fName}", pdef);
                 _paramdefs.Add(pdef.ParamType, pdef);
+                defPairs.Add((f, pdef));
             }
+            return defPairs;
         }
 
-        public static void LoadParamMeta()
+        public static void LoadParamMeta(List<(string, PARAMDEF)> defPairs)
         {
-
+            var mdir = AssetLocator.GetParammetaDir();
+            foreach ((string f, PARAMDEF pdef) in defPairs)
+            {
+                var fName = f.Substring(f.LastIndexOf('\\') + 1);
+                ParamMetaData.XmlDeserialize($@"{mdir}\{fName}", pdef);
+            }
         }
 
         public static void LoadParamDefaultNames()
         {
             var dir = AssetLocator.GetParamNamesDir();
             var files = Directory.GetFiles(dir, "*.txt");
-            while (Params == null) ; //super hack
-            Thread.Sleep(100);
+            while (IsLoadingParams); //super hack
+                Thread.Sleep(100);
             foreach (var f in files)
             {
                 int last = f.LastIndexOf('\\') + 1;
@@ -150,7 +155,7 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        private static void LoadParamsDES()
+        private static string LoadParamsDES()
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
@@ -165,7 +170,7 @@ namespace StudioCore.MsbEditor
             if (!File.Exists($@"{dir}\\param\gameparam\{paramBinderName}"))
             {
                 MessageBox.Show("Could not find DES regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
 
             // Load params
@@ -177,17 +182,26 @@ namespace StudioCore.MsbEditor
             BND3 paramBnd = BND3.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            return dir;
+        }
+        private static void LoadVParamsDES(string dir)
+        {
+            string paramBinderName = "gameparam.parambnd.dcx";
+            if (Directory.GetParent(dir).Parent.FullName.Contains("BLUS"))
+            {
+                paramBinderName = "gameparamna.parambnd.dcx";
+            }
             LoadParamFromBinder(BND3.Read($@"{dir}\param\gameparam\{paramBinderName}"), ref _vanillaParams);
         }
 
-        private static void LoadParamsDS1()
+        private static string LoadParamsDS1()
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
             if (!File.Exists($@"{dir}\\param\GameParam\GameParam.parambnd"))
             {
                 MessageBox.Show("Could not find DS1 regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
 
             // Load params
@@ -199,17 +213,21 @@ namespace StudioCore.MsbEditor
             BND3 paramBnd = BND3.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            return dir;
+        }
+        private static void LoadVParamsDS1(string dir)
+        {
             LoadParamFromBinder(BND3.Read($@"{dir}\param\GameParam\GameParam.parambnd"), ref _vanillaParams);
         }
 
-        private static void LoadParamsBBSekrio()
+        private static string LoadParamsBBSekrio()
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
             if (!File.Exists($@"{dir}\\param\gameparam\gameparam.parambnd.dcx"))
             {
                 MessageBox.Show("Could not find param file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
 
             // Load params
@@ -221,6 +239,10 @@ namespace StudioCore.MsbEditor
             BND4 paramBnd = BND4.Read(param);
 
             LoadParamFromBinder(paramBnd, ref _params);
+            return dir;
+        }
+        private static void LoadVParamsBBSekrio(string dir)
+        {
             LoadParamFromBinder(BND4.Read($@"{dir}\param\gameparam\gameparam.parambnd.dcx"), ref _vanillaParams);
         }
 
@@ -242,14 +264,14 @@ namespace StudioCore.MsbEditor
             "treasureboxparam",
         };
 
-        private static void LoadParamsDS2()
+        private static string LoadParamsDS2()
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
             if (!File.Exists($@"{dir}\enc_regulation.bnd.dcx"))
             {
                 MessageBox.Show("Could not find DS2 regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
@@ -327,6 +349,10 @@ namespace StudioCore.MsbEditor
             }
 
             LoadParamFromBinder(paramBnd, ref _params);
+            return dir;
+        }
+        private static void LoadVParamsDS2(string dir)
+        {
             BND4 vParamBnd = null;
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
@@ -340,14 +366,14 @@ namespace StudioCore.MsbEditor
             LoadParamFromBinder(vParamBnd, ref _vanillaParams);
         }
 
-        private static void LoadParamsDS3()
+        private static string LoadParamsDS3()
         {
             var dir = AssetLocator.GameRootDirectory;
             var mod = AssetLocator.GameModDirectory;
             if (!File.Exists($@"{dir}\Data0.bdt"))
             {
                 MessageBox.Show("Could not find DS3 regulation file. Functionality will be limited.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
 
             var vparam = $@"{dir}\Data0.bdt";
@@ -371,10 +397,15 @@ namespace StudioCore.MsbEditor
                 BND4 paramBnd = SFUtil.DecryptDS3Regulation(param);
                 LoadParamFromBinder(paramBnd, ref _params);
             }
+            return vparam;
+        }
+        private static void LoadVParamsDS3(string vparam)
+        {
             BND4 vParamBnd = SFUtil.DecryptDS3Regulation(vparam);
             LoadParamFromBinder(vParamBnd, ref _vanillaParams);
         }
 
+        //Some returns and repetition, but it keeps all threading and loading-flags visible inside this method
         public static void ReloadParams()
         {
             _paramdefs = new Dictionary<string, PARAMDEF>();
@@ -389,38 +420,67 @@ namespace StudioCore.MsbEditor
             {
                 if (AssetLocator.Type != GameType.Undefined)
                 {
-                    LoadParamdefs();
+                    List<(string, PARAMDEF)> defPairs = LoadParamdefs();
+                    IsDefsLoaded = true;
+                    Task.Run(() =>
+                    {
+                        LoadParamMeta(defPairs);
+                        IsMetaLoaded = true;
+                    });
                 }
-                IsDefsLoaded = true;
-                IsMetaLoaded = true;
-
+                string vparamDir = null;
                 if (AssetLocator.Type == GameType.DemonsSouls)
                 {
-                    LoadParamsDES();
+                    vparamDir = LoadParamsDES();
                 }
                 if (AssetLocator.Type == GameType.DarkSoulsPTDE)
                 {
-                    LoadParamsDS1();
+                    vparamDir = LoadParamsDS1();
                 }
                 if (AssetLocator.Type == GameType.DarkSoulsIISOTFS)
                 {
-                    LoadParamsDS2();
+                    vparamDir = LoadParamsDS2();
                 }
                 if (AssetLocator.Type == GameType.DarkSoulsIII)
                 {
-                    LoadParamsDS3();
+                    vparamDir = LoadParamsDS3();
                 }
                 if (AssetLocator.Type == GameType.Bloodborne || AssetLocator.Type == GameType.Sekiro)
                 {
-                    LoadParamsBBSekrio();
+                    vparamDir = LoadParamsBBSekrio();
                 }
-                if (_vanillaParams.Count == 0)
-                    _vanillaParams = _params; //temporary safety for other games
                 _paramDirtyCache = new Dictionary<string, HashSet<int>>();
                 foreach (string param in _params.Keys)
                     _paramDirtyCache.Add(param, new HashSet<int>());
-                IsLoadingVParams = false;
                 IsLoadingParams = false;
+
+                if (vparamDir != null)
+                {
+                    Task.Run(() => {
+                        Thread.Sleep(10000);
+                        if (AssetLocator.Type == GameType.DemonsSouls)
+                        {
+                            LoadVParamsDES(vparamDir);
+                        }
+                        if (AssetLocator.Type == GameType.DarkSoulsPTDE)
+                        {
+                            LoadVParamsDS1(vparamDir);
+                        }
+                        if (AssetLocator.Type == GameType.DarkSoulsIISOTFS)
+                        {
+                            LoadVParamsDS2(vparamDir);
+                        }
+                        if (AssetLocator.Type == GameType.DarkSoulsIII)
+                        {
+                            LoadVParamsDS3(vparamDir);
+                        }
+                        if (AssetLocator.Type == GameType.Bloodborne || AssetLocator.Type == GameType.Sekiro)
+                        {
+                            LoadVParamsBBSekrio(vparamDir);
+                        }
+                        IsLoadingVParams = false;
+                    });
+                }
             });
         }
 
