@@ -479,6 +479,7 @@ namespace StudioCore.MsbEditor
                             LoadVParamsBBSekrio(vparamDir);
                         }
                         IsLoadingVParams = false;
+                        Task.Run(() => refreshParamDirtyCache());
                     });
                 }
             });
@@ -486,11 +487,11 @@ namespace StudioCore.MsbEditor
 
         public static void refreshParamDirtyCache()
         {
-            _paramDirtyCache = new Dictionary<string, HashSet<int>>();
+            Dictionary<string, HashSet<int>> newCache = new Dictionary<string, HashSet<int>>();
             foreach (string param in _params.Keys)
             {
                 HashSet<int> cache = new HashSet<int>();
-                _paramDirtyCache.Add(param, cache);
+                newCache.Add(param, cache);
                 PARAM p = _params[param];
                 PARAM vp = _vanillaParams[param];
                 foreach (PARAM.Row row in _params[param].Rows)
@@ -498,6 +499,7 @@ namespace StudioCore.MsbEditor
                     refreshParamRowDirtyCache(row, vp, cache);
                 }
             }
+            _paramDirtyCache = newCache;
         }
         public static void refreshParamRowDirtyCache(PARAM.Row row, PARAM vanillaParam, HashSet<int> cache)
         {
