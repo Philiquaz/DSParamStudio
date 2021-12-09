@@ -297,7 +297,7 @@ namespace StudioCore.MsbEditor
                     {
                         _lastMEditRegexInput = _currentMEditRegexInput;
                         _currentMEditRegexInput = "";
-                        Task.Run(() => ParamBank.refreshParamDirtyCache());
+                        TaskManager.Run("PB:RefreshDirtyCache", false, true, () => ParamBank.refreshParamDirtyCache());
                     }
                     _mEditRegexResult = r.Information;
                 }
@@ -327,7 +327,7 @@ namespace StudioCore.MsbEditor
                     MassEditResult r = MassParamEditCSV.PerformMassEdit(_currentMEditCSVInput, EditorActionManager, _activeView._selection.getActiveParam(), _mEditCSVAppendOnly, _mEditCSVAppendOnly && _mEditCSVReplaceRows);
                     if (r.Type == MassEditResultType.SUCCESS)
                     {
-                        Task.Run(() => ParamBank.refreshParamDirtyCache());
+                        TaskManager.Run("PB:RefreshDirtyCache", false, true, () => ParamBank.refreshParamDirtyCache());
                     }
                     _mEditCSVResult = r.Information;
                 }
@@ -362,12 +362,12 @@ namespace StudioCore.MsbEditor
                 if (EditorActionManager.CanUndo() && InputTracker.GetControlShortcut(Key.Z))
                 {
                     EditorActionManager.UndoAction();
-                    Task.Run(() => ParamBank.refreshParamDirtyCache());
+                    TaskManager.Run("PB:RefreshDirtyCache", false, true, () => ParamBank.refreshParamDirtyCache());
                 }
                 if (EditorActionManager.CanRedo() && InputTracker.GetControlShortcut(Key.Y))
                 {
                     EditorActionManager.RedoAction();
-                    Task.Run(() => ParamBank.refreshParamDirtyCache());
+                    TaskManager.Run("PB:RefreshDirtyCache", false, true, () => ParamBank.refreshParamDirtyCache());
                 }
                 if (!ImGui.IsAnyItemActive() && _activeView._selection.paramSelectionExists() && InputTracker.GetControlShortcut(Key.A))
                 {

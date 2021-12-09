@@ -8,6 +8,7 @@ using System.Linq;
 using System.Globalization;
 using System.Threading;
 using System.Numerics;
+using System.Collections.Generic;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -409,6 +410,8 @@ namespace StudioCore
         {
             ImguiRenderer.Update(deltaseconds, InputTracker.FrameSnapshot);
             //ImGui.
+            List<string> tasks = TaskManager.GetLiveThreads();
+            _window.Title = tasks.Count == 0 ? "Dark Souls Param Studio " + _version : String.Join(", ", tasks);
 
             var command = EditorCommandQueue.GetNextCommand();
             string[] commandsplit = null;

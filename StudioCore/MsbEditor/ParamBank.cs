@@ -416,13 +416,13 @@ namespace StudioCore.MsbEditor
             IsLoadingParams = true;
             IsLoadingVParams = true;
 
-            Task.Run(() =>
+            TaskManager.Run("PB:LoadParams", true, false, () =>
             {
                 if (AssetLocator.Type != GameType.Undefined)
                 {
                     List<(string, PARAMDEF)> defPairs = LoadParamdefs();
                     IsDefsLoaded = true;
-                    Task.Run(() =>
+                    TaskManager.Run("PB:LoadParamMeta", true, false, () =>
                     {
                         LoadParamMeta(defPairs);
                         IsMetaLoaded = true;
@@ -456,8 +456,7 @@ namespace StudioCore.MsbEditor
 
                 if (vparamDir != null)
                 {
-                    Task.Run(() => {
-                        Thread.Sleep(10000);
+                    TaskManager.Run("PB:LoadVParams", true, false, () => {
                         if (AssetLocator.Type == GameType.DemonsSouls)
                         {
                             LoadVParamsDES(vparamDir);
@@ -479,7 +478,7 @@ namespace StudioCore.MsbEditor
                             LoadVParamsBBSekrio(vparamDir);
                         }
                         IsLoadingVParams = false;
-                        Task.Run(() => refreshParamDirtyCache());
+                        TaskManager.Run("PB:RefreshDirtyCache", false, true, () => refreshParamDirtyCache());
                     });
                 }
             });
@@ -487,6 +486,8 @@ namespace StudioCore.MsbEditor
 
         public static void refreshParamDirtyCache()
         {
+            if (IsLoadingParams || IsLoadingVParams)
+                return;
             Dictionary<string, HashSet<int>> newCache = new Dictionary<string, HashSet<int>>();
             foreach (string param in _params.Keys)
             {
@@ -494,7 +495,7 @@ namespace StudioCore.MsbEditor
                 newCache.Add(param, cache);
                 PARAM p = _params[param];
                 PARAM vp = _vanillaParams[param];
-                foreach (PARAM.Row row in _params[param].Rows)
+                foreach (PARAM.Row row in _params[param].Rows.ToList())
                 {
                     refreshParamRowDirtyCache(row, vp, cache);
                 }
