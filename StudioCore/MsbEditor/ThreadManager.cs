@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace StudioCore.MsbEditor
 {
@@ -48,7 +50,14 @@ namespace StudioCore.MsbEditor
             }
 
             Task t = Task.Run(() => {
-                action.Invoke();
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("An error has occurred in task "+taskId+":\n"+e.Message+"\n\n"+e.StackTrace, "Unhandled Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 (bool, Task) old;
                 _liveTasks.TryRemove(taskId, out old);
                 if (old.Item1 == true)
