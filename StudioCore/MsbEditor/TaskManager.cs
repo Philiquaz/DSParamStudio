@@ -9,7 +9,7 @@ namespace StudioCore.MsbEditor
 {
     public class TaskManager
     {
-        private static ConcurrentDictionary<string, (bool, Task)> _liveTasks = new ConcurrentDictionary<string, (bool, Task)>();
+        private static volatile ConcurrentDictionary<string, (bool, Task)> _liveTasks = new ConcurrentDictionary<string, (bool, Task)>();
         private static int _anonIndex = 0;
 
         public static bool Run(string taskId, bool wait, bool canRequeue, System.Action action)
@@ -49,7 +49,7 @@ namespace StudioCore.MsbEditor
                 taskId = Thread.CurrentThread.Name+":"+_anonIndex;
             }
 
-            Task t = Task.Run(() => {
+            Task t = new Task(() => {
                 try
                 {
                     action.Invoke();
@@ -63,7 +63,10 @@ namespace StudioCore.MsbEditor
                 if (old.Item1 == true)
                     AddTask(taskId, action);
             });
-            return _liveTasks.TryAdd(taskId, (false, t));
+            bool add = _liveTasks.TryAdd(taskId, (false, t));
+            if (add)
+                t.Start();
+            return add;
         }
 
         public static void WaitAll()
