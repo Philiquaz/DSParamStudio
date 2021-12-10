@@ -292,6 +292,8 @@ namespace StudioCore.MsbEditor
 
         public static FMG.Entry LookupItemID(int id, ItemCategory cat)
         {
+            if (!IsLoaded || IsLoading)
+                return null;
             foreach (var item in GetEntriesOfCategoryAndType(cat, ItemType.Title))
             {
                 if (item.ID == id)
@@ -328,7 +330,7 @@ namespace StudioCore.MsbEditor
             IsLoaded = false;
             IsLoading = true;
 
-            Task.Run(() =>
+            TaskManager.Run("FB:Reload", true, false, () =>
             {
                 if (AssetLocator.Type == GameType.Undefined)
                 {
