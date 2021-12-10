@@ -462,11 +462,11 @@ namespace StudioCore
                         ImGui.MenuItem($@"Settings: {_projectSettings.ProjectName}");
                     }
 
-                    if (ImGui.MenuItem("New Project", "CTRL+N"))
+                    if (ImGui.MenuItem("New Project", "CTRL+N", false, TaskManager.GetLiveThreads().Count==0))
                     {
                         newProject = true;
                     }
-                    if (ImGui.MenuItem("Open Project", ""))
+                    if (ImGui.MenuItem("Open Project", "", false, TaskManager.GetLiveThreads().Count==0))
                     {
                         var browseDlg = new System.Windows.Forms.OpenFileDialog()
                         {
@@ -487,7 +487,7 @@ namespace StudioCore
                         CFG.RecentProject recent = null;
                         foreach (var p in CFG.Current.RecentProjects)
                         {
-                            if (ImGui.MenuItem($@"{p.GameType.ToString()}:{p.Name}"))
+                            if (ImGui.MenuItem($@"{p.GameType.ToString()}:{p.Name}", null,  false, TaskManager.GetLiveThreads().Count==0))
                             {
                                 if (File.Exists(p.ProjectFile))
                                 {
