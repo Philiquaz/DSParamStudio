@@ -109,8 +109,8 @@ namespace StudioCore
             ParamEditor = new MsbEditor.ParamEditorScreen(_window, _gd);
             TextEditor = new MsbEditor.TextEditorScreen(_window, _gd);
 
-            MsbEditor.ParamBank.LoadParams(_assetLocator);
-            MsbEditor.FMGBank.LoadFMGs(_assetLocator);
+            MsbEditor.ParamBank.SetAssetLocator(_assetLocator);
+            MsbEditor.FMGBank.SetAssetLocator(_assetLocator);
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             var fonts = ImGui.GetIO().Fonts;

@@ -523,10 +523,10 @@ namespace StudioCore.MsbEditor
             cache.Remove(row.ID);
         }
 
-        public static void LoadParams(AssetLocator l)
+        public static void SetAssetLocator(AssetLocator l)
         {
             AssetLocator = l;
-            ReloadParams();
+            //ReloadParams();
         }
 
         private static void SaveParamsDS1()

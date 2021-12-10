@@ -420,10 +420,10 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        public static void LoadFMGs(AssetLocator l)
+        public static void SetAssetLocator(AssetLocator l)
         {
             AssetLocator = l;
-            ReloadFMGs();
+            //ReloadFMGs();
         }
     }
 }
