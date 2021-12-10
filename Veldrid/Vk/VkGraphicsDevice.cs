@@ -622,7 +622,7 @@ namespace Veldrid.Vk
 
             if (debugReportFlags == VkDebugReportFlagsEXT.ErrorEXT)
             {
-                throw new VeldridException("A Vulkan validation error was encountered: " + fullMessage);
+                //throw new VeldridException("A Vulkan validation error was encountered: " + fullMessage);
             }
 
             Console.WriteLine(fullMessage);
