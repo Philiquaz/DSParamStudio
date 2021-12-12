@@ -501,7 +501,7 @@ namespace StudioCore.MsbEditor
                     {
                         int v = (int)oldval;
                         PARAM.Row r = p.Value[v];
-                        if (r != null && ImGui.Selectable($@"{p.Key}: {(r.Name != null ? r.Name : "null")}"))
+                        if (r != null && ImGui.Selectable($@"{p.Key}: {Utils.ImGuiEscape(r.Name, "null")}"))
                             EditorCommandQueue.AddCommand($@"param/select/-1/{p.Key}/{v}");
                     }
                     ImGui.EndMenu();

@@ -523,7 +523,7 @@ namespace StudioCore.MsbEditor
                     if (view == null)
                         continue;
                     string name = view._selection.getActiveRow() != null ? view._selection.getActiveRow().Name : null;
-                    string toDisplay = (view == _activeView ? "**" : "") + (name == null || name.Trim().Equals("") ? "Param Editor View" : name) + (view == _activeView ? "**" : "");
+                    string toDisplay = (view == _activeView ? "**" : "") + (name == null || name.Trim().Equals("") ? "Param Editor View" : Utils.ImGuiEscape(name, "null")) + (view == _activeView ? "**" : "");
                     ImGui.SetNextWindowSize(new Vector2(1280.0f, 720.0f), ImGuiCond.Once);
                     ImGui.SetNextWindowDockID(ImGui.GetID("DockSpace_ParamEditorViews"), ImGuiCond.Once);
                     ImGui.Begin($@"{toDisplay}###ParamEditorView##{view._viewIndex}");
@@ -874,7 +874,7 @@ namespace StudioCore.MsbEditor
                         ImGui.PushStyleColor(ImGuiCol.Text, DIRTYCOLOUR);
                     else
                         ImGui.PushStyleColor(ImGuiCol.Text, CLEANCOLOUR);
-                    if (ImGui.Selectable($@"{r.ID} {r.Name}", _selection.getSelectedRows().Contains(r)))
+                    if (ImGui.Selectable($@"{r.ID} {Utils.ImGuiEscape(r.Name, "")}", _selection.getSelectedRows().Contains(r)))
                     {
                         if (InputTracker.GetKey(Key.LControl))
                         {
