@@ -16,7 +16,6 @@ namespace StudioCore.MsbEditor
     /// </summary>
     public class ParamBank
     {
-        private static PARAM EnemyParam = null;
         private static AssetLocator AssetLocator = null;
 
         private static Dictionary<string, PARAM> _params = null;
@@ -279,10 +278,7 @@ namespace StudioCore.MsbEditor
                 //return;
             }
 
-            // Keep track of loaded params as we load loose and regulation params
-            HashSet<string> loadedParams = new HashSet<string>();
-
-            // Load params
+            // Load loose params
             List<string> scandir = new List<string>();
             if (mod != null && Directory.Exists($@"{mod}\Param"))
             {
@@ -319,7 +315,7 @@ namespace StudioCore.MsbEditor
                 }
             }
 
-            // Load params
+            // Load reg params
             var param = $@"{mod}\enc_regulation.bnd.dcx";
             BND4 paramBnd;
             if (!File.Exists(param))
@@ -341,18 +337,39 @@ namespace StudioCore.MsbEditor
             {
                 paramBnd = BND4.Read(param);
             }
-            EnemyParam = GetParam(paramBnd, "EnemyParam.param");
-            if (EnemyParam != null)
-            {
-                PARAMDEF def = AssetLocator.GetParamdefForParam(EnemyParam.ParamType);
-                EnemyParam.ApplyParamdef(def);
-            }
-
             LoadParamFromBinder(paramBnd, ref _params);
             return dir;
         }
         private static void LoadVParamsDS2(string dir)
         {
+            // Load loose params
+            var paramfiles = Directory.GetFileSystemEntries($@"{dir}\Param", @"*.param");
+            foreach (var p in paramfiles)
+            {
+                bool blacklisted = false;
+                var name = Path.GetFileNameWithoutExtension(p);
+                foreach (var bl in _ds2ParamBlacklist)
+                {
+                    if (name.StartsWith(bl))
+                    {
+                        blacklisted = true;
+                    }
+                }
+                if (blacklisted)
+                {
+                    continue;
+                }
+
+                var lp = PARAM.Read(p);
+                var fname = lp.ParamType;
+                PARAMDEF def = AssetLocator.GetParamdefForParam(fname);
+                lp.ApplyParamdef(def);
+                if (!_vanillaParams.ContainsKey(name))
+                {
+                    _vanillaParams.Add(name, lp);
+                }
+            }
+            // Load reg params
             BND4 vParamBnd = null;
             if (!BND4.Is($@"{dir}\enc_regulation.bnd.dcx"))
             {
@@ -494,6 +511,11 @@ namespace StudioCore.MsbEditor
                 HashSet<int> cache = new HashSet<int>();
                 newCache.Add(param, cache);
                 PARAM p = _params[param];
+                if (!_vanillaParams.ContainsKey(param))
+                {
+                    Console.WriteLine("Missing vanilla param "+param);
+                    continue;
+                }
                 PARAM vp = _vanillaParams[param];
                 foreach (PARAM.Row row in _params[param].Rows.ToList())
                 {
@@ -792,18 +814,6 @@ namespace StudioCore.MsbEditor
             {
                 SaveParamsBBSekiro();
             }
-        }
-
-        public static string GetChrIDForEnemy(long enemyID)
-        {
-            if (EnemyParam != null)
-            {
-                if (EnemyParam[(int)enemyID] != null)
-                {
-                    return $@"{EnemyParam[(int)enemyID]["Chr ID"].Value:D4}";
-                }
-            }
-            return null;
         }
     }
 }
