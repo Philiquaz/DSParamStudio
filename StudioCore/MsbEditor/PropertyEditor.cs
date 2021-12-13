@@ -387,6 +387,7 @@ namespace StudioCore.MsbEditor
             // Add named row and context menu
             // Lists located params
             ImGui.NewLine();
+            int originalValue = (int) oldval; //make sure to explicitly cast from dynamic or C# complains. Object or Convert.ToInt32 fail.
             bool entryFound = false;
             foreach (string rt in reftypes)
             {
@@ -395,22 +396,22 @@ namespace StudioCore.MsbEditor
                 {
                     PARAM param = ParamBank.Params[rt];
                     ParamMetaData meta = ParamMetaData.Get(ParamBank.Params[rt].AppliedParamdef);
-                    if (meta != null && meta.Row0Dummy && (int) oldval == 0)
+                    if (meta != null && meta.Row0Dummy && originalValue == 0)
                         continue;
-                    PARAM.Row r = param[(int) oldval];
+                    PARAM.Row r = param[originalValue];
                     ImGui.SameLine();
-                    if (r == null && (int) oldval > 0 && meta != null)
+                    if (r == null && originalValue > 0 && meta != null)
                     {
-                        int altval = oldval;
+                        int altval = originalValue;
                         if (meta.FixedOffset != 0)
                         {
-                            altval = oldval + meta.FixedOffset;
+                            altval = originalValue + meta.FixedOffset;
                             hint += meta.FixedOffset>0 ? "+"+meta.FixedOffset.ToString() : meta.FixedOffset.ToString();
                         }
                         if (meta.OffsetSize > 0)
                         {
-                            altval = (int) altval - (int) altval % meta.OffsetSize;
-                            hint += "+"+((int) oldval % meta.OffsetSize).ToString();
+                            altval = altval - altval % meta.OffsetSize;
+                            hint += "+"+(originalValue % meta.OffsetSize).ToString();
                         }
                         r = ParamBank.Params[rt][altval];
                     }
