@@ -643,62 +643,6 @@ namespace StudioCore.ParamEditor
             return false;
         }
 
-        private int _fmgID = 0;
-        public void PropEditorFMGBegin()
-        {
-            _fmgID = 0;
-            ImGui.Columns(2);
-            ImGui.Separator();
-        }
-
-        public void PropEditorFMG(FMG.Entry entry, string name, float boxsize)
-        {
-            ImGui.PushID(_fmgID);
-            ImGui.AlignTextToFramePadding();
-            ImGui.Text(name);
-            ImGui.NextColumn();
-            ImGui.SetNextItemWidth(-1);
-            // ImGui.AlignTextToFramePadding();
-            var typ = typeof(string);
-            var oldval = entry.Text;
-            bool changed = false;
-            object newval = null;
-
-            string val = (string)oldval;
-            if (val == null)
-            {
-                val = "";
-            }
-            if (boxsize > 0.0f)
-            {
-                if (ImGui.InputTextMultiline("##value", ref val, 2000, new Vector2(-1, boxsize)))
-                {
-                    newval = val;
-                    changed = true;
-                }
-            }
-            else
-            {
-                if (ImGui.InputText("##value", ref val, 2000))
-                {
-                    newval = val;
-                    changed = true;
-                }
-            }
-
-            bool committed = ImGui.IsItemDeactivatedAfterEdit();
-            UpdateProperty(entry.GetType().GetProperty("Text"), entry, newval, changed, committed);
-
-            ImGui.NextColumn();
-            ImGui.PopID();
-            _fmgID++;
-        }
-
-        public void PropEditorFMGEnd()
-        {
-            ImGui.Columns(1);
-        }
-
         public void OnGui(PARAM.Row selection, PARAM.Row vselection, string id, float w, float h)
         {
             ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.145f, 0.145f, 0.149f, 1.0f));
