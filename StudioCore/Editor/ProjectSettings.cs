@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.Editor
 {
     /// <summary>
     /// Settings for a modding project. Gets serialized to JSON

@@ -7,7 +7,7 @@ using ImGuiNET;
 using SoulsFormats;
 using System.Xml;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     public class ParamMetaData
     {

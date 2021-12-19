@@ -10,8 +10,11 @@ using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using ImGuiNET;
 using SoulsFormats;
+using StudioCore;
+using StudioCore.TextEditor;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     /// <summary>
     /// Interface for decorating param rows with additional information (such as english

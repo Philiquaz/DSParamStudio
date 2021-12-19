@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.Editor
 {
     [Flags]
     public enum ActionEvent
@@ -31,8 +31,8 @@ namespace StudioCore.MsbEditor
     {
         private List<IActionEventHandler> _eventHandlers = new List<IActionEventHandler>();
 
-        private Stack<Action> UndoStack = new Stack<Action>();
-        private Stack<Action> RedoStack = new Stack<Action>();
+        private Stack<EditorAction> UndoStack = new Stack<EditorAction>();
+        private Stack<EditorAction> RedoStack = new Stack<EditorAction>();
 
         public void AddEventHandler(IActionEventHandler handler)
         {
@@ -51,7 +51,7 @@ namespace StudioCore.MsbEditor
             }
         }
 
-        public void ExecuteAction(Action a)
+        public void ExecuteAction(EditorAction a)
         {
             NotifyHandlers(a.Execute());
             UndoStack.Push(a);
@@ -60,13 +60,13 @@ namespace StudioCore.MsbEditor
 
         public void PushSubManager(ActionManager child)
         {
-            List<Action> childList = child.UndoStack.ToList();
+            List<EditorAction> childList = child.UndoStack.ToList();
             childList.Reverse();
             UndoStack.Push(new CompoundAction(childList));
             RedoStack.Clear();
         }
 
-        public Action PeekUndoAction()
+        public EditorAction PeekUndoAction()
         {
             if (UndoStack.Count() == 0)
             {

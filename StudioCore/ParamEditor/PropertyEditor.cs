@@ -10,8 +10,10 @@ using ImGuiNET;
 using System.Net.Http.Headers;
 using System.Security;
 using System.Text.RegularExpressions;
+using StudioCore;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     public class PropertyEditor
     {

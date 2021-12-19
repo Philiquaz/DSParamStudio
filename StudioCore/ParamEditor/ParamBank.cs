@@ -8,8 +8,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     /// <summary>
     /// Utilities for dealing with global params for a game

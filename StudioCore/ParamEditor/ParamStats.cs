@@ -5,7 +5,7 @@ using System.Numerics;
 using ImGuiNET;
 using SoulsFormats;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     public class ParamStats
     {

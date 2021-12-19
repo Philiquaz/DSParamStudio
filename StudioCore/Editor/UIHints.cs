@@ -4,7 +4,7 @@ using System.Text;
 using System.Numerics;
 using ImGuiNET;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.Editor
 {
     public class UIHints
     {
@@ -58,7 +58,7 @@ propref originEquipWep0 Dagger";
             ImGui.TextColored(new Vector4(0.3f, 0.3f, 1.0f, 1.0f), "(?)");
             if (ImGui.BeginPopupContextItem(id))
             {
-                if (ParamEditorScreen.EditorMode)
+                if (ParamEditor.ParamEditorScreen.EditorMode) //remove this, editor mode should be called earlier
                 {
                     ImGui.InputTextMultiline("", ref hint, 8196, new Vector2(720, 480));
                     if (ImGui.IsItemDeactivatedAfterEdit())

@@ -1,5 +1,4 @@
 ﻿using ImGuiNET;
-using StudioCore.MsbEditor;
 using StudioCore.Scene;
 using System;
 using System.Diagnostics;
@@ -13,6 +12,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using System.Runtime.InteropServices;
+using StudioCore.Editor;
 
 namespace StudioCore
 {
@@ -42,16 +42,16 @@ namespace StudioCore
         private ImGuiRenderer ImguiRenderer;
 
         private bool _paramEditorFocused = false;
-        private MsbEditor.ParamEditorScreen ParamEditor;
+        private ParamEditor.ParamEditorScreen _paramEditor;
         private bool _textEditorFocused = false;
-        private MsbEditor.TextEditorScreen TextEditor;
+        private TextEditor.TextEditorScreen _textEditor;
 
         public static RenderDoc RenderDocManager;
 
         private AssetLocator _assetLocator;
-        private MsbEditor.ProjectSettings _projectSettings = null;
+        private ProjectSettings _projectSettings = null;
 
-        private MsbEditor.ProjectSettings _newProjectSettings;
+        private ProjectSettings _newProjectSettings;
         private string _newProjectDirectory = "";
         private bool _newProjectLoadDefaultNames = false;
 
@@ -106,11 +106,11 @@ namespace StudioCore
             MainWindowCommandList = factory.CreateCommandList();
 
             _assetLocator = new AssetLocator();
-            ParamEditor = new MsbEditor.ParamEditorScreen(_window, _gd);
-            TextEditor = new MsbEditor.TextEditorScreen(_window, _gd);
+            _paramEditor = new ParamEditor.ParamEditorScreen(_window, _gd);
+            _textEditor = new TextEditor.TextEditorScreen(_window, _gd);
 
-            MsbEditor.ParamBank.SetAssetLocator(_assetLocator);
-            MsbEditor.FMGBank.SetAssetLocator(_assetLocator);
+            ParamEditor.ParamBank.SetAssetLocator(_assetLocator);
+            TextEditor.FMGBank.SetAssetLocator(_assetLocator);
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             var fonts = ImGui.GetIO().Fonts;
@@ -167,7 +167,7 @@ namespace StudioCore
             {
                 if (File.Exists(CFG.Current.LastProjectFile))
                 {
-                    var project = MsbEditor.ProjectSettings.Deserialize(CFG.Current.LastProjectFile);
+                    var project = ProjectSettings.Deserialize(CFG.Current.LastProjectFile);
                     AttemptLoadProject(project, CFG.Current.LastProjectFile, false);
                 }
             }
@@ -184,27 +184,27 @@ namespace StudioCore
             Utils.setRegistry("executable", self);
             string reg = Utils.readRegistry("showAltNamesPreference");
             if (reg != null)
-                ParamEditorScreen.ShowAltNamesPreference = reg == "true";
+                ParamEditor.ParamEditorScreen.ShowAltNamesPreference = reg == "true";
             reg = Utils.readRegistry("alwaysShowOriginalNamePreference");
             if (reg != null)
-                ParamEditorScreen.AlwaysShowOriginalNamePreference = reg == "true";
+                ParamEditor.ParamEditorScreen.AlwaysShowOriginalNamePreference = reg == "true";
             reg = Utils.readRegistry("hideReferenceRowsPreference");
             if (reg != null)
-                ParamEditorScreen.HideReferenceRowsPreference = reg == "true";
+                ParamEditor.ParamEditorScreen.HideReferenceRowsPreference = reg == "true";
             reg = Utils.readRegistry("hideEnumsPreference");
             if (reg != null)
-                ParamEditorScreen.HideEnumsPreference = reg == "true";
+                ParamEditor.ParamEditorScreen.HideEnumsPreference = reg == "true";
             reg = Utils.readRegistry("allFieldReorderPreference");
             if (reg != null)
-                ParamEditorScreen.AllowFieldReorderPreference = reg == "true";
+                ParamEditor.ParamEditorScreen.AllowFieldReorderPreference = reg == "true";
         }
         public void SaveParamStudioConfig()
         {
-            Utils.setRegistry("showAltNamesPreference", ParamEditorScreen.ShowAltNamesPreference ? "true" : "false");
-            Utils.setRegistry("alwaysShowOriginalNamePreference", ParamEditorScreen.AlwaysShowOriginalNamePreference ? "true" : "false");
-            Utils.setRegistry("hideReferenceRowsPreference", ParamEditorScreen.HideReferenceRowsPreference ? "true" : "false");
-            Utils.setRegistry("hideEnumsPreference", ParamEditorScreen.HideEnumsPreference ? "true" : "false");
-            Utils.setRegistry("allFieldReorderPreference", ParamEditorScreen.AllowFieldReorderPreference ? "true" : "false");
+            Utils.setRegistry("showAltNamesPreference", ParamEditor.ParamEditorScreen.ShowAltNamesPreference ? "true" : "false");
+            Utils.setRegistry("alwaysShowOriginalNamePreference", ParamEditor.ParamEditorScreen.AlwaysShowOriginalNamePreference ? "true" : "false");
+            Utils.setRegistry("hideReferenceRowsPreference", ParamEditor.ParamEditorScreen.HideReferenceRowsPreference ? "true" : "false");
+            Utils.setRegistry("hideEnumsPreference", ParamEditor.ParamEditorScreen.HideEnumsPreference ? "true" : "false");
+            Utils.setRegistry("allFieldReorderPreference", ParamEditor.ParamEditorScreen.AllowFieldReorderPreference ? "true" : "false");
         }
 
         public void Run()
@@ -266,14 +266,14 @@ namespace StudioCore
             System.Windows.Forms.Application.Exit();
         }
 
-        private void ChangeProjectSettings(MsbEditor.ProjectSettings newsettings, string moddir)
+        private void ChangeProjectSettings(ProjectSettings newsettings, string moddir)
         {
             _projectSettings = newsettings;
             _assetLocator.SetFromProjectSettings(newsettings, moddir);
-            MsbEditor.ParamBank.ReloadParams();
-            MsbEditor.FMGBank.ReloadFMGs();
-            ParamEditor.OnProjectChanged(_projectSettings);
-            TextEditor.OnProjectChanged(_projectSettings);
+            ParamEditor.ParamBank.ReloadParams();
+            TextEditor.FMGBank.ReloadFMGs();
+            _paramEditor.OnProjectChanged(_projectSettings);
+            _textEditor.OnProjectChanged(_projectSettings);
         }
 
         public void ApplyStyle()
@@ -478,7 +478,7 @@ namespace StudioCore
 
                         if (browseDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         {
-                            var settings = MsbEditor.ProjectSettings.Deserialize(browseDlg.FileName);
+                            var settings = ProjectSettings.Deserialize(browseDlg.FileName);
                             AttemptLoadProject(settings, browseDlg.FileName);
                         }
                     }
@@ -491,7 +491,7 @@ namespace StudioCore
                             {
                                 if (File.Exists(p.ProjectFile))
                                 {
-                                    var settings = MsbEditor.ProjectSettings.Deserialize(p.ProjectFile);
+                                    var settings = ProjectSettings.Deserialize(p.ProjectFile);
                                     if (AttemptLoadProject(settings, p.ProjectFile, false))
                                     {
                                         recent = p;
@@ -509,8 +509,8 @@ namespace StudioCore
                     }
                     if (ImGui.MenuItem("Save", "Ctrl-S"))
                     {
-                        ParamEditor.SaveAll();
-                        TextEditor.SaveAll();
+                        _paramEditor.SaveAll();
+                        _textEditor.SaveAll();
                         SaveParamStudioConfig();
                     }
                     ImGui.EndMenu();
@@ -521,16 +521,16 @@ namespace StudioCore
                 }
                 if (InputTracker.GetControlShortcut(Key.S))
                 {
-                    ParamEditor.SaveAll();
-                    TextEditor.SaveAll();
+                    _paramEditor.SaveAll();
+                    _textEditor.SaveAll();
                 }
                 if (_paramEditorFocused)
                 {
-                    ParamEditor.DrawEditorMenu();
+                    _paramEditor.DrawEditorMenu();
                 }
                 else if (_textEditorFocused)
                 {
-                    TextEditor.DrawEditorMenu();
+                    _textEditor.DrawEditorMenu();
                 }
                 if (ImGui.BeginMenu("Help"))
                 {
@@ -553,7 +553,7 @@ namespace StudioCore
             // New project modal
             if (newProject)
             {
-                _newProjectSettings = new MsbEditor.ProjectSettings();
+                _newProjectSettings = new ProjectSettings();
                 _newProjectDirectory = "";
                 ImGui.OpenPopup("New Project");
             }
@@ -713,7 +713,7 @@ namespace StudioCore
                         }
                         if (_newProjectLoadDefaultNames)
                         {
-                            ParamBank.LoadParamDefaultNames();
+                            ParamEditor.ParamBank.LoadParamDefaultNames();
                         }
                         ImGui.CloseCurrentPopup();
                     }
@@ -741,7 +741,7 @@ namespace StudioCore
             }
             if (ImGui.Begin("Param Editor"))
             {
-                ParamEditor.OnGUI(paramcmds);
+                _paramEditor.OnGUI(paramcmds);
                 _paramEditorFocused = true;
             }
             else
@@ -758,7 +758,7 @@ namespace StudioCore
             }
             if (ImGui.Begin("Text Editor"))
             {
-                TextEditor.OnGUI(textcmds);
+                _textEditor.OnGUI(textcmds);
                 _textEditorFocused = true;
             }
             else

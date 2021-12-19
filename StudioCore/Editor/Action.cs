@@ -8,7 +8,7 @@ using SoulsFormats;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.Editor
 {
     /// <summary>
     /// An action that can be performed by the user in the editor that represents
@@ -16,13 +16,13 @@ namespace StudioCore.MsbEditor
     /// should have enough information to apply the action AND undo the action, as
     /// these actions get pushed to a stack for undo/redo
     /// </summary>
-    public abstract class Action
+    public abstract class EditorAction
     {
         abstract public ActionEvent Execute();
         abstract public ActionEvent Undo();
     }
 
-    public class PropertiesChangedAction : Action
+    public class PropertiesChangedAction : EditorAction
     {
         private class PropertyChange
         {
@@ -137,7 +137,7 @@ namespace StudioCore.MsbEditor
         }
     }
 
-    public class AddParamsAction : Action
+    public class AddParamsAction : EditorAction
     {
         private PARAM Param;
         private string ParamString;
@@ -234,7 +234,7 @@ namespace StudioCore.MsbEditor
         }
     }
 
-    public class CloneFmgsAction : Action
+    public class CloneFmgsAction : EditorAction
     {
         private FMG Fmg;
         private string FmgString;
@@ -281,7 +281,7 @@ namespace StudioCore.MsbEditor
         }
     }
 
-    public class DeleteParamsAction : Action
+    public class DeleteParamsAction : EditorAction
     {
         private PARAM Param;
         private List<PARAM.Row> Deletables = new List<PARAM.Row>();
@@ -320,13 +320,13 @@ namespace StudioCore.MsbEditor
         }
     }
 
-    public class CompoundAction : Action
+    public class CompoundAction : EditorAction
     {
-        private List<Action> Actions;
+        private List<EditorAction> Actions;
 
         private Action<bool> PostExecutionAction = null;
 
-        public CompoundAction(List<Action> actions)
+        public CompoundAction(List<EditorAction> actions)
         {
             Actions = actions;
         }

@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using SoulsFormats;
 using System.Threading.Tasks;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.TextEditor
 {
     /// <summary>
     /// Static class that stores all the strings for a Souls game

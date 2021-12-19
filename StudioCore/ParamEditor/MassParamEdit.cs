@@ -4,8 +4,9 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 using ImGuiNET;
 using SoulsFormats;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.ParamEditor
 {
     public enum MassEditResultType
     {
@@ -230,7 +231,7 @@ namespace StudioCore.MsbEditor
             ActionManager childManager = new ActionManager();
             foreach (string command in commands)
             {
-                List<Action> partialActions = new List<Action>();
+                List<EditorAction> partialActions = new List<EditorAction>();
                 Match comm = commandRx.Match(command);
                 if (comm.Success)
                 {
@@ -492,7 +493,7 @@ namespace StudioCore.MsbEditor
                 string[] csvLines = csvString.Split('\n');
                 int changeCount = 0;
                 int addedCount = 0;
-                List<Action> actions = new List<Action>();
+                List<EditorAction> actions = new List<EditorAction>();
                 List<PARAM.Row> addedParams = new List<PARAM.Row>();
                 foreach (string csvLine in csvLines)
                 {
@@ -549,7 +550,7 @@ namespace StudioCore.MsbEditor
                     return new MassEditResult(MassEditResultType.PARSEERROR, "No Param selected");
                 string[] csvLines = csvString.Split('\n');
                 int changeCount = 0;
-                List<Action> actions = new List<Action>();
+                List<EditorAction> actions = new List<EditorAction>();
                 foreach (string csvLine in csvLines)
                 {
                     if (csvLine.Trim().Equals(""))

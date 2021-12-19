@@ -7,7 +7,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using SoulsFormats;
 
-namespace StudioCore
+namespace StudioCore.Editor
 {
     /// <summary>
     /// Generic asset description for a generic game asset
@@ -232,7 +232,7 @@ namespace StudioCore
             GameModDirectory = dir;
         }
 
-        public void SetFromProjectSettings(MsbEditor.ProjectSettings settings, string moddir)
+        public void SetFromProjectSettings(ProjectSettings settings, string moddir)
         {
             Type = settings.GameType;
             GameRootDirectory = settings.GameRoot;
@@ -359,7 +359,7 @@ namespace StudioCore
         public PARAMDEF GetParamdefForParam(string paramType)
         {
             PARAMDEF pd = PARAMDEF.XmlDeserialize($@"{GetParamdefDir()}\{paramType}.xml");
-            MsbEditor.ParamMetaData meta = MsbEditor.ParamMetaData.XmlDeserialize($@"{GetParammetaDir()}\{paramType}.xml", pd);
+            ParamEditor.ParamMetaData meta = ParamEditor.ParamMetaData.XmlDeserialize($@"{GetParammetaDir()}\{paramType}.xml", pd);
             return pd;
         }
 

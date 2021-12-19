@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections.Concurrent;
 
-namespace StudioCore
+namespace StudioCore.Editor
 {
     public static class EditorCommandQueue
     {

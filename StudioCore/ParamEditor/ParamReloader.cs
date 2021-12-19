@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
-using StudioCore.MsbEditor;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -12,7 +11,7 @@ using SoulsFormats;
 using ImGuiNET;
 using System.Text;
 
-namespace StudioCore
+namespace StudioCore.ParamEditor
 {
     class ParamReloader
     {

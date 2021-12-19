@@ -8,8 +8,9 @@ using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using ImGuiNET;
 using SoulsFormats;
+using StudioCore.Editor;
 
-namespace StudioCore.MsbEditor
+namespace StudioCore.TextEditor
 {
     class TextEditorScreen : EditorScreen
     {
