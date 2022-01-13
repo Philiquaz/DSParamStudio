@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PARAMDEF XmlVersion="1">
+<PARAMDEF XmlVersion="0">
   <ParamType>LENS_FLARE_BANK</ParamType>
-  <DataVersion>1</DataVersion>
+  <Unk06>1</Unk06>
   <BigEndian>True</BigEndian>
   <Unicode>False</Unicode>
-  <FormatVersion>102</FormatVersion>
+  <Version>102</Version>
   <Fields>
     <Field Def="s8 texId = -1">
       <DisplayName>テクスチャID</DisplayName>

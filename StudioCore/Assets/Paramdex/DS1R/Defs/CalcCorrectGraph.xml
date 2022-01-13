@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PARAMDEF XmlVersion="1">
+<PARAMDEF XmlVersion="0">
   <ParamType>CACL_CORRECT_GRAPH_ST</ParamType>
-  <DataVersion>1</DataVersion>
+  <Unk06>1</Unk06>
   <BigEndian>False</BigEndian>
   <Unicode>False</Unicode>
-  <FormatVersion>104</FormatVersion>
+  <Version>104</Version>
   <Fields>
     <Field Def="f32 stageMaxVal0">
       <DisplayName>閾値ポイント0</DisplayName>

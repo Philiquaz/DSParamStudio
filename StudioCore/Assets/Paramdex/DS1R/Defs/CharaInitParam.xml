@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PARAMDEF XmlVersion="1">
+<PARAMDEF XmlVersion="0">
   <ParamType>CHARACTER_INIT_PARAM</ParamType>
-  <DataVersion>2</DataVersion>
+  <Unk06>1</Unk06>
   <BigEndian>False</BigEndian>
   <Unicode>False</Unicode>
-  <FormatVersion>104</FormatVersion>
+  <Version>104</Version>
   <Fields>
     <Field Def="f32 baseRec_mp">
       <DisplayName>ＭＰ回復速度基本値[s]</DisplayName>
