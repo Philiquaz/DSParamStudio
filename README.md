@@ -1,3 +1,9 @@
+## Param Studio & ER
+ParamStudio was merged into Mapstudio (https://github.com/Philiquaz/DSMapStudio / https://github.com/soulsmods/DSMapStudio)
+During development for ER, only Mapstudio will be updated. Later, a standalone may be made again, but not in the near future.
+Please download and raise issues there. You will find my own repo and builds, as well as the main repo.
+
+
 ## About DS Param Studio:
 DS Param Studio is a dark souls param editor for all the souls games. It is forked from DSMapStudio, such that future integration between map and params may be possible. It is currently in a concept phase, as its future independent of DSMapStudio is uncertain.
 
