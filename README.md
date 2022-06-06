@@ -1,7 +1,12 @@
 ## Param Studio & ER
 ParamStudio was merged into Mapstudio (https://github.com/Philiquaz/DSMapStudio / https://github.com/soulsmods/DSMapStudio)
+
 During development for ER, only Mapstudio will be updated. Later, a standalone may be made again, but not in the near future.
+
 Please download and raise issues there. You will find my own repo and builds, as well as the main repo.
+
+
+
 
 
 ## About DS Param Studio:
